@@ -688,6 +688,14 @@
             }
         }
 
+        function showGameInline(game) {
+    if(game === 'blackjack') {
+        document.getElementById('inlineBlackjackGame').classList.remove('hidden');
+        // Scrollear hacia el juego
+        document.getElementById('inlineBlackjackGame').scrollIntoView({behavior: 'smooth'});
+    }
+}
+
         // === BLACKJACK ENGINE ===
         let bjDeck=[], bjPlayer=[], bjDealer=[], bjActive=false;
 
