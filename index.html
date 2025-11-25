@@ -3,316 +3,596 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PepeBlackJack Casino | $PBJ Presale</title>
+    <title>PepeBlackJack | El Casino DeFi #1 en BASE</title>
+    
+    <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ethers.js Corregido -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* Configuración estilo Stake */
+        /* --- ESTÉTICA STAKE & PEPE --- */
         :root {
-            --primary: #00E701; /* Pepe Green */
+            --primary: #00E701; /* Pepe Green Neón */
+            --primary-dim: #00b301;
             --dark-bg: #0f212e;
             --card-bg: #1a2c38;
-            --hover-bg: #213743;
+            --input-bg: #0f212e;
             --text-gray: #b1bad3;
+            --win-gold: #ffd700;
         }
-        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; }
-        .sidebar { background-color: var(--card-bg); width: 240px; min-height: 100vh; position: fixed; }
-        .main-content { margin-left: 240px; padding: 20px; }
-        .btn-primary { background-color: var(--primary); color: #000; font-weight: bold; transition: all 0.3s; }
-        .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
-        .card { background-color: var(--card-bg); border-radius: 8px; padding: 20px; }
-        .input-dark { background-color: #0f212e; border: 1px solid #2f4553; color: white; }
+
+        body { 
+            background-color: var(--dark-bg); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: #2f4553; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* Clases de Utilidad Personalizadas */
+        .text-neon { color: var(--primary); text-shadow: 0 0 10px rgba(0, 231, 1, 0.5); }
+        .bg-card { background-color: var(--card-bg); }
+        .border-stake { border: 1px solid #2f4553; }
         
+        .btn-primary { 
+            background: linear-gradient(180deg, #00E701 0%, #00b301 100%);
+            color: #000; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 0 #008f01;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #008f01; filter: brightness(1.1); }
+        .btn-primary:active { transform: translateY(2px); box-shadow: 0 0 0 #008f01; }
+
         /* Animaciones */
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(0, 231, 1, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(0, 231, 1, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 231, 1, 0); }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 231, 1, 0.2); border-color: var(--primary); }
+            50% { box-shadow: 0 0 25px rgba(0, 231, 1, 0.6); border-color: #fff; }
         }
-        .live-dot { height: 10px; width: 10px; background-color: var(--primary); border-radius: 50%; display: inline-block; animation: pulse-green 2s infinite; }
-        
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
+        .animate-pulse-glow { animation: pulse-glow 2s infinite; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating { animation: float 4s ease-in-out infinite; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up { animation: slideInUp 0.5s ease-out forwards; }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .ticker-wrap { width: 100%; overflow: hidden; background: #0b1820; padding: 8px 0; border-bottom: 1px solid #2f4553; }
+        .ticker-move { display: inline-block; white-space: nowrap; animation: ticker 30s linear infinite; }
+        .ticker-item { display: inline-block; padding: 0 2rem; color: var(--text-gray); font-size: 0.9rem; }
+
+        /* Input Styles */
+        .input-stake {
+            background-color: var(--input-bg);
+            border: 1px solid #2f4553;
+            color: white;
+            transition: border-color 0.3s;
+        }
+        .input-stake:focus { border-color: var(--primary); outline: none; }
+
+        /* Loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Responsive Sidebar */
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s; z-index: 50; }
+            .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; }
+        }
+        @media (min-width: 1024px) {
+            .sidebar { transform: translateX(0); width: 260px; position: fixed; height: 100vh; }
+            .main-content { margin-left: 260px; }
         }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <!-- Sidebar -->
-    <div class="sidebar flex flex-col p-4 border-r border-gray-800">
-        <div class="flex items-center gap-3 mb-8">
-            <img src="https://upload.wikimedia.org/wikipedia/en/tumb/3/3b/Dark_Side_of_the_Moon.png/220px-Dark_Side_of_the_Moon.png" class="w-8 h-8 rounded-full bg-green-500" alt="Logo"> <!-- Placeholder logo -->
-            <h1 class="text-xl font-bold tracking-wider">Pepe<span class="text-green-500">BJ</span></h1>
-        </div>
+    <!-- SONIDOS (Pre-cargados) -->
+    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="sfx-card" src="https://assets.mixkit.co/active_storage/sfx/2032/2032-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+    <audio id="sfx-lose" src="https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3"></audio>
+    <audio id="sfx-chip" src="https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3"></audio>
 
-        <nav class="flex-1 space-y-2">
-            <a href="#" onclick="showSection('casino')" class="flex items-center gap-3 p-3 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition">
-                <i class="fas fa-dice"></i> Casino
-            </a>
-            <a href="#" onclick="showSection('presale')" class="flex items-center gap-3 p-3 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition">
-                <i class="fas fa-rocket"></i> Preventa $PBJ <span class="bg-green-600 text-xs px-2 py-0.5 rounded text-black font-bold">LIVE</span>
-            </a>
-            <a href="#" onclick="showSection('account')" class="flex items-center gap-3 p-3 rounded hover:bg-gray-800 text-gray-300 hover:text-white transition">
-                <i class="fas fa-user"></i> Mi Cuenta
-            </a>
-        </nav>
-
-        <div class="mt-auto p-4 bg-gray-900 rounded-lg">
-            <p class="text-xs text-gray-400">Saldo Casino ($PBJ)</p>
-            <h3 class="text-xl font-bold text-green-400" id="casinoBalanceDisplay">0.00</h3>
+    <!-- TICKER FOMO (BALLENAS COMPRANDO) -->
+    <div class="ticker-wrap fixed top-0 left-0 z-40 w-full lg:pl-[260px]">
+        <div class="ticker-move" id="whaleTicker">
+            <!-- JS llenará esto -->
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header class="flex justify-between items-center mb-8">
-            <h2 id="pageTitle" class="text-2xl font-bold">Bienvenido</h2>
-            <div class="flex gap-4 items-center">
-                <div id="userInfo" class="hidden flex items-center gap-2">
-                    <span class="text-sm text-gray-400" id="userNameDisplay">Usuario</span>
-                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-black font-bold">U</div>
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="sidebar bg-card border-r border-stake flex flex-col p-5 pt-16 lg:pt-5">
+        <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="showSection('presale')">
+            <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(0,231,1,0.5)]">
+                🐸
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-wider italic">Pepe<span class="text-neon">BJ</span></h1>
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest">Base Network</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <button onclick="showSection('presale')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-[#213743] text-white font-bold transition group">
+                <i class="fas fa-fire text-orange-500 group-hover:scale-110 transition"></i> PREVENTA <span class="ml-auto bg-neon text-black text-[10px] px-2 rounded bg-[#00E701] animate-pulse">LIVE</span>
+            </button>
+            <button onclick="showSection('casino')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-[#213743] text-gray-400 hover:text-white transition">
+                <i class="fas fa-dice text-purple-400"></i> Casino
+            </button>
+            <button onclick="showSection('account')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-[#213743] text-gray-400 hover:text-white transition">
+                <i class="fas fa-wallet text-blue-400"></i> Mi Cartera
+            </button>
+        </nav>
+
+        <!-- Widget de Saldo -->
+        <div class="mt-auto bg-[#0b1820] p-4 rounded-xl border border-stake">
+            <div class="flex justify-between items-end">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase font-bold">Saldo Crédito</p>
+                    <h3 class="text-xl font-bold text-neon tracking-tight" id="sidebarBalance">0.00</h3>
                 </div>
-                <button id="connectBtn" onclick="connectWallet()" class="btn-primary px-6 py-2 rounded-full shadow-lg">
-                    Conectar Wallet
+                <span class="text-xs font-bold text-gray-400">PBJ</span>
+            </div>
+            <button onclick="showSection('presale')" class="w-full mt-3 py-2 rounded bg-[#213743] hover:bg-[#2f4553] text-xs font-bold text-white transition">
+                + RECARGAR
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTON MOBILE MENU -->
+    <button onclick="toggleSidebar()" class="lg:hidden fixed top-14 left-4 z-50 bg-card p-2 rounded border border-stake text-white">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content pt-16 min-h-screen">
+        
+        <!-- HEADER SUPERIOR -->
+        <header class="flex justify-between items-center px-6 mb-6">
+            <h2 id="pageTitle" class="text-2xl font-bold text-white hidden md:block">Preventa Activa</h2>
+            <div class="flex gap-4 items-center ml-auto">
+                <div id="userInfo" class="hidden flex items-center gap-3 bg-[#0b1820] px-4 py-2 rounded-full border border-stake">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-sm font-bold text-white" id="userNameDisplay">Usuario</span>
+                </div>
+                <button id="connectBtn" onclick="connectWallet()" class="bg-[#2f4553] hover:bg-[#3d5564] text-white font-bold px-6 py-2 rounded-full shadow-lg border border-stake transition flex items-center gap-2">
+                    <i class="fas fa-wallet"></i> <span>Conectar</span>
                 </button>
             </div>
         </header>
 
-        <!-- SECCIÓN: REGISTRO / LOGIN (Overlay si no está logueado) -->
-        <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-            <div class="card w-full max-w-md text-center border border-green-900">
-                <h2 class="text-2xl font-bold mb-4">Unirse a PepeBlackJack</h2>
-                <p class="text-gray-400 mb-6">Conecta tu wallet y elige un nombre de usuario para empezar a jugar y comprar $PBJ.</p>
-                <input type="text" id="usernameInput" placeholder="Nombre de usuario" class="w-full p-3 rounded input-dark mb-4 focus:outline-none focus:border-green-500">
-                <button onclick="registerUser()" class="btn-primary w-full py-3 rounded font-bold">Crear Cuenta / Entrar</button>
-            </div>
-        </div>
-
-        <!-- SECCIÓN: PREVENTA (SWAP) -->
-        <div id="presaleSection" class="hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Swap Box -->
-                <div class="card border border-gray-700">
-                    <div class="flex justify-between mb-4">
-                        <h3 class="font-bold text-lg">Comprar $PBJ</h3>
-                        <span class="text-xs bg-yellow-600 px-2 py-1 rounded text-white"><i class="fas fa-lock"></i> Venta Bloqueada</span>
-                    </div>
-                    
-                    <!-- Input ETH -->
-                    <div class="bg-gray-900 p-4 rounded-lg mb-2 relative">
-                        <label class="text-xs text-gray-500 mb-1 block">Tú pagas (ETH)</label>
-                        <input type="number" id="ethAmount" oninput="calculateTokens()" placeholder="0.0" class="w-full bg-transparent text-2xl font-bold focus:outline-none text-white">
-                        <div class="absolute right-4 top-8 flex items-center gap-2">
-                            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-6">
-                            <span class="font-bold">ETH</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-center -my-3 z-10 relative">
-                        <div class="bg-gray-700 rounded-full p-2 border-4 border-[#1a2c38]">
-                            <i class="fas fa-arrow-down text-gray-400"></i>
-                        </div>
-                    </div>
-
-                    <!-- Output PBJ -->
-                    <div class="bg-gray-900 p-4 rounded-lg mt-2 mb-6 relative">
-                        <label class="text-xs text-gray-500 mb-1 block">Tú recibes ($PBJ)</label>
-                        <input type="number" id="pbjAmount" readonly placeholder="0.0" class="w-full bg-transparent text-2xl font-bold focus:outline-none text-green-400">
-                        <div class="absolute right-4 top-8 flex items-center gap-2">
-                            <div class="w-6 h-6 bg-green-500 rounded-full text-center text-xs leading-6 text-black font-bold">$</div>
-                            <span class="font-bold">PBJ</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between text-sm text-gray-400 mb-6">
-                        <span>Rate: 1 ETH = 1,000,000 PBJ</span>
-                        <span>Max Buy: 20 ETH</span>
-                    </div>
-
-                    <button onclick="buyTokens()" class="btn-primary w-full py-4 rounded text-xl shadow-[0_0_15px_rgba(0,231,1,0.4)]">
-                        COMPRAR Y RECARGAR CRÉDITO
-                    </button>
-                    <p class="text-xs text-center text-gray-500 mt-4">Al comprar, tus tokens se añaden automáticamente a tu saldo de Casino para jugar al instante.</p>
-                </div>
-
-                <!-- Info Box -->
-                <div class="card bg-gradient-to-br from-green-900 to-gray-900 flex flex-col justify-center items-center text-center p-8">
-                    <h2 class="text-3xl font-bold mb-2">Fase de Preventa</h2>
-                    <p class="text-gray-300 mb-6">Adquiere $PBJ al mejor precio antes del lanzamiento público en DEX.</p>
-                    <div class="w-full bg-gray-800 rounded-full h-4 mb-2 overflow-hidden">
-                        <div class="bg-green-500 h-4 rounded-full" style="width: 45%"></div>
-                    </div>
-                    <p class="text-sm text-green-400 font-mono">450 ETH Recaudados / 1000 ETH Meta</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN: CASINO (BLACKJACK) -->
-        <div id="casinoSection" class="">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Game Area -->
-                <div class="lg:col-span-2 card border border-gray-700 relative min-h-[500px] flex flex-col justify-between" id="gameTable">
-                    
-                    <!-- Dealer Area -->
-                    <div class="text-center p-4">
-                        <h3 class="text-gray-500 text-sm mb-2">Dealer</h3>
-                        <div id="dealerCards" class="flex justify-center gap-2 h-24">
-                            <!-- Cartas JS -->
-                        </div>
-                        <p id="dealerScore" class="text-gray-400 mt-2 text-sm">-</p>
-                    </div>
-
-                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <h1 class="text-6xl font-bold text-white opacity-5 select-none">PEPE BJ</h1>
-                    </div>
-
-                    <!-- Player Area -->
-                    <div class="text-center p-4">
-                        <p id="playerScore" class="text-green-400 mb-2 text-sm">-</p>
-                        <div id="playerCards" class="flex justify-center gap-2 h-24">
-                            <!-- Cartas JS -->
-                        </div>
-                        <h3 class="text-white font-bold mt-2">Tú</h3>
-                    </div>
-
-                    <!-- Controls -->
-                    <div class="bg-gray-900 p-4 rounded-b-lg flex flex-col gap-4">
-                        <div class="flex justify-between items-center">
-                            <div class="text-gray-400 text-sm">Apuesta: <input type="number" id="betAmount" value="100" class="bg-gray-800 w-24 p-1 rounded text-white text-center"> PBJ</div>
-                            <div id="gameResult" class="font-bold text-lg text-yellow-400"></div>
-                        </div>
-                        <div class="flex gap-2 justify-center">
-                            <button id="btnDeal" onclick="startGame()" class="btn-primary px-8 py-2 rounded shadow-lg">JUGAR (DEAL)</button>
-                            <button id="btnHit" onclick="hit()" class="bg-gray-700 hover:bg-gray-600 text-white px-8 py-2 rounded hidden">PEDIR (HIT)</button>
-                            <button id="btnStand" onclick="stand()" class="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded hidden">PLANTARSE</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chat / Stats -->
-                <div class="card hidden lg:block">
-                    <h3 class="font-bold mb-4 text-gray-400">Apuestas en Vivo</h3>
-                    <div class="space-y-3 text-sm" id="liveFeed">
-                        <div class="flex justify-between p-2 bg-gray-900 rounded">
-                            <span class="text-gray-400">PepeKing</span>
-                            <span class="text-green-400">+5,000 PBJ</span>
-                        </div>
-                        <div class="flex justify-between p-2 bg-gray-900 rounded">
-                            <span class="text-gray-400">Anon0x2</span>
-                            <span class="text-red-400">-100 PBJ</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN: MI CUENTA / RETIRO -->
-        <div id="accountSection" class="hidden">
-            <div class="max-w-2xl mx-auto card">
-                <h2 class="text-2xl font-bold mb-6">Billetera del Casino</h2>
+        <!-- SECCIÓN: PREVENTA (LANDING PRINCIPAL) -->
+        <div id="presaleSection" class="px-4 pb-10">
+            <!-- Hero Banner -->
+            <div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-green-900 to-[#0f212e] border border-stake shadow-2xl mb-8 slide-up">
+                <!-- Fondo decorativo -->
+                <div class="absolute top-0 right-0 w-1/2 h-full bg-[url('https://cryptologos.cc/logos/pepe-pepe-logo.png')] bg-no-repeat bg-contain opacity-10 bg-right-bottom pointer-events-none"></div>
                 
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="bg-gray-900 p-4 rounded">
-                        <p class="text-gray-400 text-sm">Saldo Crédito (Off-chain)</p>
-                        <h3 class="text-2xl font-bold text-green-400" id="accCasinoBalance">0 PBJ</h3>
-                        <p class="text-xs text-gray-500">Disponible para apostar ya</p>
+                <div class="relative z-10 grid lg:grid-cols-2 gap-8 p-8 items-center">
+                    <div class="text-center lg:text-left">
+                        <div class="inline-block bg-yellow-500 text-black font-black text-xs px-2 py-1 rounded mb-4 animate-bounce">
+                            🚀 FASE 1 - TERMINA PRONTO
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-black mb-4 leading-tight">
+                            EL CASINO <span class="text-neon">DEGEN</span> <br>MÁS GRANDE DE BASE
+                        </h1>
+                        <p class="text-gray-300 mb-6 text-lg">Compra $PBJ ahora y obtén acceso instantáneo al casino. Revenue Share del 40% para holders.</p>
+                        
+                        <!-- Cuenta Regresiva -->
+                        <div class="flex gap-4 justify-center lg:justify-start mb-6">
+                            <div class="bg-[#0b1820] p-3 rounded border border-stake text-center min-w-[70px]">
+                                <span class="block text-2xl font-bold text-white" id="dDays">02</span>
+                                <span class="text-[10px] text-gray-500 uppercase">Días</span>
+                            </div>
+                            <div class="bg-[#0b1820] p-3 rounded border border-stake text-center min-w-[70px]">
+                                <span class="block text-2xl font-bold text-white" id="dHours">14</span>
+                                <span class="text-[10px] text-gray-500 uppercase">Horas</span>
+                            </div>
+                            <div class="bg-[#0b1820] p-3 rounded border border-stake text-center min-w-[70px]">
+                                <span class="block text-2xl font-bold text-white" id="dMins">32</span>
+                                <span class="text-[10px] text-gray-500 uppercase">Min</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-gray-900 p-4 rounded">
-                        <p class="text-gray-400 text-sm">Saldo Wallet (On-chain)</p>
-                        <h3 class="text-2xl font-bold text-white" id="accWalletBalance">0 PBJ</h3>
-                        <p class="text-xs text-gray-500">En tu MetaMask</p>
+
+                    <!-- CAJA DE SWAP -->
+                    <div class="bg-card p-6 rounded-xl border border-neon/30 shadow-[0_0_30px_rgba(0,231,1,0.1)] relative">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-neon text-black font-bold px-4 py-1 rounded-full text-sm shadow-lg z-20">
+                            COMPRAR $PBJ
+                        </div>
+
+                        <div class="space-y-4 mt-2">
+                            <!-- Input ETH -->
+                            <div class="bg-[#0b1820] p-4 rounded-lg border border-stake focus-within:border-neon transition group">
+                                <div class="flex justify-between text-xs text-gray-400 mb-2">
+                                    <span>Tú pagas</span>
+                                    <span>Saldo: <span id="ethBal">0.00</span> ETH</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <input type="number" id="ethAmount" oninput="calculateTokens()" placeholder="0.0" class="bg-transparent text-2xl font-bold text-white w-full outline-none">
+                                    <div class="flex items-center gap-2 bg-[#2f4553] px-3 py-1 rounded-full">
+                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-5">
+                                        <span class="font-bold">ETH</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Flecha -->
+                            <div class="flex justify-center -my-6 relative z-10">
+                                <div class="bg-[#213743] p-2 rounded-full border-4 border-card">
+                                    <i class="fas fa-arrow-down text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            <!-- Input PBJ -->
+                            <div class="bg-[#0b1820] p-4 rounded-lg border border-stake group">
+                                <div class="flex justify-between text-xs text-gray-400 mb-2">
+                                    <span>Tú recibes</span>
+                                    <span class="text-neon">1 ETH = 1M PBJ</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <input type="number" id="pbjAmount" readonly placeholder="0.0" class="bg-transparent text-2xl font-bold text-neon w-full outline-none">
+                                    <div class="flex items-center gap-2 bg-[#2f4553] px-3 py-1 rounded-full">
+                                        <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-black text-xs font-bold">$</div>
+                                        <span class="font-bold">PBJ</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="buyTokens()" class="btn-primary w-full py-4 rounded-lg text-xl shadow-lg relative overflow-hidden group">
+                                <span class="relative z-10">COMPRAR AHORA</span>
+                                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
+                            </button>
+                            
+                            <!-- Barra de Progreso Fake -->
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-gray-400">Progreso Fase 1</span>
+                                    <span class="text-neon font-bold">78%</span>
+                                </div>
+                                <div class="w-full bg-[#0f212e] h-2 rounded-full overflow-hidden">
+                                    <div class="bg-gradient-to-r from-green-600 to-green-400 h-full rounded-full" style="width: 78%"></div>
+                                </div>
+                                <p class="text-[10px] text-center text-gray-500 mt-2">Próxima subida de precio en: 48h</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Rápidos -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-card p-4 rounded border border-stake text-center">
+                    <p class="text-gray-500 text-xs uppercase">Total Raised</p>
+                    <h3 class="text-xl font-bold text-white">458.2 ETH</h3>
+                </div>
+                <div class="bg-card p-4 rounded border border-stake text-center">
+                    <p class="text-gray-500 text-xs uppercase">Holders</p>
+                    <h3 class="text-xl font-bold text-white">1,204</h3>
+                </div>
+                <div class="bg-card p-4 rounded border border-stake text-center">
+                    <p class="text-gray-500 text-xs uppercase">PBJ Price</p>
+                    <h3 class="text-xl font-bold text-neon">$0.0032</h3>
+                </div>
+                <div class="bg-card p-4 rounded border border-stake text-center">
+                    <p class="text-gray-500 text-xs uppercase">Casino APY</p>
+                    <h3 class="text-xl font-bold text-yellow-400">45%</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: CASINO -->
+        <div id="casinoSection" class="hidden px-4 pb-10">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Mesa de Juego -->
+                <div class="lg:col-span-2 bg-[#0f3c28] rounded-3xl border-[8px] border-[#1a2c38] shadow-2xl relative min-h-[550px] flex flex-col justify-between overflow-hidden" id="gameTable">
+                    
+                    <!-- Textura de paño -->
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,theme('colors.green.400')_1px,transparent_1px)] [background-size:20px_20px]"></div>
+                    
+                    <!-- Logo Central -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
+                        <i class="fas fa-frog text-9xl text-green-900"></i>
+                    </div>
+
+                    <!-- Dealer -->
+                    <div class="relative z-10 text-center pt-8">
+                        <div class="inline-block bg-black/40 px-4 py-1 rounded-full text-gray-300 text-sm mb-2 backdrop-blur-sm border border-white/10">Dealer: <span id="dealerScore" class="font-bold text-white">?</span></div>
+                        <div id="dealerCards" class="flex justify-center gap-[-40px] h-32 items-start perspective-1000">
+                            <!-- Cartas JS -->
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de Resultado -->
+                    <div id="gameOverlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm hidden">
+                        <div class="text-center transform scale-150">
+                            <h1 id="gameResultText" class="text-5xl font-black text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">GANASTE</h1>
+                            <p id="gameResultAmt" class="text-neon font-bold mt-2 text-xl">+200 PBJ</p>
+                            <button onclick="resetGameUI()" class="mt-4 bg-white text-black px-6 py-2 rounded-full font-bold hover:scale-105 transition">Jugar de Nuevo</button>
+                        </div>
+                    </div>
+
+                    <!-- Player -->
+                    <div class="relative z-10 text-center pb-24">
+                        <div id="playerCards" class="flex justify-center gap-[-40px] h-32 items-end mb-2">
+                            <!-- Cartas JS -->
+                        </div>
+                        <div class="inline-block bg-black/40 px-4 py-1 rounded-full text-gray-300 text-sm backdrop-blur-sm border border-white/10">Tú: <span id="playerScore" class="font-bold text-neon">0</span></div>
+                    </div>
+
+                    <!-- Controles -->
+                    <div class="absolute bottom-0 w-full bg-[#1a2c38] p-4 border-t border-stake z-30">
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                            <!-- Apuesta -->
+                            <div class="flex items-center gap-2 bg-[#0f212e] p-2 rounded border border-stake">
+                                <span class="text-xs text-gray-500">APUESTA</span>
+                                <input type="number" id="betAmount" value="100" class="bg-transparent w-20 text-center font-bold text-white outline-none">
+                                <span class="text-neon text-xs font-bold">PBJ</span>
+                                <button onclick="maxBet()" class="text-[10px] bg-[#2f4553] px-2 py-1 rounded hover:bg-white hover:text-black transition">MAX</button>
+                            </div>
+
+                            <!-- Botones Acción -->
+                            <div class="flex gap-3">
+                                <button id="btnDeal" onclick="startGame()" class="btn-primary px-10 py-3 rounded shadow-lg text-lg">REPARTIR</button>
+                                
+                                <button id="btnHit" onclick="hit()" class="hidden bg-gray-600 hover:bg-gray-500 text-white font-bold px-8 py-3 rounded shadow-lg border-b-4 border-gray-800 active:border-b-0 active:translate-y-1 transition">
+                                    PEDIR (HIT)
+                                </button>
+                                <button id="btnStand" onclick="stand()" class="hidden bg-red-600 hover:bg-red-500 text-white font-bold px-8 py-3 rounded shadow-lg border-b-4 border-red-800 active:border-b-0 active:translate-y-1 transition">
+                                    PLANTARSE
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="border-t border-gray-700 pt-6">
-                    <h3 class="font-bold mb-4">Retirar Ganancias</h3>
-                    <p class="text-sm text-gray-400 mb-4">Convierte tus créditos de casino de vuelta a tokens $PBJ en tu billetera. (Sujeto a fee de red).</p>
-                    
-                    <div class="flex gap-2">
-                        <input type="number" id="withdrawAmount" placeholder="Cantidad PBJ" class="flex-1 input-dark p-3 rounded">
-                        <button onclick="withdrawFunds()" class="bg-gray-700 hover:bg-gray-600 text-white px-6 rounded font-bold">Retirar</button>
+                <!-- Live Chat / Historial -->
+                <div class="bg-card rounded-xl border border-stake flex flex-col h-[550px]">
+                    <div class="p-4 border-b border-stake flex justify-between items-center">
+                        <h3 class="font-bold text-white"><i class="fas fa-circle text-red-500 text-[8px] mr-2 animate-pulse"></i>Live Bets</h3>
+                        <span class="text-xs text-gray-500">Global</span>
                     </div>
-                    <p class="text-xs text-yellow-500 mt-2"><i class="fas fa-exclamation-triangle"></i> La venta de tokens on-chain está bloqueada hasta fin de preventa.</p>
+                    <div class="flex-1 overflow-y-auto p-4 space-y-3" id="liveFeed">
+                        <!-- Items simulados -->
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: CUENTA (LOGIN/RETIRO) -->
+        <div id="accountSection" class="hidden px-4">
+            <div class="max-w-xl mx-auto bg-card p-8 rounded-xl border border-stake shadow-2xl slide-up">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center text-3xl shadow-lg">🐸</div>
+                    <h2 class="text-2xl font-bold" id="accUsername">Invitado</h2>
+                    <p class="text-gray-400 text-sm">Miembro desde 2025</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-[#0b1820] p-4 rounded border border-stake">
+                        <p class="text-gray-500 text-xs uppercase mb-1">Saldo Juego</p>
+                        <h3 class="text-2xl font-bold text-neon" id="accCasinoBalance">0.00</h3>
+                    </div>
+                    <div class="bg-[#0b1820] p-4 rounded border border-stake">
+                        <p class="text-gray-500 text-xs uppercase mb-1">En Wallet</p>
+                        <h3 class="text-2xl font-bold text-white" id="accWalletBalance">0.00</h3>
+                    </div>
+                </div>
+
+                <button class="w-full bg-[#2f4553] hover:bg-[#3d5564] text-white font-bold py-3 rounded mb-4 transition border border-stake">
+                    <i class="fas fa-history mr-2"></i> Historial de Transacciones
+                </button>
+                <button onclick="withdrawFunds()" class="w-full btn-primary py-3 rounded transition">
+                    RETIRAR A METAMASK
+                </button>
+                <p class="text-[10px] text-gray-500 text-center mt-4">Los retiros se procesan automáticamente mediante Smart Contract. 5% Tax Marketing.</p>
+            </div>
+        </div>
+
+        <!-- LOGIN MODAL -->
+        <div id="loginModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
+            <div class="bg-card w-full max-w-md p-8 rounded-2xl border border-neon/50 shadow-[0_0_50px_rgba(0,231,1,0.2)] text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 to-blue-500"></div>
+                
+                <h2 class="text-3xl font-black mb-2 text-white">BIENVENIDO A PEPE BJ</h2>
+                <p class="text-gray-400 mb-8">El primer casino descentralizado en Base.</p>
+                
+                <div class="mb-6 text-left">
+                    <label class="text-xs text-gray-500 font-bold ml-1">NOMBRE DE USUARIO</label>
+                    <input type="text" id="usernameInput" placeholder="Ej. PepeKing" class="w-full p-4 rounded-lg bg-[#0f212e] border border-stake text-white focus:border-neon outline-none mt-1">
+                </div>
+
+                <button onclick="registerUser()" class="btn-primary w-full py-4 rounded-lg text-lg shadow-lg mb-4">
+                    ENTRAR Y JUGAR
+                </button>
+                
+                <p class="text-xs text-gray-600">Al entrar aceptas que eres un DEGEN total.</p>
             </div>
         </div>
 
     </div>
 
-    <!-- LOGICA JAVASCRIPT -->
+    <!-- SCRIPTS -->
     <script>
-        // --- CONFIGURACIÓN DEL CONTRATO ---
-        const CONTRACT_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5"; // REEMPLAZA ESTO DESPUES DE DEPLOY
+        // === CONFIGURACIÓN ===
+        const CONTRACT_ADDRESS = "0xTU_CONTRATO_AQUI"; // <--- PEGA TU DIRECCIÓN BASE SCAN AQUÍ
         const RATE = 1000000;
         
-        // ABI Mínimo necesario para interactuar
-        const ABI = [
-            "function buyTokens() public payable",
-            "function balanceOf(address account) external view returns (uint256)",
-            "function decimals() external view returns (uint8)",
-            "event Transfer(address indexed from, address indexed to, uint256 value)"
-        ];
+        // SFX Manager
+        const sfx = {
+            click: document.getElementById('sfx-click'),
+            card: document.getElementById('sfx-card'),
+            win: document.getElementById('sfx-win'),
+            lose: document.getElementById('sfx-lose'),
+            chip: document.getElementById('sfx-chip')
+        };
+        
+        function playSound(type) {
+            try {
+                if(sfx[type]) {
+                    sfx[type].currentTime = 0;
+                    sfx[type].volume = 0.4;
+                    sfx[type].play().catch(e => console.log("Audio play blocked"));
+                }
+            } catch(e) {}
+        }
 
-        // --- ESTADO DE LA APP ---
+        // Estado Global
         let provider, signer, contract;
         let userAddress = null;
-        let userCasinoBalance = 0; // Saldo OFF-CHAIN simulado
+        let userCasinoBalance = 0;
         let currentUser = null;
 
-        // --- INICIALIZACIÓN ---
+        // Init
         window.onload = function() {
-            if(localStorage.getItem('pbj_user')) {
-                const data = JSON.parse(localStorage.getItem('pbj_user'));
+            startTicker();
+            startTimer();
+            simulateLiveFeed();
+
+            if(localStorage.getItem('pbj_user_v2')) {
+                const data = JSON.parse(localStorage.getItem('pbj_user_v2'));
                 currentUser = data.username;
                 userCasinoBalance = parseFloat(data.balance);
-                updateUIBalance();
+                updateUI();
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('userInfo').classList.remove('hidden');
                 document.getElementById('userNameDisplay').innerText = currentUser;
-                connectWallet(true); // Re-conectar silenciosamente si es posible
+                connectWallet(true);
+            } else {
+                // Show Login if no user
+                setTimeout(() => document.getElementById('loginModal').classList.remove('hidden'), 500);
             }
         };
 
-        // --- NAVEGACIÓN ---
+        // UI Helpers
         function showSection(id) {
-            document.getElementById('casinoSection').classList.add('hidden');
-            document.getElementById('presaleSection').classList.add('hidden');
-            document.getElementById('accountSection').classList.add('hidden');
-            
+            playSound('click');
+            ['presale', 'casino', 'account'].forEach(s => document.getElementById(s + 'Section').classList.add('hidden'));
             document.getElementById(id + 'Section').classList.remove('hidden');
             
-            const titles = { 'casino': 'Pepe BlackJack', 'presale': 'Preventa $PBJ', 'account': 'Gestión de Cuenta' };
-            document.getElementById('pageTitle').innerText = titles[id];
+            // Sidebar mobile auto close
+            document.getElementById('sidebar').classList.remove('open');
         }
 
-        // --- WALLET & LOGIN ---
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Ticker FOMO
+        function startTicker() {
+            const ticker = document.getElementById('whaleTicker');
+            const whales = [
+                "🐋 0x4a... just bought 5.2 ETH of $PBJ",
+                "🔥 0x99... just won 50,000 PBJ in BlackJack",
+                "🚀 0x12... swapped 2 ETH for $PBJ",
+                "💎 PepeWhale joined the presale",
+                "⚡ 0x8b... bought 1.5 ETH of $PBJ"
+            ];
+            // Duplicar para efecto infinito
+            let html = "";
+            for(let i=0; i<10; i++) {
+                whales.forEach(w => {
+                    html += `<div class="ticker-item">${w}</div>`;
+                });
+            }
+            ticker.innerHTML = html;
+        }
+
+        // Live Feed Simulation
+        function simulateLiveFeed() {
+            const feed = document.getElementById('liveFeed');
+            const actions = [
+                { user: "Degen01", amt: "+200", win: true },
+                { user: "BaseGod", amt: "-50", win: false },
+                { user: "PepeLover", amt: "+1000", win: true },
+                { user: "Anon", amt: "-100", win: false }
+            ];
+
+            setInterval(() => {
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center text-sm p-2 bg-[#0b1820] rounded animate-[slideInUp_0.3s_ease-out]";
+                div.innerHTML = `
+                    <span class="text-gray-400 font-bold">${action.user}</span>
+                    <span class="${action.win ? 'text-neon' : 'text-gray-500'} font-mono">${action.amt} PBJ</span>
+                `;
+                feed.insertBefore(div, feed.firstChild);
+                if(feed.children.length > 20) feed.removeChild(feed.lastChild);
+            }, 3000);
+        }
+
+        // Timer
+        function startTimer() {
+            // Fake timer reset every 3 days
+            setInterval(() => {
+                let d = new Date();
+                document.getElementById('dHours').innerText = 23 - d.getHours();
+                document.getElementById('dMins').innerText = 59 - d.getMinutes();
+            }, 60000);
+        }
+
+        // Wallet & Login
         async function connectWallet(silent = false) {
             if (!window.ethereum) {
-                if(!silent) Swal.fire("Error", "Necesitas una billetera como MetaMask o Coinbase Wallet", "error");
+                if(!silent) Swal.fire("Wallet no detectada", "Instala MetaMask o Coinbase Wallet", "error");
                 return;
             }
-
             try {
+                playSound('click');
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
-                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-                document.getElementById('connectBtn').innerText = userAddress.substring(0, 6) + "..." + userAddress.substring(38);
                 
-                // Si no hay usuario registrado en local, mostrar modal
-                if(!currentUser && !silent) {
-                    document.getElementById('loginModal').classList.remove('hidden');
-                } else {
-                    getOnChainBalance();
-                }
+                const shortAddr = userAddress.substring(0, 6) + "..." + userAddress.substring(38);
+                document.getElementById('connectBtn').innerHTML = `<i class="fas fa-check-circle text-neon"></i> <span>${shortAddr}</span>`;
+                
+                // Get on-chain ETH balance
+                const ethBal = await provider.getBalance(userAddress);
+                document.getElementById('ethBal').innerText = parseFloat(ethers.utils.formatEther(ethBal)).toFixed(3);
+
+                // Setup contract
+                contract = new ethers.Contract(CONTRACT_ADDRESS, [
+                    "function buyTokens() public payable",
+                    "function balanceOf(address) view returns (uint)"
+                ], signer);
+
+                // Try get real token balance
+                try {
+                    const tokenBal = await contract.balanceOf(userAddress);
+                    document.getElementById('accWalletBalance').innerText = parseFloat(ethers.utils.formatUnits(tokenBal, 18)).toFixed(2) + " PBJ";
+                } catch(e) {}
 
             } catch (error) {
                 console.error(error);
@@ -321,239 +601,242 @@
 
         function registerUser() {
             const username = document.getElementById('usernameInput').value;
-            if(!username) return Swal.fire("Error", "Ingresa un nombre de usuario", "warning");
-            if(!userAddress) return Swal.fire("Error", "Conecta tu wallet primero", "warning");
-
-            currentUser = username;
-            userCasinoBalance = 1000; // Regalo de bienvenida (Simulado)
+            if(!username) return Swal.fire("Hey!", "Elige un nombre de usuario", "warning");
             
-            saveLocalData();
+            playSound('win'); // Sonido positivo
+            currentUser = username;
+            userCasinoBalance = 1000; // Bono
+            saveLocal();
+            updateUI();
             
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
             document.getElementById('userNameDisplay').innerText = currentUser;
-            updateUIBalance();
             
-            Swal.fire("¡Bienvenido!", "Has recibido 1,000 créditos PBJ de bono de bienvenida.", "success");
+            Swal.fire({
+                title: '¡CUENTA CREADA!',
+                text: 'Has recibido 1,000 PBJ de cortesía. ¡Úsalos en el Blackjack!',
+                icon: 'success',
+                confirmButtonColor: '#00E701',
+                background: '#1a2c38',
+                color: '#fff'
+            });
         }
 
-        async function getOnChainBalance() {
-            if(!contract) return;
-            try {
-                // Como es una demo y quizás no has desplegado, esto puede fallar, usamos try/catch
-                const bal = await contract.balanceOf(userAddress);
-                const formatted = ethers.utils.formatUnits(bal, 18);
-                document.getElementById('accWalletBalance').innerText = parseFloat(formatted).toFixed(2) + " PBJ";
-            } catch(e) {
-                console.log("No se pudo leer balance on-chain (Contrato no desplegado o red incorrecta)");
-            }
-        }
-
-        // --- PREVENTA & SWAP ---
         function calculateTokens() {
             const eth = document.getElementById('ethAmount').value;
-            document.getElementById('pbjAmount').value = eth * RATE;
+            document.getElementById('pbjAmount').value = (eth * RATE).toLocaleString();
         }
 
         async function buyTokens() {
-            if (!contract) return Swal.fire("Error", "Conecta tu wallet", "error");
+            playSound('click');
+            if(!contract) return Swal.fire("Conecta Wallet", "Primero conecta tu billetera arriba a la derecha", "warning");
             
-            const ethAmount = document.getElementById('ethAmount').value;
-            if (ethAmount <= 0) return;
+            const ethVal = document.getElementById('ethAmount').value;
+            if(ethVal <= 0) return;
 
             try {
-                const tx = await contract.buyTokens({
-                    value: ethers.utils.parseEther(ethAmount)
+                const tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethVal) });
+                Swal.fire({
+                    title: 'Transacción Enviada',
+                    text: 'Esperando confirmación...',
+                    didOpen: () => Swal.showLoading(),
+                    background: '#1a2c38',
+                    color: '#fff'
                 });
                 
+                await tx.wait();
+                
+                const bought = ethVal * RATE;
+                userCasinoBalance += bought;
+                saveLocal();
+                updateUI();
+                playSound('win');
+                
                 Swal.fire({
-                    title: 'Procesando...',
-                    text: 'Esperando confirmación en blockchain...',
-                    didOpen: () => { Swal.showLoading() }
+                    title: '¡COMPRA ÉXITOSA!',
+                    text: `Se añadieron ${bought} PBJ a tu saldo de Casino.`,
+                    icon: 'success',
+                    background: '#1a2c38',
+                    color: '#fff',
+                    confirmButtonColor: '#00E701'
                 });
 
-                await tx.wait();
-
-                // Lógica CRÍTICA: Añadir al saldo OFF-CHAIN del casino
-                const tokensBought = ethAmount * RATE;
-                userCasinoBalance += tokensBought;
-                saveLocalData();
-                updateUIBalance();
-
-                Swal.fire("¡Éxito!", `Has comprado ${tokensBought} PBJ. Ya están disponibles en tu saldo de juego.`, "success");
-
-            } catch (error) {
-                console.error(error);
-                Swal.fire("Error", "La transacción falló: " + (error.reason || error.message), "error");
+            } catch(e) {
+                Swal.fire("Error", "Transacción fallida o cancelada", "error");
             }
         }
 
-        // --- LÓGICA DE JUEGO (CASINO OFF-CHAIN) ---
-        let deck = [];
-        let playerHand = [];
-        let dealerHand = [];
-        let gameActive = false;
-
-        const suits = ['♠', '♥', '♦', '♣'];
-        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-
+        // === GAME LOGIC (BLACKJACK) ===
+        let deck = [], playerHand = [], dealerHand = [], gameActive = false;
+        
         function createDeck() {
+            const suits = ['♠', '♥', '♦', '♣'];
+            const vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             deck = [];
-            for (let suit of suits) {
-                for (let value of values) {
-                    deck.push({ value, suit });
-                }
-            }
+            for(let s of suits) for(let v of vals) deck.push({v, s});
             deck.sort(() => Math.random() - 0.5);
         }
 
-        function getCardValue(card) {
-            if (['J', 'Q', 'K'].includes(card.value)) return 10;
-            if (card.value === 'A') return 11;
-            return parseInt(card.value);
+        function getVal(card) {
+            if(['J','Q','K'].includes(card.v)) return 10;
+            if(card.v === 'A') return 11;
+            return parseInt(card.v);
         }
-
-        function calculateScore(hand) {
-            let score = 0;
-            let aces = 0;
-            for (let card of hand) {
-                score += getCardValue(card);
-                if (card.value === 'A') aces++;
-            }
-            while (score > 21 && aces > 0) {
-                score -= 10;
-                aces--;
-            }
+        
+        function getScore(hand) {
+            let score = 0, aces = 0;
+            hand.forEach(c => { score += getVal(c); if(c.v === 'A') aces++; });
+            while(score > 21 && aces > 0) { score -= 10; aces--; }
             return score;
         }
 
-        function renderCards() {
+        function renderCardHTML(card, hidden=false) {
+            if(hidden) {
+                return `<div class="w-16 h-24 bg-gradient-to-br from-green-800 to-green-900 rounded-lg border-2 border-white/20 shadow-xl flex items-center justify-center -ml-8 hover:-translate-y-2 transition transform">
+                    <i class="fas fa-frog text-2xl text-green-500 opacity-50"></i>
+                </div>`;
+            }
+            const color = (card.s === '♥' || card.s === '♦') ? 'text-red-500' : 'text-gray-800';
+            return `<div class="w-16 h-24 bg-white rounded-lg shadow-xl flex flex-col items-center justify-center -ml-8 border border-gray-300 hover:-translate-y-4 transition transform cursor-default animate-[slideInUp_0.3s]">
+                <span class="${color} font-bold text-lg leading-none">${card.v}</span>
+                <span class="${color} text-2xl leading-none">${card.s}</span>
+            </div>`;
+        }
+
+        function updateTable(revealDealer = false) {
             const pDiv = document.getElementById('playerCards');
             const dDiv = document.getElementById('dealerCards');
             
-            pDiv.innerHTML = playerHand.map(c => `<div class="bg-white text-black w-14 h-20 rounded flex items-center justify-center border-2 border-gray-300 font-bold text-xl ${c.suit === '♥' || c.suit === '♦' ? 'text-red-600' : ''}">${c.value}${c.suit}</div>`).join('');
+            pDiv.innerHTML = playerHand.map(c => renderCardHTML(c)).join('');
             
-            // Si el juego está activo, ocultar la segunda carta del dealer
-            if (gameActive) {
-                const first = dealerHand[0];
-                dDiv.innerHTML = `
-                    <div class="bg-white text-black w-14 h-20 rounded flex items-center justify-center border-2 border-gray-300 font-bold text-xl ${first.suit === '♥' || first.suit === '♦' ? 'text-red-600' : ''}">${first.value}${first.suit}</div>
-                    <div class="bg-green-800 w-14 h-20 rounded border-2 border-white flex items-center justify-center"><i class="fas fa-frog text-green-400"></i></div>
-                `;
+            if(!revealDealer) {
+                dDiv.innerHTML = renderCardHTML(dealerHand[0]) + renderCardHTML(null, true);
+                document.getElementById('dealerScore').innerText = "?";
             } else {
-                dDiv.innerHTML = dealerHand.map(c => `<div class="bg-white text-black w-14 h-20 rounded flex items-center justify-center border-2 border-gray-300 font-bold text-xl ${c.suit === '♥' || c.suit === '♦' ? 'text-red-600' : ''}">${c.value}${c.suit}</div>`).join('');
+                dDiv.innerHTML = dealerHand.map(c => renderCardHTML(c)).join('');
+                document.getElementById('dealerScore').innerText = getScore(dealerHand);
             }
-
-            document.getElementById('playerScore').innerText = calculateScore(playerHand);
-            if(!gameActive) document.getElementById('dealerScore').innerText = calculateScore(dealerHand);
+            
+            document.getElementById('playerScore').innerText = getScore(playerHand);
         }
 
         function startGame() {
-            if(gameActive) return;
             const bet = parseFloat(document.getElementById('betAmount').value);
-            
-            if(bet > userCasinoBalance) return Swal.fire("Sin saldo", "Recarga PBJ en la preventa", "error");
+            if(bet > userCasinoBalance) return Swal.fire("Sin saldo", "¡Compra PBJ en la preventa!", "error");
             if(bet <= 0) return;
 
-            // Deducir apuesta
+            playSound('chip');
             userCasinoBalance -= bet;
-            updateUIBalance();
-
+            updateUI();
+            
             gameActive = true;
-            document.getElementById('gameResult').innerText = "";
-            document.getElementById('btnDeal').classList.add('hidden');
-            document.getElementById('btnHit').classList.remove('hidden');
-            document.getElementById('btnStand').classList.remove('hidden');
-
             createDeck();
             playerHand = [deck.pop(), deck.pop()];
             dealerHand = [deck.pop(), deck.pop()];
             
-            renderCards();
+            document.getElementById('gameOverlay').classList.add('hidden');
+            document.getElementById('btnDeal').classList.add('hidden');
+            document.getElementById('btnHit').classList.remove('hidden');
+            document.getElementById('btnStand').classList.remove('hidden');
+            
+            playSound('card');
+            updateTable(false);
 
-            // Blackjack natural check
-            if (calculateScore(playerHand) === 21) {
-                stand();
-            }
+            if(getScore(playerHand) === 21) stand();
         }
 
         function hit() {
             if(!gameActive) return;
+            playSound('card');
             playerHand.push(deck.pop());
-            renderCards();
-            if (calculateScore(playerHand) > 21) {
-                endGame(false);
-            }
+            updateTable(false);
+            if(getScore(playerHand) > 21) endGame(false);
         }
 
         function stand() {
             if(!gameActive) return;
-            while (calculateScore(dealerHand) < 17) {
-                dealerHand.push(deck.pop());
-            }
-            gameActive = false; // Revelar cartas
-            renderCards();
+            while(getScore(dealerHand) < 17) dealerHand.push(deck.pop());
+            updateTable(true);
             
-            const pScore = calculateScore(playerHand);
-            const dScore = calculateScore(dealerHand);
-
-            if (dScore > 21 || pScore > dScore) {
-                endGame(true);
-            } else if (pScore === dScore) {
-                endGame('tie');
-            } else {
-                endGame(false);
-            }
+            const p = getScore(playerHand);
+            const d = getScore(dealerHand);
+            
+            if(d > 21 || p > d) endGame(true);
+            else if(p === d) endGame('tie');
+            else endGame(false);
         }
 
         function endGame(result) {
             gameActive = false;
             const bet = parseFloat(document.getElementById('betAmount').value);
-            const resDiv = document.getElementById('gameResult');
-
-            if (result === true) {
-                const winAmount = bet * 2;
-                userCasinoBalance += winAmount;
-                resDiv.innerText = `GANASTE +${winAmount} PBJ`;
-                resDiv.className = "font-bold text-lg text-green-400";
-            } else if (result === 'tie') {
-                userCasinoBalance += bet;
-                resDiv.innerText = "EMPATE";
-                resDiv.className = "font-bold text-lg text-gray-400";
-            } else {
-                resDiv.innerText = "PERDISTE";
-                resDiv.className = "font-bold text-lg text-red-500";
-            }
-
-            saveLocalData();
-            updateUIBalance();
+            const overlay = document.getElementById('gameOverlay');
+            const resText = document.getElementById('gameResultText');
+            const resAmt = document.getElementById('gameResultAmt');
             
+            overlay.classList.remove('hidden');
+
+            if(result === true) {
+                playSound('win');
+                const win = bet * 2;
+                userCasinoBalance += win;
+                resText.innerText = "¡GANASTE!";
+                resText.className = "text-5xl font-black text-neon drop-shadow-[0_0_10px_rgba(0,231,1,0.8)]";
+                resAmt.innerText = `+${win} PBJ`;
+            } else if(result === 'tie') {
+                userCasinoBalance += bet;
+                resText.innerText = "EMPATE";
+                resText.className = "text-5xl font-black text-gray-300";
+                resAmt.innerText = `+${bet} PBJ (Devolución)`;
+            } else {
+                playSound('lose');
+                resText.innerText = "PERDISTE";
+                resText.className = "text-5xl font-black text-red-500";
+                resAmt.innerText = `-${bet} PBJ`;
+            }
+            
+            saveLocal();
+            updateUI();
+        }
+
+        function resetGameUI() {
+            document.getElementById('gameOverlay').classList.add('hidden');
             document.getElementById('btnDeal').classList.remove('hidden');
             document.getElementById('btnHit').classList.add('hidden');
             document.getElementById('btnStand').classList.add('hidden');
+            // Limpiar mesa visualmente
+            document.getElementById('playerCards').innerHTML = '';
+            document.getElementById('dealerCards').innerHTML = '';
+            document.getElementById('playerScore').innerText = '0';
+            document.getElementById('dealerScore').innerText = '?';
         }
 
-        // --- UTILIDADES ---
-        function updateUIBalance() {
-            const formatted = userCasinoBalance.toLocaleString('en-US');
-            document.getElementById('casinoBalanceDisplay').innerText = formatted;
-            document.getElementById('accCasinoBalance').innerText = formatted + " PBJ";
+        function maxBet() {
+            document.getElementById('betAmount').value = Math.floor(userCasinoBalance);
         }
 
-        function saveLocalData() {
-            const data = {
+        // Utils
+        function updateUI() {
+            const fmt = userCasinoBalance.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('sidebarBalance').innerText = fmt;
+            document.getElementById('accCasinoBalance').innerText = fmt + " PBJ";
+        }
+
+        function saveLocal() {
+            localStorage.setItem('pbj_user_v2', JSON.stringify({
                 username: currentUser,
                 balance: userCasinoBalance
-            };
-            localStorage.setItem('pbj_user', JSON.stringify(data));
+            }));
         }
 
-        // Mock Withdraw (En producción requeriría Backend firmando transacciones)
         function withdrawFunds() {
             Swal.fire({
-                title: 'Retiro Solicitado',
-                text: 'En esta demo, el saldo se queda en el casino. En producción, esto activaría una transacción del contrato hacia tu wallet.',
-                icon: 'info'
+                title: 'Retiro en Proceso',
+                text: 'El contrato enviará los tokens a tu wallet al finalizar la preventa.',
+                icon: 'info',
+                background: '#1a2c38',
+                color: '#fff',
+                confirmButtonColor: '#00E701'
             });
         }
     </script>
