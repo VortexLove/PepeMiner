@@ -42,11 +42,15 @@
         @media (max-width: 1023px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } }
         .main-content { margin-left: 260px; }
         @media (max-width: 1023px) { .main-content { margin-left: 0; } }
+        .loader-spin { border: 3px solid rgba(255,255,255,0.1); border-left-color: var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
     </style>
 </head>
 <body>
     <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+
+    <div class="ticker-wrap fixed top-0 z-40"><div class="ticker-move" id="whaleTicker"></div></div>
 
     <!-- SIDEBAR -->
     <div id="sidebar" class="sidebar bg-panel glass-panel flex flex-col p-6 pt-16 lg:pt-6">
@@ -59,6 +63,7 @@
             <div class="pt-6 pb-3 px-3 text-[10px] font-bold text-gray-500 uppercase">Juegos</div>
             <a href="Games/blackjack.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-heart text-red-500"></i> BlackJack</a>
             <a href="Games/plinko.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-caret-down text-pink-500"></i> Plinko</a>
+            <a href="Games/crash.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-rocket text-blue-500"></i> Crash</a>
             <div class="pt-6 pb-3 px-3 text-[10px] font-bold text-gray-500 uppercase">Cuenta</div>
             <button onclick="showSection('account')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-wallet text-blue-400"></i> Billetera</button>
         </nav>
@@ -76,9 +81,15 @@
         <header class="fixed top-0 left-0 lg:left-[260px] right-0 h-16 bg-bg-dark/80 backdrop-blur-md z-30 flex justify-between items-center px-6 border-b border-white/5">
             <h2 id="pageTitle" class="text-lg font-bold text-white hidden md:block brand-font">Inicio</h2>
             <div class="flex gap-4 items-center ml-auto">
-                <div id="userInfo" class="hidden flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-                    <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
-                    <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-1.5 rounded">VIP 1</span>
+                <div id="userInfo" class="hidden flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 relative group">
+                    <div class="text-right">
+                        <div class="flex items-center gap-2 justify-end">
+                            <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
+                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-1.5 rounded">VIP 1</span>
+                        </div>
+                        <div class="w-20 h-1 bg-white/10 rounded-full mt-1 ml-auto overflow-hidden"><div class="bg-neon h-full w-[30%]" style="background:var(--primary)"></div></div>
+                    </div>
+                    <div onclick="logout()" class="absolute top-full right-0 mt-2 w-32 bg-[#1a2c38] border border-[#2f4553] rounded shadow-xl hidden group-hover:block cursor-pointer z-50 p-2 text-xs text-red-400 hover:bg-black/30 text-center font-bold">Cerrar Sesión</div>
                 </div>
                 <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-5 py-2 rounded-lg text-sm transition flex items-center gap-2"><i class="fas fa-wallet"></i> <span>Conectar</span></button>
             </div>
@@ -92,11 +103,16 @@
                     <div>
                         <div class="inline-flex items-center gap-2 bg-white/5 text-neon px-3 py-1 rounded-full text-xs font-bold mb-6 border border-green-500/30">PREVENTA ACTIVA</div>
                         <h1 class="text-5xl font-black mb-6 leading-tight brand-font">EL CASINO <span class="text-neon">DEGEN</span></h1>
-                        <p class="text-gray-400 mb-8 text-lg">Compra $PBJ directamente con tu wallet y accede a todos los juegos.</p>
+                        <p class="text-gray-400 mb-8 text-lg">Compra $PBJ directamente con tu wallet. <br><span class="text-xs text-yellow-500">Nota: Si usas una red de prueba, envía ETH de prueba.</span></p>
+                        
                         <div class="bg-card/80 p-6 rounded-2xl border border-white/10 shadow-2xl relative">
                             <input type="number" id="ethAmount" oninput="calculateTokens()" class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-white font-bold text-xl mb-2 outline-none" placeholder="ETH Amount">
                             <input type="number" id="pbjAmount" readonly class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-neon font-bold text-xl mb-4 outline-none" placeholder="PBJ Amount">
-                            <button onclick="buyTokens()" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold">COMPRAR Y JUGAR</button>
+                            
+                            <button onclick="buyTokens()" id="btnBuy" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold flex items-center justify-center gap-2">
+                                <span>COMPRAR Y JUGAR</span>
+                                <div id="buyLoader" class="loader-spin hidden"></div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -104,55 +120,26 @@
         </div>
 
         <!-- LOBBY JUEGOS -->
-<div id="casinoSection" class="hidden max-w-7xl mx-auto mt-6">
-    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Lobby</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- Link Plinko -->
-        <a href="Games/plinko.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-            <div class="h-48 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
-                <i class="fas fa-caret-down text-7xl text-white group-hover:scale-110 transition duration-500"></i>
-                <!-- Badge -->
-                <span class="absolute top-2 right-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">HOT</span>
+        <div id="casinoSection" class="hidden max-w-7xl mx-auto mt-6">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Lobby</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Plinko -->
+                <a href="Games/plinko.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center"><i class="fas fa-caret-down text-7xl text-white group-hover:scale-110 transition"></i><span class="absolute top-2 right-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">HOT</span></div>
+                    <div class="p-5"><h3 class="text-xl font-bold text-white">PLINKO</h3><p class="text-xs text-gray-400 mt-1">x1000 Max Win</p><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">JUGAR</button></div>
+                </a>
+                <!-- Blackjack -->
+                <a href="Games/blackjack.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center"><i class="fas fa-heart text-7xl text-white group-hover:scale-110 transition"></i></div>
+                    <div class="p-5"><h3 class="text-xl font-bold text-white">BLACKJACK</h3><p class="text-xs text-gray-400 mt-1">Live Dealer AI</p><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">JUGAR</button></div>
+                </a>
+                <!-- Crash -->
+                <a href="Games/crash.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-blue-900 to-slate-900 flex items-center justify-center"><i class="fas fa-rocket text-7xl text-white group-hover:-translate-y-2 transition"></i></div>
+                    <div class="p-5"><h3 class="text-xl font-bold text-white">CRASH</h3><p class="text-xs text-gray-400 mt-1">To the Moon 🚀</p><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">DESPEGAR</button></div>
+                </a>
             </div>
-            <div class="p-5 relative">
-                <h3 class="text-xl font-bold text-white">PLINKO</h3>
-                <p class="text-xs text-gray-400 mt-1">Multiplicadores hasta 1000x</p>
-                <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-pink-500/50 group-hover:text-pink-400">JUGAR</button>
-            </div>
-        </a>
-
-        <!-- Link Blackjack -->
-        <a href="Games/blackjack.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-            <div class="h-48 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
-                <i class="fas fa-heart text-7xl text-white group-hover:scale-110 transition duration-500"></i>
-            </div>
-            <div class="p-5 relative">
-                <h3 class="text-xl font-bold text-white">BLACKJACK</h3>
-                <p class="text-xs text-gray-400 mt-1">RTP 99.5% • Live Dealer</p>
-                <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-green-500/50 group-hover:text-green-400">JUGAR</button>
-            </div>
-        </a>
-
-        <!-- Link Crash (ACTIVADO) -->
-        <a href="Games/crash.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-            <div class="h-48 bg-gradient-to-br from-blue-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-                <i class="fas fa-rocket text-7xl text-white group-hover:-translate-y-2 group-hover:scale-110 transition duration-500"></i>
-                <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
-            </div>
-            <div class="p-5 relative">
-                <h3 class="text-xl font-bold text-white">CRASH</h3>
-                <p class="text-xs text-gray-400 mt-1">To the Moon! 🚀</p>
-                <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-blue-500/50 group-hover:text-blue-400">DESPEGAR</button>
-            </div>
-        </a>
-
-    </div>
-</div>
+        </div>
 
         <!-- CUENTA -->
         <div id="accountSection" class="hidden max-w-lg mx-auto mt-10">
@@ -192,7 +179,15 @@
     </div>
     <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-card p-4 rounded-full border border-white/10 shadow-lg hover:border-green-500/50 transition z-30"><i class="fas fa-comments text-xl text-gray-400"></i></button>
 
+    <!-- FOOTER -->
+    <footer class="mt-20 border-t border-white/5 pt-12 pb-8 text-gray-500 text-sm">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-[10px] opacity-50">&copy; 2025 PepeBlackJack. Powered by Base Network.</p>
+        </div>
+    </footer>
+
     <script>
+        // REEMPLAZA ESTO CON TU CONTRATO REAL
         const CONTRACT_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5"; 
         const RATE = 1000000;
         let balance=0, user=null, provider, signer, contract;
@@ -201,72 +196,179 @@
             initTicker(); initLiveFeed(); initFakeChat();
             const u = localStorage.getItem('pbj_username');
             if(u) {
-                fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u}) })
-                .then(r=>r.json()).then(d => { user=d.username; balance=d.balance; updateUI(); 
-                    document.getElementById('loginModal').classList.add('hidden');
-                    document.getElementById('userInfo').classList.remove('hidden');
-                    document.getElementById('userNameDisplay').innerText=user;
-                    if(window.ethereum) actualConnect('metamask', true);
-                });
-            } else { document.getElementById('loginModal').classList.remove('hidden'); }
+                // Intentar login en servidor
+                loginUser(u);
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
         };
 
-        // UI Navigation
+        // --- LOGICA DE USUARIO ---
+        async function loginUser(usernameInput) {
+            try {
+                // Llamar al Backend Real
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usernameInput })
+                });
+                
+                if(!res.ok) throw new Error("Error conectando al servidor");
+                
+                const data = await res.json();
+                user = data.username;
+                balance = data.balance;
+                
+                localStorage.setItem('pbj_username', user);
+                updateUI();
+                
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('userNameDisplay').innerText = user;
+                
+                // Auto-conectar wallet si existe
+                if(window.ethereum) actualConnect('metamask', true);
+                
+            } catch (e) {
+                console.error(e);
+                // Si falla el servidor, mostrar alerta pero permitir ver la web (opcional)
+                Swal.fire("Error de Conexión", "No se pudo conectar con el servidor de juegos. Revisa tu conexión.", "error");
+            }
+        }
+
+        function register() {
+            const n = document.getElementById('usernameInput').value;
+            if(n) loginUser(n);
+        }
+
+        function logout() {
+            localStorage.removeItem('pbj_username');
+            location.reload();
+        }
+
+        // --- PREVENTA BLINDADA ---
+        function calculateTokens() { document.getElementById('pbjAmount').value = (document.getElementById('ethAmount').value * RATE).toLocaleString(); }
+
+        async function buyTokens() {
+            if(!signer) return Swal.fire("Wallet", "Conecta tu wallet primero", "warning");
+            
+            const ethAmount = document.getElementById('ethAmount').value;
+            if(ethAmount <= 0) return;
+
+            const btnText = document.querySelector('#btnBuy span');
+            const loader = document.getElementById('buyLoader');
+            
+            btnText.innerText = "CONFIRMA EN METAMASK...";
+            loader.classList.remove('hidden');
+
+            try {
+                console.log("Iniciando transacción...");
+                
+                let tx;
+                // Intento 1: Contrato
+                try {
+                    tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount) });
+                } catch(err) {
+                    console.warn("Contrato falló, usando envío directo:", err);
+                    // Intento 2: Envío directo (Fallback)
+                    tx = await signer.sendTransaction({
+                        to: CONTRACT_ADDRESS, 
+                        value: ethers.utils.parseEther(ethAmount)
+                    });
+                }
+
+                btnText.innerText = "ESPERANDO CONFIRMACIÓN...";
+                console.log("Tx enviada:", tx.hash);
+                
+                await tx.wait();
+                console.log("Tx confirmada en Blockchain");
+
+                // CRÍTICO: Actualizar Servidor
+                btnText.innerText = "SINCRONIZANDO SALDO...";
+                
+                const tokens = ethAmount * RATE;
+                const res = await fetch('/api/update', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: user, amount: tokens })
+                });
+
+                if(!res.ok) throw new Error("La blockchain confirmó, pero el servidor falló al sumar puntos.");
+
+                const data = await res.json();
+                balance = data.newBalance;
+                updateUI();
+
+                Swal.fire({
+                    title: "¡Compra Exitosa!",
+                    html: `Se añadieron <b>${tokens.toLocaleString()} PBJ</b> a tu cuenta.<br>Tx: ${tx.hash.substring(0,10)}...`,
+                    icon: "success",
+                    background: '#162032', color: '#fff'
+                });
+                playSound('win');
+
+            } catch(e) {
+                console.error("Error en buyTokens:", e);
+                
+                if(e.message.includes("user rejected")) {
+                    Swal.fire({title: "Cancelado", text: "Rechazaste la transacción.", icon: "info", background: '#162032', color: '#fff'});
+                } else if (e.message.includes("servidor falló")) {
+                    Swal.fire({title: "Error Crítico", text: "Tu pago fue enviado pero el saldo no se actualizó. Contacta a soporte con tu Hash.", icon: "error", background: '#162032', color: '#fff'});
+                } else {
+                    Swal.fire({title: "Error", text: "Error en la transacción. Revisa la consola.", icon: "error", background: '#162032', color: '#fff'});
+                }
+            } finally {
+                btnText.innerText = "COMPRAR Y JUGAR";
+                loader.classList.add('hidden');
+            }
+        }
+
+        // --- UTILS ---
+        function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
+        function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
+        
+        async function actualConnect(t, silent=false) {
+            closeWalletModal();
+            if(!window.ethereum) {
+                if(!silent) Swal.fire("Error", "No se detectó wallet", "error");
+                return;
+            }
+            try {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                if(!silent) await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                const a = await signer.getAddress();
+                document.getElementById('connectBtn').innerHTML = `<span class="text-neon">●</span> ${a.substring(0,6)}...`;
+                
+                // Instanciar contrato
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+                if(!silent) playSound('click');
+            } catch(e) { console.error(e); }
+        }
+
         function showSection(id) {
             ['presale','casino','account'].forEach(s => document.getElementById(s+'Section').classList.add('hidden'));
-            document.getElementById(id+'Section').classList.remove('hidden');
+            if(id.includes('Game')) { /* nada */ }
+            else if(id==='plinko') window.location.href='Games/plinko.html';
+            else if(id==='blackjack') window.location.href='Games/blackjack.html'; // Enlace externo si prefieres
+            else if(id==='crash') window.location.href='Games/crash.html';
+            else document.getElementById(id+'Section').classList.remove('hidden');
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('pageTitle').innerText = id.toUpperCase();
         }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         
-        // Wallet & Presale
-        function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
-        function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
-        async function actualConnect(t, s=false) {
-            closeWalletModal();
-            if(window.ethereum) {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                if(!s) await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                const a = await signer.getAddress();
-                document.getElementById('connectBtn').innerHTML = a.substring(0,6)+'...';
-                contract = new ethers.Contract(CONTRACT_ADDRESS, ["function buyTokens() public payable"], signer);
-            }
-        }
-        function calculateTokens() { document.getElementById('pbjAmount').value = (document.getElementById('ethAmount').value * RATE).toLocaleString(); }
-        async function buyTokens() {
-            if(!signer) return Swal.fire("Error", "Conecta Wallet", "error");
-            const val = document.getElementById('ethAmount').value;
-            try {
-                Swal.fire({title:'Procesando...', didOpen:()=>Swal.showLoading()});
-                // Intento de contrato, fallback a envio directo para demo
-                try { await contract.buyTokens({value:ethers.utils.parseEther(val)}); } 
-                catch { await signer.sendTransaction({to:CONTRACT_ADDRESS, value:ethers.utils.parseEther(val)}); }
-                
-                // Update server
-                const res = await fetch('/api/update', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:user, amount: val*RATE})});
-                const d = await res.json();
-                balance = d.newBalance; updateUI();
-                Swal.fire("Éxito", "Tokens recibidos", "success");
-            } catch(e) { Swal.fire("Error", "Falló la transacción", "error"); }
-        }
-
-        // Utils
-        function register() { 
-            const n = document.getElementById('usernameInput').value;
-            if(n) { localStorage.setItem('pbj_username', n); location.reload(); }
-        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function updateUI() {
             const f = balance.toLocaleString('en-US');
             document.getElementById('sidebarBalance').innerText = f;
             document.getElementById('accCasinoBalance').innerText = f;
         }
-        function withdraw() { Swal.fire("Info", "Retiros pausados durante preventa", "info"); }
-        
-        // Chat & Feeds
+        function withdraw() { Swal.fire("Info", "Retiros manuales durante Beta.", "info"); }
+        function playSound(id) { const s=document.getElementById('sfx-'+id); if(s){s.currentTime=0;s.play().catch(()=>{});}}
+
+        // Chat & Feed
         function toggleChat(){document.getElementById('chatWidget').classList.toggle('hidden');}
-        function initTicker(){ document.getElementById('whaleTicker').innerHTML = ["🚀 PREVENTA","🔥 JACKPOT"].map(t=>`<span class="px-8 text-sm text-gray-400">${t}</span>`).join(''); }
+        function initTicker(){ document.getElementById('whaleTicker').innerHTML = ["🚀 PREVENTA","🔥 JACKPOT 50k"].map(t=>`<span class="px-8 text-sm text-gray-400">${t}</span>`).join(''); }
         function initLiveFeed(){ setInterval(()=>{
             const d = document.createElement('div'); d.className="flex justify-between text-xs p-2 bg-black/20 rounded border-l-2 border-green-500";
             d.innerHTML=`<span class="text-gray-400">User${Math.floor(Math.random()*99)}</span><span class="text-neon">+${Math.floor(Math.random()*500)}</span>`;
@@ -280,12 +382,6 @@
                 c.appendChild(d); c.scrollTop=c.scrollHeight;
             }, 5000);
         }
-        // Agrega esto al final de tu <script>
-function logout() {
-    localStorage.removeItem('pepebet_user'); // Borra datos locales
-    localStorage.removeItem('pbj_username');
-    location.reload(); // Recarga la página para volver al login
-}
     </script>
 </body>
 </html>
