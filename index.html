@@ -253,61 +253,71 @@
         </div>
     </div>
 
-    <!-- AQUÍ MANTENEMOS EL CONTENEDOR DE BLACKJACK "INLINE" (El código viejo de BJ va aquí abajo) -->
-    <div id="inlineBlackjackGame" class="hidden mt-8 border-t border-[#2f4553] pt-8">
-        <!-- ... (Aquí pega todo el código HTML de la mesa de BlackJack que ya tenías) ... -->
-        <!-- === BLACKJACK === -->
-        <div id="casinoSection" class="hidden px-4 pb-10 max-w-6xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 bg-[#0f3c28] rounded-3xl border-[8px] border-[#1a2c38] shadow-2xl relative min-h-[500px] flex flex-col justify-between overflow-hidden">
-                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,theme('colors.green.400')_1px,transparent_1px)] [background-size:20px_20px]"></div>
-                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-                        <i class="fas fa-frog text-9xl text-green-900"></i>
-                    </div>
+    <!-- CONTENEDOR DE BLACKJACK INLINE (Corregido y Limpio) -->
+    <div id="inlineBlackjackGame" class="hidden mt-8 border-t border-[#2f4553] pt-10 relative animate-[slideInUp_0.5s]">
+        
+        <!-- Botón para cerrar el juego -->
+        <button onclick="hideGameInline()" class="absolute top-0 right-0 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded text-xs font-bold transition">
+            <i class="fas fa-times mr-1"></i> CERRAR JUEGO
+        </button>
 
-                    <div class="relative z-10 text-center pt-8">
-                        <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs mb-2 border border-white/10">Dealer: <span id="dealerScore">?</span></div>
-                        <div id="dealerCards" class="flex justify-center h-28"></div>
-                    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Mesa de Juego -->
+            <div class="lg:col-span-2 bg-[#0f3c28] rounded-3xl border-[8px] border-[#1a2c38] shadow-2xl relative min-h-[500px] flex flex-col justify-between overflow-hidden">
+                <!-- Textura Paño -->
+                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,theme('colors.green.400')_1px,transparent_1px)] [background-size:20px_20px]"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
+                    <i class="fas fa-frog text-9xl text-green-900"></i>
+                </div>
 
-                    <div id="bjOverlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/70 hidden backdrop-blur-sm">
-                        <div class="text-center">
-                            <h1 id="bjResult" class="text-5xl font-black text-white mb-2">GANASTE</h1>
-                            <p id="bjAmount" class="text-neon text-xl font-bold">+200 PBJ</p>
-                            <button onclick="resetBJ()" class="mt-4 bg-white text-black px-6 py-2 rounded-full font-bold hover:scale-105 transition">Otra mano</button>
-                        </div>
-                    </div>
-
-                    <div class="relative z-10 text-center pb-20">
-                        <div id="playerCards" class="flex justify-center h-28 mb-2"></div>
-                        <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs border border-white/10">Tú: <span id="playerScore" class="text-neon">0</span></div>
-                    </div>
-
-                    <div class="absolute bottom-0 w-full bg-[#1a2c38] p-3 border-t border-[#2f4553] z-30 flex justify-between items-center">
-                        <div class="flex items-center gap-2 bg-[#0f212e] p-2 rounded border border-[#2f4553]">
-                            <input type="number" id="bjBet" value="100" class="bg-transparent w-16 text-center font-bold text-white outline-none">
-                            <span class="text-neon text-xs font-bold">PBJ</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button id="btnDeal" onclick="startBJ()" class="btn-primary px-6 py-2 rounded text-sm shadow-lg">REPARTIR</button>
-                            <button id="btnHit" onclick="hitBJ()" class="hidden bg-gray-600 text-white px-4 py-2 rounded font-bold hover:bg-gray-500">PEDIR</button>
-                            <button id="btnStand" onclick="standBJ()" class="hidden bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500">PLANTARSE</button>
-                        </div>
+                <!-- Dealer Area -->
+                <div class="relative z-10 text-center pt-8">
+                    <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs mb-2 border border-white/10">Dealer: <span id="dealerScore">?</span></div>
+                    <div id="dealerCards" class="flex justify-center h-28 items-center gap-1">
+                        <!-- Las cartas se generan aquí -->
                     </div>
                 </div>
-                
-                <div class="bg-[#1a2c38] rounded-xl border border-[#2f4553] flex flex-col h-[500px]">
-                    <div class="p-3 border-b border-[#2f4553] flex justify-between items-center bg-[#0b1820] rounded-t-xl">
-                        <span class="text-sm font-bold text-gray-300">Live Bets</span>
-                        <span class="text-[10px] text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online</span>
+
+                <!-- Overlay Resultados -->
+                <div id="bjOverlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/80 hidden backdrop-blur-sm transition-all">
+                    <div class="text-center transform scale-110">
+                        <h1 id="bjResult" class="text-6xl font-black text-white mb-2 drop-shadow-lg">GANASTE</h1>
+                        <p id="bjAmount" class="text-neon text-2xl font-bold">+200 PBJ</p>
+                        <button onclick="resetBJ()" class="mt-6 bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.4)]">Jugar de Nuevo</button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-3 space-y-2" id="liveFeed"></div>
+                </div>
+
+                <!-- Player Area -->
+                <div class="relative z-10 text-center pb-20">
+                    <div id="playerCards" class="flex justify-center h-28 mb-2 items-center gap-1"></div>
+                    <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs border border-white/10">Tú: <span id="playerScore" class="text-neon">0</span></div>
+                </div>
+
+                <!-- Controles -->
+                <div class="absolute bottom-0 w-full bg-[#1a2c38] p-4 border-t border-[#2f4553] z-30 flex flex-col md:flex-row justify-between items-center gap-3">
+                    <div class="flex items-center gap-2 bg-[#0f212e] p-2 rounded border border-[#2f4553]">
+                        <span class="text-xs text-gray-500 font-bold ml-1">APUESTA</span>
+                        <input type="number" id="bjBet" value="100" class="bg-transparent w-20 text-center font-bold text-white outline-none">
+                        <span class="text-neon text-xs font-bold">PBJ</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="btnDeal" onclick="startBJ()" class="btn-primary px-8 py-2 rounded text-sm shadow-lg font-bold hover:brightness-110">REPARTIR</button>
+                        <button id="btnHit" onclick="hitBJ()" class="hidden bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-500 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">PEDIR</button>
+                        <button id="btnStand" onclick="standBJ()" class="hidden bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-500 border-b-4 border-red-800 active:border-b-0 active:translate-y-1">PLANTARSE</button>
+                    </div>
                 </div>
             </div>
+            
+            <!-- Feed Lateral -->
+            <div class="bg-[#1a2c38] rounded-xl border border-[#2f4553] flex flex-col h-[500px]">
+                <div class="p-3 border-b border-[#2f4553] flex justify-between items-center bg-[#0b1820] rounded-t-xl">
+                    <span class="text-sm font-bold text-gray-300">Apuestas en Vivo</span>
+                    <span class="text-[10px] text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online</span>
+                </div>
+                <div class="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700" id="liveFeed"></div>
+            </div>
         </div>
-        <!-- NOTA: Asegúrate de rodear tu código de BlackJack anterior con este div ID "inlineBlackjackGame" -->
     </div>
-</div>
         
         <!-- === CUENTA === -->
         <div id="accountSection" class="hidden px-4">
@@ -342,10 +352,9 @@
 
     </div>
 
-    <!-- SCRIPTS LÓGICA -->
     <script>
-        // CONFIG
-        const CONTRACT = "0xTU_CONTRATO"; // <--- PON TU CONTRATO AQUI
+        // CONFIGURACIÓN
+        const CONTRACT = "0xTU_CONTRATO_AQUI"; 
         const RATE = 1000000;
         
         // ESTADO GLOBAL
@@ -358,9 +367,13 @@
             initTicker();
             initLiveFeed();
             
-            if(localStorage.getItem('pepebet_user')) {
-                const data = JSON.parse(localStorage.getItem('pepebet_user'));
-                user = data.user;
+            // Chequear si hay usuario (soporta formato V1 y V2 por compatibilidad)
+            let storedData = localStorage.getItem('pepebet_user') || localStorage.getItem('pbj_user_v2');
+            
+            if(storedData) {
+                const data = JSON.parse(storedData);
+                // Normalizar nombres de variables
+                user = data.user || data.username;
                 balance = parseFloat(data.balance);
                 updateUI();
                 document.getElementById('loginModal').classList.add('hidden');
@@ -370,29 +383,59 @@
             } else {
                 document.getElementById('loginModal').classList.remove('hidden');
             }
-
-            // Init Plinko
-            initPlinkoCanvas();
-            updatePlinkoMultipliers();
         };
 
-        // UI
+        // UI & NAVEGACIÓN
         function showSection(id) {
-            document.getElementById('sfx-click').play().catch(()=>{});
-            ['presale','casino','plinko','account'].forEach(s => document.getElementById(s+'Section').classList.add('hidden'));
+            playSound('click');
+            // Ocultar todas las secciones
+            ['presale','casino','account'].forEach(s => {
+                const el = document.getElementById(s+'Section');
+                if(el) el.classList.add('hidden');
+            });
+
+            // Plinko es un archivo externo, si hacen click en el menú lateral, redirigir
+            if(id === 'plinko') {
+                window.location.href = 'Games/plinko.html';
+                return;
+            }
+
             document.getElementById(id+'Section').classList.remove('hidden');
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('pageTitle').innerText = id.charAt(0).toUpperCase() + id.slice(1);
         }
+
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         
         function updateUI() {
             const fmt = balance.toLocaleString('en-US', {maximumFractionDigits: 0});
             document.getElementById('sidebarBalance').innerText = fmt;
             document.getElementById('accCasinoBalance').innerText = fmt + " PBJ";
+            
+            // Guardar estado actualizado
+            const dataToSave = { user: user, username: user, balance: balance };
+            localStorage.setItem('pepebet_user', JSON.stringify(dataToSave));
+            localStorage.setItem('pbj_user_v2', JSON.stringify(dataToSave));
         }
-        function saveUser() {
-            localStorage.setItem('pepebet_user', JSON.stringify({user, balance}));
+
+        // FUNCIONES DE JUEGOS INLINE
+        function showGameInline(game) {
+            if(game === 'blackjack') {
+                document.getElementById('inlineBlackjackGame').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('inlineBlackjackGame').scrollIntoView({behavior: 'smooth', block: 'center'});
+                }, 100);
+            }
+        }
+
+        function hideGameInline() {
+            document.getElementById('inlineBlackjackGame').classList.add('hidden');
+            // Resetear juego al cerrar si estaba activo
+            if(bjActive) {
+                // Penalización por abandonar (opcional) o simplemente reset
+                bjActive = false;
+                resetBJ();
+            }
         }
 
         // WALLET
@@ -412,16 +455,16 @@
             if(!name) return;
             user = name;
             balance = 1000; // Welcome bonus
-            saveUser();
-            updateUI();
+            updateUI(); // Esto guarda en localStorage
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
             document.getElementById('userNameDisplay').innerText = user;
-            document.getElementById('sfx-win').play();
+            playSound('win');
         }
 
         function calculateTokens() {
-            document.getElementById('pbjAmount').value = (document.getElementById('ethAmount').value * RATE).toLocaleString();
+            const eth = document.getElementById('ethAmount').value;
+            document.getElementById('pbjAmount').value = (eth * RATE).toLocaleString();
         }
 
         async function buyTokens() {
@@ -429,279 +472,33 @@
             const amt = document.getElementById('ethAmount').value;
             if(amt <= 0) return;
             
-            // Simular compra exitosa para la demo
-            Swal.fire({title:'Procesando...', didOpen:()=>Swal.showLoading()});
+            Swal.fire({title:'Procesando...', didOpen:()=>Swal.showLoading(), background: '#1a2c38', color: '#fff'});
+            
+            // Simulación de espera de blockchain
             setTimeout(() => {
                 const bought = amt * RATE;
                 balance += bought;
-                saveUser();
                 updateUI();
-                Swal.fire("Éxito", `Has comprado ${bought.toLocaleString()} PBJ`, "success");
-                document.getElementById('sfx-win').play();
-            }, 1500);
+                Swal.fire({
+                    title: "¡Compra Exitosa!", 
+                    text: `Has recibido ${bought.toLocaleString()} PBJ`, 
+                    icon: "success",
+                    background: '#1a2c38', 
+                    color: '#fff',
+                    confirmButtonColor: '#00E701'
+                });
+                playSound('win');
+            }, 2000);
         }
-
-        // === PLINKO ENGINE ===
-        const canvas = document.getElementById('plinkoCanvas');
-        const ctx = canvas.getContext('2d');
-        let plinkoRows = 16;
-        let risk = 'medium';
-        let pegs = [];
-        let balls = [];
-        let multipliers = []; // Array de valores
-        
-        // Colores de riesgo
-        const riskColors = {
-            low: ['#F59E0B', '#FCD34D'], // Yellows
-            medium: ['#F97316', '#FDBA74'], // Oranges
-            high: ['#EC4899', '#F472B6'] // Pinks
-        };
-
-        // Generar Multiplicadores Estilo Stake
-        function getMultipliers(rows, riskLevel) {
-            // Simplificación matemática para demo
-            const count = rows + 1;
-            let arr = [];
-            const center = Math.floor(count / 2);
-            
-            for(let i=0; i<count; i++) {
-                const dist = Math.abs(i - center);
-                let val;
-                if(riskLevel === 'low') val = 1 + (dist * 0.2); // Seguro
-                else if(riskLevel === 'medium') val = dist === 0 ? 0.5 : 0.8 + Math.pow(dist, 1.8) * 0.3; 
-                else val = dist === 0 ? 0.2 : 0.2 + Math.pow(dist, 2.8) * 0.2; // Volatil
-                
-                // Formatear
-                if(val < 1) val = Math.max(0.2, val);
-                arr.push(parseFloat(val.toFixed(1)));
-            }
-            // Asegurar extremos altos en high risk
-            if(riskLevel === 'high') { arr[0]=1000; arr[arr.length-1]=1000; arr[1]=130; arr[arr.length-2]=130; }
-            if(riskLevel === 'medium') { arr[0]=110; arr[arr.length-1]=110; }
-            
-            return arr;
-        }
-
-        function initPlinkoCanvas() {
-            // Setup pegs
-            pegs = [];
-            const startX = canvas.width / 2;
-            const startY = 50;
-            const gap = canvas.width / (plinkoRows + 4); 
-            
-            for(let r=0; r<plinkoRows; r++) {
-                for(let c=0; c<=r; c++) {
-                    pegs.push({
-                        x: startX - (r * gap / 2) + (c * gap),
-                        y: startY + (r * 30),
-                        r: 3
-                    });
-                }
-            }
-        }
-
-        function updatePlinkoRows() {
-            plinkoRows = parseInt(document.getElementById('plinkoRows').value);
-            document.getElementById('rowCountDisplay').innerText = plinkoRows;
-            initPlinkoCanvas();
-            updatePlinkoMultipliers();
-        }
-
-        function updatePlinkoMultipliers() {
-            risk = document.getElementById('plinkoRisk').value;
-            const vals = getMultipliers(plinkoRows, risk);
-            const container = document.getElementById('multipliersContainer');
-            container.innerHTML = '';
-            
-            const count = plinkoRows + 1;
-            const center = Math.floor(count/2);
-            
-            vals.forEach((v, i) => {
-                const div = document.createElement('div');
-                div.className = "multiplier-box shadow-lg";
-                div.style.flex = "1";
-                div.style.height = "35px";
-                div.style.margin = "0 2px";
-                div.innerText = v + "x";
-                
-                // Color grading based on value
-                const dist = Math.abs(i - center);
-                const colorBase = riskColors[risk];
-                const opacity = 0.3 + (dist / (count/2)) * 0.7;
-                
-                div.style.background = colorBase[0];
-                div.style.opacity = opacity;
-                div.style.color = "#000"; // Contrast text
-                
-                div.id = `mult-${i}`; // Para animar luego
-                container.appendChild(div);
-            });
-            multipliers = vals;
-        }
-
-        function setPlinkoBet(factor) {
-            const input = document.getElementById('plinkoBet');
-            let val = parseFloat(input.value) * factor;
-            if(val < 1) val = 1;
-            input.value = val.toFixed(0);
-        }
-
-        function dropBall() {
-            const bet = parseFloat(document.getElementById('plinkoBet').value);
-            if(bet > balance) return Swal.fire("Sin saldo", "", "error");
-            
-            balance -= bet;
-            updateUI();
-            
-            // Lógica Galton Board (Decisión Previa)
-            // Determinamos el path basado en probabilidad simple (50/50 en cada clavo)
-            let path = [];
-            let currentXIndex = 0; // Índice relativo en la fila
-            
-            for(let i=0; i<plinkoRows; i++) {
-                const dir = Math.random() < 0.5 ? -0.5 : 0.5; // -0.5 izquierda, +0.5 derecha (en indices visuales)
-                // En realidad, en la estructura triangular:
-                // Si va a la izquierda, index se mantiene (relativamente cae al mismo slot visual del siguiente row)
-                // Si va a la derecha, index + 1
-                const moveRight = Math.random() < 0.5;
-                path.push(moveRight ? 1 : -1); 
-                if(moveRight) currentXIndex++; 
-            }
-            
-            // Crear bola
-            balls.push({
-                x: canvas.width / 2,
-                y: 20,
-                vx: 0,
-                vy: 0,
-                radius: 6,
-                active: true,
-                path: path,
-                row: 0,
-                targetIndex: currentXIndex, // Donde caerá al final (0 a rows)
-                bet: bet
-            });
-        }
-
-        // Game Loop Plinko
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Dibujar Pegs
-            ctx.fillStyle = "white";
-            pegs.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                ctx.fill();
-            });
-
-            // Dibujar y Mover Bolas
-            const gap = canvas.width / (plinkoRows + 4);
-            const startX = canvas.width / 2;
-            const startY = 50;
-
-            balls.forEach((b, idx) => {
-                if(!b.active) return;
-
-                // Movimiento "falso" pero fluido siguiendo el path pre-calculado
-                // Objetivo Y actual basado en la fila
-                const targetY = startY + (b.row * 30);
-                
-                // Mover Y
-                if(b.y < targetY) {
-                    b.y += 5; // Velocidad de caída
-                    b.x += b.vx;
-                } else {
-                    // Llegó al clavo
-                    if(b.row < plinkoRows) {
-                        // Sonido
-                        const audio = document.getElementById('sfx-plink').cloneNode();
-                        audio.volume = 0.2;
-                        audio.play().catch(()=>{});
-
-                        // Efecto visual (flash en peg)
-                        // Calcular posición del peg actual
-                        // ... simplificado
-                        
-                        // Decidir siguiente movimiento X basado en el path
-                        const direction = b.path[b.row]; // 1 o -1
-                        b.vx = direction * (gap / 12); // Velocidad lateral para llegar al siguiente hueco en 6 frames
-                        b.row++;
-                    } else {
-                        // Llegó al fondo
-                        finishBall(b);
-                    }
-                }
-
-                ctx.beginPath();
-                ctx.fillStyle = "#ff007f"; // Rosa neon
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = "#ff007f";
-                ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            });
-
-            requestAnimationFrame(gameLoop);
-        }
-        requestAnimationFrame(gameLoop);
-
-        function finishBall(b) {
-            b.active = false;
-            // Calcular premio
-            const multiplier = multipliers[b.targetIndex];
-            const win = b.bet * multiplier;
-            balance += win;
-            saveUser();
-            updateUI();
-
-            // Sonido
-            document.getElementById('sfx-bucket').play();
-
-            // Animación UI Bucket
-            const bucket = document.getElementById(`mult-${b.targetIndex}`);
-            if(bucket) {
-                bucket.style.transform = "translateY(5px) scale(1.1)";
-                bucket.style.filter = "brightness(1.5)";
-                setTimeout(() => {
-                    bucket.style.transform = "translateY(0) scale(1)";
-                    bucket.style.filter = "brightness(1)";
-                }, 200);
-            }
-
-            // Historial
-            const hist = document.getElementById('plinkoHistory');
-            const div = document.createElement('div');
-            div.className = `px-3 py-1 rounded text-xs font-bold text-black min-w-[50px] text-center slide-up`;
-            div.style.background = riskColors[risk][0];
-            div.innerText = multiplier + "x";
-            hist.prepend(div);
-            if(hist.children.length > 10) hist.removeChild(hist.lastChild);
-            
-            // Big Score si es > 10x
-            if(multiplier >= 10) {
-                const fs = document.getElementById('plinkoFloatScore');
-                fs.innerText = multiplier + "x";
-                fs.style.opacity = 1;
-                fs.style.transform = "scale(1.5)";
-                setTimeout(() => { fs.style.opacity=0; fs.style.transform="scale(1)"; }, 1000);
-            }
-        }
-
-        function showGameInline(game) {
-    if(game === 'blackjack') {
-        document.getElementById('inlineBlackjackGame').classList.remove('hidden');
-        // Scrollear hacia el juego
-        document.getElementById('inlineBlackjackGame').scrollIntoView({behavior: 'smooth'});
-    }
-}
 
         // === BLACKJACK ENGINE ===
         let bjDeck=[], bjPlayer=[], bjDealer=[], bjActive=false;
 
         function startBJ() {
             const bet = parseFloat(document.getElementById('bjBet').value);
-            if(bet > balance) return;
+            if(bet <= 0) return;
+            if(bet > balance) return Swal.fire("Sin saldo", "Recarga en la preventa", "error");
+            
             balance -= bet; 
             updateUI();
             
@@ -710,8 +507,9 @@
             document.getElementById('btnDeal').classList.add('hidden');
             document.getElementById('btnHit').classList.remove('hidden');
             document.getElementById('btnStand').classList.remove('hidden');
+            playSound('click');
             
-            // Crear baraja simple
+            // Crear baraja
             const vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             const suits = ['♠','♥','♦','♣'];
             bjDeck = [];
@@ -726,6 +524,7 @@
 
         function hitBJ() {
             if(!bjActive) return;
+            playSound('click');
             bjPlayer.push(bjDeck.pop());
             renderBJ();
             if(getBJScore(bjPlayer) > 21) endBJ(false);
@@ -734,8 +533,10 @@
         function standBJ() {
             if(!bjActive) return;
             while(getBJScore(bjDealer) < 17) bjDealer.push(bjDeck.pop());
+            renderBJ(); // Mostrar cartas dealer
             const p = getBJScore(bjPlayer);
             const d = getBJScore(bjDealer);
+            
             if(d > 21 || p > d) endBJ(true);
             else if(p === d) endBJ('tie');
             else endBJ(false);
@@ -753,12 +554,18 @@
         }
 
         function renderBJ() {
-            const cardHTML = (c) => `<div class="bg-white w-14 h-20 rounded border border-gray-400 flex items-center justify-center text-xl font-bold ${['♥','♦'].includes(c.s)?'text-red-600':'text-black'} shadow-lg mx-1 animate-[slideInUp_0.2s]">${c.v}${c.s}</div>`;
+            const cardHTML = (c) => `
+                <div class="bg-white w-14 h-20 rounded border border-gray-400 flex items-center justify-center text-xl font-bold ${['♥','♦'].includes(c.s)?'text-red-600':'text-black'} shadow-lg animate-[slideInUp_0.3s] select-none">
+                    ${c.v}${c.s}
+                </div>`;
+            
             document.getElementById('playerCards').innerHTML = bjPlayer.map(cardHTML).join('');
             document.getElementById('playerScore').innerText = getBJScore(bjPlayer);
             
             if(bjActive) {
-                document.getElementById('dealerCards').innerHTML = cardHTML(bjDealer[0]) + `<div class="bg-green-800 w-14 h-20 rounded border-2 border-white/20 mx-1"></div>`;
+                // Dealer oculta la segunda carta
+                document.getElementById('dealerCards').innerHTML = cardHTML(bjDealer[0]) + 
+                    `<div class="bg-gradient-to-br from-green-800 to-green-950 w-14 h-20 rounded border-2 border-white/20 flex items-center justify-center shadow-lg"><i class="fas fa-frog text-green-600 opacity-50"></i></div>`;
                 document.getElementById('dealerScore').innerText = "?";
             } else {
                 document.getElementById('dealerCards').innerHTML = bjDealer.map(cardHTML).join('');
@@ -776,18 +583,21 @@
 
             if(res === true) {
                 balance += bet*2;
-                title.innerText = "GANASTE"; title.className="text-5xl font-black text-neon";
+                title.innerText = "GANASTE"; 
+                title.className="text-6xl font-black text-neon drop-shadow-[0_0_10px_rgba(0,231,1,0.8)]";
                 amt.innerText = `+${bet*2} PBJ`;
-                document.getElementById('sfx-win').play();
+                playSound('win');
             } else if(res === 'tie') {
                 balance += bet;
-                title.innerText = "EMPATE"; title.className="text-5xl font-black text-gray-400";
-                amt.innerText = `+${bet} PBJ`;
+                title.innerText = "EMPATE"; 
+                title.className="text-6xl font-black text-gray-400";
+                amt.innerText = `+${bet} PBJ (Devolución)`;
             } else {
-                title.innerText = "PERDISTE"; title.className="text-5xl font-black text-red-500";
+                title.innerText = "PERDISTE"; 
+                title.className="text-6xl font-black text-red-500";
                 amt.innerText = `-${bet} PBJ`;
+                // playSound('lose'); // Opcional si agregas sonido de perder
             }
-            saveUser();
             updateUI();
         }
 
@@ -798,27 +608,39 @@
             document.getElementById('btnStand').classList.add('hidden');
             document.getElementById('playerCards').innerHTML='';
             document.getElementById('dealerCards').innerHTML='';
+            document.getElementById('playerScore').innerText='0';
+            document.getElementById('dealerScore').innerText='?';
         }
 
-        // UTILS GLOBALES
+        // UTILS
+        function playSound(id) {
+            const audio = document.getElementById('sfx-'+id);
+            if(audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e=>{});
+            }
+        }
+
         function initTicker() {
             const t = document.getElementById('whaleTicker');
-            const msgs = ["🐋 0x4a... bought 5 ETH $PBJ","🔥 PepeKing won 50k PBJ on Plinko","🚀 0x99... just joined","💎 1M PBJ Airdrop soon"];
+            const msgs = ["🐋 0x4a... bought 5 ETH $PBJ","🔥 PepeKing won 50k PBJ on Plinko","🚀 0x99... just joined","💎 1M PBJ Airdrop soon", "🎲 0x33... Hit 1000x on Plinko"];
             t.innerHTML = msgs.map(m=>`<span class="ticker-item">${m}</span>`).join('') + msgs.map(m=>`<span class="ticker-item">${m}</span>`).join('');
         }
+        
         function initLiveFeed() {
             setInterval(()=>{
-                const users = ["Degen","Anon","BaseGod","Pepe"];
-                const games = ["BlackJack","Plinko"];
-                const win = Math.random() > 0.5;
+                const users = ["Degen","Anon","BaseGod","Pepe","Whale0x"];
+                const games = ["BlackJack","Plinko","Swap"];
+                const win = Math.random() > 0.4;
                 const div = document.createElement('div');
-                div.className = "flex justify-between text-xs p-2 bg-[#0f212e] rounded animate-[slideInUp_0.3s]";
-                div.innerHTML = `<span class="text-gray-400">${users[Math.floor(Math.random()*4)]} (${games[Math.floor(Math.random()*2)]})</span><span class="${win?'text-neon':'text-gray-600'}">${win?'+':'-'}${Math.floor(Math.random()*500)}</span>`;
+                div.className = "flex justify-between text-xs p-2 bg-[#0f212e] rounded animate-[slideInUp_0.3s] border-l-2 " + (win ? "border-neon" : "border-red-500");
+                div.innerHTML = `<span class="text-gray-400 font-bold">${users[Math.floor(Math.random()*users.length)]}</span> <span class="${win?'text-neon':'text-red-400'}">${win?'+':'-'}${Math.floor(Math.random()*1000)}</span>`;
                 const f = document.getElementById('liveFeed');
                 f.insertBefore(div, f.firstChild);
                 if(f.children.length>10) f.removeChild(f.lastChild);
-            }, 4000);
+            }, 3000);
         }
+        
         function withdraw() { Swal.fire("Info", "Retiro disponible al finalizar la preventa.", "info"); }
     </script>
 </body>
