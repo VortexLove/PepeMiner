@@ -13,827 +13,253 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- ESTÉTICA PREMIUM STAKE/ROLLBIT --- */
         :root {
-            --primary: #00ff2a; /* Neon Green */
-            --primary-glow: rgba(0, 255, 42, 0.4);
-            --bg-dark: #070b10;
-            --bg-panel: #0f1621;
-            --bg-card: #162032;
-            --border-color: #263549;
-            --text-muted: #94a3b8;
+            --primary: #00ff2a; --primary-glow: rgba(0, 255, 42, 0.4);
+            --bg-dark: #070b10; --bg-panel: #0f1621; --bg-card: #162032;
+            --border-color: #263549; --text-muted: #94a3b8;
         }
-
         body { 
-            background-color: var(--bg-dark); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 0%, #112218 0%, var(--bg-dark) 60%);
+            background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; 
+            overflow-x: hidden; background-image: radial-gradient(circle at 50% 0%, #112218 0%, var(--bg-dark) 60%);
         }
-
         h1, h2, h3, .brand-font { font-family: 'Space Grotesk', sans-serif; }
-
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-        /* Efectos */
-        .glass-panel {
-            background: rgba(15, 22, 33, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .neon-text { 
-            color: var(--primary); 
-            text-shadow: 0 0 15px var(--primary-glow); 
-        }
-
+        .glass-panel { background: rgba(15, 22, 33, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-text { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); }
         .btn-gradient {
-            background: linear-gradient(135deg, #00ff2a 0%, #00cc22 100%);
-            color: #000;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            box-shadow: 0 0 20px rgba(0, 255, 42, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #00ff2a 0%, #00cc22 100%); color: #000; font-weight: 800;
+            box-shadow: 0 0 20px rgba(0, 255, 42, 0.2); transition: all 0.3s;
         }
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(0, 255, 42, 0.4);
-        }
-        .btn-gradient:active { transform: scale(0.98); }
-
-        /* Cards Hover */
-        .game-card {
-            transition: all 0.3s ease;
-            border: 1px solid var(--border-color);
-        }
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 40px -10px rgba(0, 255, 42, 0.15);
-        }
-
-        /* Inputs */
-        .input-dark {
-            background: #0b1018;
-            border: 1px solid var(--border-color);
-            color: white;
-            transition: 0.3s;
-        }
-        .input-dark:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0, 255, 42, 0.1);
-            outline: none;
-        }
-
-        /* Ticker Animation */
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0, 255, 42, 0.4); }
+        .game-card { transition: all 0.3s ease; border: 1px solid var(--border-color); }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 40px -10px rgba(0, 255, 42, 0.15); }
         .ticker-wrap { width: 100%; overflow: hidden; background: rgba(0,0,0,0.3); padding: 8px 0; border-bottom: 1px solid var(--border-color); backdrop-filter: blur(5px); }
         .ticker-move { display: inline-block; white-space: nowrap; animation: ticker 40s linear infinite; }
-        .ticker-item { display: inline-block; padding: 0 2rem; color: var(--text-muted); font-size: 0.8rem; font-family: 'Space Grotesk'; }
-
-        /* Responsive */
-        @media (min-width: 1024px) {
-            .sidebar { width: 260px; position: fixed; height: 100vh; top: 0; left: 0; z-index: 50; border-right: 1px solid var(--border-color); }
-            .main-content { margin-left: 260px; }
-            .ticker-wrap { padding-left: 260px; }
-        }
-        @media (max-width: 1023px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; position: fixed; height: 100vh; z-index: 60; top: 0; left: 0; width: 260px; }
-            .sidebar.open { transform: translateX(0); }
-        }
-        
-        .loader-spin {
-            border: 3px solid rgba(255,255,255,0.1);
-            border-left-color: var(--primary);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .sidebar { width: 260px; position: fixed; height: 100vh; top: 0; left: 0; z-index: 50; border-right: 1px solid var(--border-color); transition: 0.3s; }
+        @media (max-width: 1023px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } }
+        .main-content { margin-left: 260px; }
+        @media (max-width: 1023px) { .main-content { margin-left: 0; } }
     </style>
 </head>
 <body>
-
-    <!-- SONIDOS -->
     <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
 
-    <!-- TICKER -->
-    <div class="ticker-wrap fixed top-0 z-40">
-        <div class="ticker-move" id="whaleTicker"></div>
-    </div>
+    <div class="ticker-wrap fixed top-0 z-40"><div class="ticker-move" id="whaleTicker"></div></div>
 
     <!-- SIDEBAR -->
     <div id="sidebar" class="sidebar bg-panel glass-panel flex flex-col p-6 pt-16 lg:pt-6">
         <div class="flex items-center gap-3 mb-10 px-2 cursor-pointer group" onclick="showSection('presale')">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-xl shadow-[0_0_20px_rgba(0,255,42,0.3)] group-hover:scale-110 transition">🐸</div>
-            <div>
-                <h1 class="text-xl font-bold tracking-wider brand-font text-white">Pepe<span class="text-neon">BJ</span></h1>
-            </div>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-xl shadow-[0_0_20px_rgba(0,255,42,0.3)]">🐸</div>
+            <h1 class="text-xl font-bold tracking-wider brand-font text-white">Pepe<span class="text-neon">BJ</span></h1>
         </div>
-
         <nav class="flex-1 space-y-2">
-            <button onclick="showSection('presale')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-white font-bold transition group border border-transparent hover:border-white/10">
-                <i class="fas fa-rocket text-orange-500 group-hover:rotate-12 transition"></i> PREVENTA <span class="ml-auto bg-neon text-black text-[9px] px-1.5 py-0.5 rounded font-bold animate-pulse" style="background:var(--primary)">LIVE</span>
-            </button>
-            
-            <div class="pt-6 pb-3 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Juegos</div>
-            
-            <button onclick="showSection('casino')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group border border-transparent hover:border-white/10">
-                <i class="fas fa-heart text-red-500 group-hover:scale-110 transition"></i> BlackJack
-            </button>
-            <button onclick="showSection('plinko')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group border border-transparent hover:border-white/10">
-                <i class="fas fa-caret-down text-pink-500 group-hover:scale-110 transition"></i> Plinko <span class="ml-auto text-[9px] bg-white/10 px-1.5 rounded text-white">HOT</span>
-            </button>
-
-            <div class="pt-6 pb-3 px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Cuenta</div>
-            <button onclick="showSection('account')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group border border-transparent hover:border-white/10">
-                <i class="fas fa-wallet text-blue-400"></i> Billetera
-            </button>
+            <button onclick="showSection('presale')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-white font-bold transition"><i class="fas fa-rocket text-orange-500"></i> PREVENTA</button>
+            <div class="pt-6 pb-3 px-3 text-[10px] font-bold text-gray-500 uppercase">Juegos</div>
+            <a href="Games/blackjack.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-heart text-red-500"></i> BlackJack</a>
+            <a href="Games/plinko.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-caret-down text-pink-500"></i> Plinko</a>
+            <div class="pt-6 pb-3 px-3 text-[10px] font-bold text-gray-500 uppercase">Cuenta</div>
+            <button onclick="showSection('account')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-wallet text-blue-400"></i> Billetera</button>
         </nav>
-
-        <div class="mt-auto bg-black/20 p-5 rounded-2xl border border-white/5 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+        <div class="mt-auto bg-black/20 p-5 rounded-2xl border border-white/5 group">
             <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">Saldo Casino</p>
-            <div class="flex items-baseline gap-1">
-                <h3 class="text-2xl font-bold text-white tracking-tight brand-font" id="sidebarBalance">0.00</h3>
-                <span class="text-xs font-bold text-neon">PBJ</span>
-            </div>
-            <button onclick="showSection('presale')" class="w-full mt-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-white transition border border-white/5">
-                + DEPOSITAR
-            </button>
+            <div class="flex items-baseline gap-1"><h3 class="text-2xl font-bold text-white brand-font" id="sidebarBalance">0.00</h3><span class="text-xs font-bold text-neon">PBJ</span></div>
+            <button onclick="showSection('presale')" class="w-full mt-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold transition">+ DEPOSITAR</button>
         </div>
     </div>
 
-    <!-- MOBILE MENU BTN -->
-    <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 bg-panel p-3 rounded-xl border border-white/10 text-white shadow-lg">
-        <i class="fas fa-bars"></i>
-    </button>
+    <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 bg-panel p-3 rounded-xl border border-white/10 text-white shadow-lg"><i class="fas fa-bars"></i></button>
 
     <!-- MAIN CONTENT -->
     <div class="main-content pt-20 min-h-screen pb-20 px-4 md:px-8">
-        
-        <!-- HEADER -->
         <header class="fixed top-0 left-0 lg:left-[260px] right-0 h-16 bg-bg-dark/80 backdrop-blur-md z-30 flex justify-between items-center px-6 border-b border-white/5">
             <h2 id="pageTitle" class="text-lg font-bold text-white hidden md:block brand-font">Inicio</h2>
             <div class="flex gap-4 items-center ml-auto">
-                
-                <!-- User Profile -->
-                <div id="userInfo" class="hidden flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 transition relative group">
-                    <div class="text-right">
-                        <div class="flex items-center gap-2 justify-end">
-                            <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
-                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-1.5 rounded">VIP 1</span>
-                        </div>
-                        <div class="w-20 h-1 bg-white/10 rounded-full mt-1 ml-auto overflow-hidden">
-                            <div class="bg-neon h-full w-[30%]" style="background:var(--primary)"></div>
-                        </div>
-                    </div>
-                    <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Felix" class="w-8 h-8 rounded bg-white/10">
+                <div id="userInfo" class="hidden flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                    <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
+                    <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-1.5 rounded">VIP 1</span>
                 </div>
-
-                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-5 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow-lg">
-                    <i class="fas fa-wallet"></i> <span>Conectar Wallet</span>
-                </button>
+                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-5 py-2 rounded-lg text-sm transition flex items-center gap-2"><i class="fas fa-wallet"></i> <span>Conectar</span></button>
             </div>
         </header>
 
-        <!-- SECCIÓN: PREVENTA -->
+        <!-- PREVENTA -->
         <div id="presaleSection" class="max-w-6xl mx-auto mt-6">
             <div class="relative rounded-3xl overflow-hidden border border-white/10 p-8 md:p-12 mb-10 slide-up">
-                <!-- Background FX -->
                 <div class="absolute inset-0 bg-gradient-to-r from-green-900/30 to-blue-900/20 z-0"></div>
-                <div class="absolute right-0 top-0 w-[500px] h-[500px] bg-green-500/10 blur-[120px] rounded-full pointer-events-none"></div>
-                
                 <div class="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
                     <div>
-                        <div class="inline-flex items-center gap-2 bg-white/5 text-neon px-3 py-1 rounded-full text-xs font-bold mb-6 border border-green-500/30">
-                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> PREVENTA ACTIVA
-                        </div>
-                        <h1 class="text-5xl md:text-6xl font-black mb-6 leading-tight brand-font">
-                            EL CASINO <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">DEGEN</span> <br>DEFINITIVO.
-                        </h1>
-                        <p class="text-gray-400 mb-8 text-lg leading-relaxed">Compra $PBJ directamente con tu wallet y accede a BlackJack, Plinko y más. 100% On-Chain. Sin registro KYC.</p>
-                        
-                        <!-- Contadores -->
-                        <div class="flex gap-4">
-                            <div class="bg-black/40 px-5 py-3 rounded-xl border border-white/10 text-center backdrop-blur-sm">
-                                <span class="block text-2xl font-bold text-white brand-font">02</span><span class="text-[10px] text-gray-500 tracking-wider">DÍAS</span>
-                            </div>
-                            <div class="bg-black/40 px-5 py-3 rounded-xl border border-white/10 text-center backdrop-blur-sm">
-                                <span class="block text-2xl font-bold text-white brand-font">14</span><span class="text-[10px] text-gray-500 tracking-wider">HORAS</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Swap Card -->
-                    <div class="bg-card/80 p-6 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl relative">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="font-bold text-lg">Comprar Tokens</h3>
-                            <div class="text-xs text-gray-400 bg-black/30 px-2 py-1 rounded">Rate: 1 ETH = 1M PBJ</div>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <div class="relative group">
-                                <label class="text-xs text-gray-500 ml-1 mb-1 block">Tú pagas (ETH)</label>
-                                <div class="relative">
-                                    <input type="number" id="ethAmount" oninput="calculateTokens()" class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-white font-bold text-xl focus:border-green-500 outline-none transition" placeholder="0.0">
-                                    <div class="absolute right-4 top-3.5 flex items-center gap-2 pointer-events-none">
-                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-6">
-                                        <span class="font-bold text-sm">ETH</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-center -my-3 relative z-10">
-                                <div class="bg-[#162032] p-2 rounded-full border border-white/10 text-gray-400">
-                                    <i class="fas fa-arrow-down"></i>
-                                </div>
-                            </div>
-
-                            <div class="relative">
-                                <label class="text-xs text-gray-500 ml-1 mb-1 block">Tú recibes (PBJ)</label>
-                                <div class="relative">
-                                    <input type="number" id="pbjAmount" readonly class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-neon font-bold text-xl outline-none" placeholder="0.0">
-                                    <div class="absolute right-4 top-3.5 flex items-center gap-2 pointer-events-none">
-                                        <span class="font-bold text-sm text-neon">PBJ</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button onclick="buyTokens()" class="btn-gradient w-full py-4 rounded-xl text-lg mt-4 flex justify-center items-center gap-2 group">
-                                <span id="btnText">COMPRAR Y JUGAR</span>
-                                <div id="btnLoader" class="loader-spin hidden"></div>
-                            </button>
-                            <p class="text-[10px] text-center text-gray-500 mt-2">La transacción debe confirmarse en tu wallet para recibir los créditos.</p>
+                        <div class="inline-flex items-center gap-2 bg-white/5 text-neon px-3 py-1 rounded-full text-xs font-bold mb-6 border border-green-500/30">PREVENTA ACTIVA</div>
+                        <h1 class="text-5xl font-black mb-6 leading-tight brand-font">EL CASINO <span class="text-neon">DEGEN</span></h1>
+                        <p class="text-gray-400 mb-8 text-lg">Compra $PBJ directamente con tu wallet y accede a todos los juegos.</p>
+                        <div class="bg-card/80 p-6 rounded-2xl border border-white/10 shadow-2xl relative">
+                            <input type="number" id="ethAmount" oninput="calculateTokens()" class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-white font-bold text-xl mb-2 outline-none" placeholder="ETH Amount">
+                            <input type="number" id="pbjAmount" readonly class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-neon font-bold text-xl mb-4 outline-none" placeholder="PBJ Amount">
+                            <button onclick="buyTokens()" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold">COMPRAR Y JUGAR</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SECCIÓN: JUEGOS -->
+        <!-- LOBBY JUEGOS -->
         <div id="casinoSection" class="hidden max-w-7xl mx-auto mt-6">
-            <div class="mb-10">
-                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Lobby de Juegos</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- PLINKO CARD -->
-                    <a href="Games/plinko.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-                        <div class="h-48 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative overflow-hidden">
-                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
-                            <i class="fas fa-caret-down text-7xl text-white drop-shadow-2xl group-hover:scale-110 transition duration-500"></i>
-                            <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
-                        </div>
-                        <div class="p-5 relative">
-                            <h3 class="text-xl font-bold text-white mb-1">PLINKO</h3>
-                            <p class="text-xs text-gray-400">RTP 99% • Max Win 1000x</p>
-                            <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-pink-500/50 group-hover:text-pink-400">JUGAR AHORA</button>
-                        </div>
-                    </a>
-
-                    <!-- BLACKJACK CARD -->
-                    <div onclick="showGameInline('blackjack')" class="game-card bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-                        <div class="h-48 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center relative overflow-hidden">
-                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
-                            <i class="fas fa-heart text-7xl text-white drop-shadow-2xl group-hover:scale-110 transition duration-500"></i>
-                             <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
-                        </div>
-                        <div class="p-5 relative">
-                            <h3 class="text-xl font-bold text-white mb-1">BLACKJACK</h3>
-                            <p class="text-xs text-gray-400">RTP 99.5% • Live Dealer AI</p>
-                            <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-green-500/50 group-hover:text-green-400">ENTRAR A MESA</button>
-                        </div>
-                    </div>
-
-                    <!-- CRASH CARD -->
-                    <div class="game-card bg-card rounded-2xl overflow-hidden relative opacity-50 grayscale cursor-not-allowed">
-                        <div class="h-48 bg-gray-800 flex items-center justify-center">
-                            <i class="fas fa-rocket text-5xl text-gray-500"></i>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="text-xl font-bold text-gray-400">CRASH</h3>
-                            <p class="text-xs text-gray-500">Próximamente</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- JUEGO INLINE BLACKJACK -->
-            <div id="inlineBlackjackGame" class="hidden mt-8 border-t border-white/10 pt-10 relative slide-up">
-                <button onclick="hideGameInline()" class="absolute -top-3 right-0 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-4 py-1.5 rounded-full text-xs font-bold transition border border-red-500/20">
-                    CERRAR MESA
-                </button>
-                <div class="absolute -top-3 left-0">
-                     <button onclick="showFairness()" class="text-[10px] bg-white/5 hover:bg-white/10 text-gray-400 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-1">
-                        <i class="fas fa-shield-alt"></i> PROVABLY FAIR
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                    <!-- MESA -->
-                    <div class="lg:col-span-2 bg-[#0f3c28] rounded-3xl border-8 border-[#1a2332] shadow-2xl relative min-h-[550px] flex flex-col justify-between overflow-hidden">
-                         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,theme('colors.green.400')_1px,transparent_1px)] [background-size:24px_24px]"></div>
-                         
-                         <!-- Dealer -->
-                         <div class="relative z-10 text-center pt-8">
-                            <div class="inline-block bg-black/40 px-4 py-1 rounded-full text-gray-300 text-xs mb-3 border border-white/5 backdrop-blur-md">Dealer: <span id="dealerScore" class="font-bold text-white">?</span></div>
-                            <div id="dealerCards" class="flex justify-center h-32 items-center gap-2"></div>
-                         </div>
-
-                         <!-- Resultados -->
-                         <div id="bjOverlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/80 hidden backdrop-blur-sm">
-                            <div class="text-center scale-110">
-                                <h1 id="bjResult" class="text-6xl font-black text-white mb-2 drop-shadow-[0_0_25px_rgba(0,255,42,0.6)]">VICTORIA</h1>
-                                <p id="bjAmount" class="text-neon text-2xl font-bold mb-6">+200 PBJ</p>
-                                <button onclick="resetBJ()" class="btn-gradient px-8 py-3 rounded-full shadow-xl">JUGAR DE NUEVO</button>
-                            </div>
-                        </div>
-
-                         <!-- Player -->
-                         <div class="relative z-10 text-center pb-24">
-                            <div id="playerCards" class="flex justify-center h-32 mb-3 items-center gap-2"></div>
-                            <div class="inline-block bg-black/40 px-4 py-1 rounded-full text-gray-300 text-xs border border-white/5 backdrop-blur-md">Tú: <span id="playerScore" class="font-bold text-neon">0</span></div>
-                         </div>
-
-                         <!-- Controles -->
-                         <div class="absolute bottom-0 w-full bg-[#162032] p-4 border-t border-white/10 z-30 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div class="flex items-center gap-2 bg-[#0b1018] p-2 rounded-lg border border-white/10">
-                                <span class="text-[10px] text-gray-500 font-bold ml-2">APUESTA</span>
-                                <input type="number" id="bjBet" value="100" class="bg-transparent w-24 text-center font-bold text-white outline-none">
-                                <span class="text-neon text-xs font-bold mr-2">PBJ</span>
-                            </div>
-                            <div class="flex gap-3">
-                                <button id="btnDeal" onclick="startBJ()" class="btn-gradient px-10 py-3 rounded-lg text-sm shadow-lg hover:shadow-green-500/20">REPARTIR</button>
-                                <button id="btnHit" onclick="hitBJ()" class="hidden bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-lg font-bold border-b-4 border-gray-900 active:border-b-0 active:translate-y-1">PEDIR</button>
-                                <button id="btnStand" onclick="standBJ()" class="hidden bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-lg font-bold border-b-4 border-red-900 active:border-b-0 active:translate-y-1">PLANTARSE</button>
-                            </div>
-                         </div>
-                    </div>
-                    
-                    <!-- FEED LATERAL -->
-                    <div class="bg-card rounded-2xl border border-white/10 flex flex-col h-[550px] overflow-hidden">
-                        <div class="p-4 border-b border-white/5 bg-black/20 flex justify-between items-center">
-                            <span class="text-sm font-bold text-gray-300">Apuestas en Vivo</span>
-                            <span class="text-[10px] text-green-500 flex items-center gap-1 bg-green-900/20 px-2 py-0.5 rounded border border-green-500/20"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> LIVE</span>
-                        </div>
-                        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="liveFeed"></div>
-                    </div>
-                </div>
-            </div>
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Lobby</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Link Plinko -->
+                <a href="Games/plinko.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center"><i class="fas fa-caret-down text-7xl text-white group-hover:scale-110 transition"></i></div>
+                    <div class="p-5"><h3 class="text-xl font-bold text-white">PLINKO</h3><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">JUGAR</button></div>
+                </a>
+                <!-- Link Blackjack (AHORA EXTERNO) -->
+                <a href="Games/blackjack.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center"><i class="fas fa-heart text-7xl text-white group-hover:scale-110 transition"></i></div>
+                    <div class="p-5"><h3 class="text-xl font-bold text-white">BLACKJACK</h3><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">JUGAR</button></div>
+                </a>
+               <!-- Enlace Crash Activo -->
+<a href="Games/crash.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+    <div class="h-48 bg-gradient-to-br from-blue-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
+        <!-- Fondo animado sutil -->
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+        <i class="fas fa-rocket text-7xl text-white drop-shadow-2xl group-hover:-translate-y-2 group-hover:scale-110 transition duration-500"></i>
+        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
+    </div>
+    <div class="p-5 relative">
+        <h3 class="text-xl font-bold text-white mb-1">CRASH</h3>
+        <p class="text-xs text-gray-400">Multiplicador Infinito</p>
+        <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-blue-500/50 group-hover:text-blue-400">DESPEGAR</button>
+    </div>
+</a>
         </div>
 
-        <!-- SECCIÓN: CUENTA -->
+        <!-- CUENTA -->
         <div id="accountSection" class="hidden max-w-lg mx-auto mt-10">
-            <div class="bg-card p-8 rounded-3xl border border-white/10 shadow-2xl text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-blue-500"></div>
-                
-                <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl shadow-lg rotate-3 hover:rotate-0 transition">🐸</div>
-                <h2 class="text-2xl font-bold text-white mb-1" id="accUsername">Usuario</h2>
-                <div class="flex justify-center gap-2 mb-8">
-                    <span class="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400">ID: #88219</span>
-                    <span class="text-[10px] bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded text-yellow-500">VIP Nivel 1</span>
+            <div class="bg-card p-8 rounded-3xl border border-white/10 text-center">
+                <h2 class="text-2xl font-bold text-white mb-4" id="accUsername">User</h2>
+                <div class="bg-[#0b1018] p-5 rounded-xl flex justify-between items-center border border-white/5 mb-4">
+                    <div class="text-left"><p class="text-xs text-gray-500 uppercase">Saldo Casino</p><span class="text-2xl font-bold text-neon" id="accCasinoBalance">0.00</span></div>
                 </div>
-                
-                <div class="space-y-4">
-                    <div class="bg-[#0b1018] p-5 rounded-xl flex justify-between items-center border border-white/5 hover:border-green-500/30 transition">
-                        <div class="text-left">
-                            <p class="text-xs text-gray-500 uppercase">Saldo Casino</p>
-                            <span class="text-2xl font-bold text-neon" id="accCasinoBalance">0.00</span>
-                        </div>
-                        <i class="fas fa-coins text-2xl text-gray-700"></i>
-                    </div>
-                    
-                    <div class="bg-[#0b1018] p-5 rounded-xl flex justify-between items-center border border-white/5">
-                        <div class="text-left">
-                            <p class="text-xs text-gray-500 uppercase">Wallet (On-chain)</p>
-                            <span class="text-xl font-bold text-white" id="accWalletBalance">0.00</span>
-                        </div>
-                        <i class="fas fa-wallet text-2xl text-gray-700"></i>
-                    </div>
-                </div>
-                
-                <button onclick="withdraw()" class="w-full mt-8 bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl font-bold transition border border-white/10">SOLICITAR RETIRO</button>
+                <button onclick="withdraw()" class="w-full mt-4 bg-white/5 hover:bg-white/10 text-white py-4 rounded-xl font-bold transition">RETIRO</button>
             </div>
         </div>
-
     </div>
 
-    <!-- MODAL DE SELECCIÓN DE WALLET (NUEVO) -->
-    <div id="walletModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] hidden animate-[fadeIn_0.2s]">
+    <!-- Modals -->
+    <div id="walletModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
         <div class="bg-card w-full max-w-sm p-6 rounded-3xl border border-white/10 shadow-2xl relative">
             <button onclick="closeWalletModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-bold mb-6 text-center">Conectar Billetera</h3>
-            
-            <div class="space-y-3">
-                <button onclick="actualConnect('metamask')" class="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 hover:border-white/20 transition group">
-                    <span class="font-bold">MetaMask / Injected</span>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8 group-hover:scale-110 transition">
-                </button>
-                <button onclick="actualConnect('coinbase')" class="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 hover:border-white/20 transition group">
-                    <span class="font-bold">Coinbase Wallet</span>
-                    <img src="https://avatars.githubusercontent.com/u/18060234?s=200&v=4" class="w-8 h-8 rounded group-hover:scale-110 transition">
-                </button>
-                <button onclick="actualConnect('wc')" class="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 hover:border-white/20 transition group">
-                    <span class="font-bold">WalletConnect</span>
-                    <img src="https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg" class="w-8 h-8 group-hover:scale-110 transition">
-                </button>
-            </div>
+            <h3 class="text-xl font-bold mb-6 text-center">Conectar</h3>
+            <button onclick="actualConnect('metamask')" class="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 mb-2 font-bold">MetaMask</button>
+            <button onclick="actualConnect('coinbase')" class="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 font-bold">Coinbase</button>
         </div>
     </div>
 
-    <!-- LOGIN MODAL -->
     <div id="loginModal" class="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[90] hidden">
-        <div class="bg-card w-full max-w-sm p-8 rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,255,42,0.1)] text-center relative">
-            <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-800 rounded-2xl flex items-center justify-center text-4xl shadow-xl mx-auto mb-6 border-4 border-[#0f1621]">🐸</div>
+        <div class="bg-card w-full max-w-sm p-8 rounded-3xl border border-white/10 text-center">
             <h2 class="text-3xl font-black mb-2 text-white brand-font">PEPE BET</h2>
-            <p class="text-gray-400 text-sm mb-8">El Casino Web3 Definitivo</p>
-            
-            <input type="text" id="usernameInput" placeholder="Elige tu nombre de usuario" class="w-full p-4 rounded-xl bg-[#0b1018] border border-white/10 text-white mb-4 outline-none focus:border-green-500 text-center font-bold placeholder-gray-600 transition">
-            
-            <button onclick="register()" class="btn-gradient w-full py-4 rounded-xl font-bold shadow-lg text-lg">ENTRAR</button>
-            <p class="text-[10px] text-gray-600 mt-4">Al entrar aceptas ser un Degen responsable.</p>
+            <input type="text" id="usernameInput" placeholder="Usuario" class="w-full p-4 rounded-xl bg-[#0b1018] border border-white/10 text-white mb-4 outline-none text-center font-bold">
+            <button onclick="register()" class="btn-gradient w-full py-4 rounded-xl font-bold">ENTRAR</button>
         </div>
     </div>
 
-    <!-- CHAT FLOTANTE -->
-    <div id="chatWidget" class="fixed bottom-4 right-4 w-80 h-96 bg-card rounded-2xl border border-white/10 shadow-2xl z-40 hidden flex-col overflow-hidden transition-all duration-300">
-        <div class="bg-black/30 p-3 border-b border-white/5 flex justify-between items-center backdrop-blur-md">
-            <span class="font-bold text-xs uppercase tracking-wider text-gray-400"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1 animate-pulse"></span> Global Chat</span>
-            <button onclick="toggleChat()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs scrollbar-thin"></div>
-        <div class="p-3 bg-black/30 border-t border-white/5">
-            <input type="text" placeholder="Solo holders pueden hablar..." class="w-full bg-white/5 rounded-lg border border-white/5 px-3 py-2 text-xs text-white focus:border-green-500/50 outline-none" disabled>
-        </div>
+    <!-- CHAT -->
+    <div id="chatWidget" class="fixed bottom-4 right-4 w-80 h-96 bg-card rounded-2xl border border-white/10 shadow-2xl z-40 hidden flex-col overflow-hidden">
+        <div class="bg-black/30 p-3 border-b border-white/5 flex justify-between items-center"><span class="font-bold text-xs uppercase text-gray-400">Global Chat</span><button onclick="toggleChat()" class="text-gray-500"><i class="fas fa-times"></i></button></div>
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs"></div>
+        <div class="p-3 bg-black/30 border-t border-white/5"><input type="text" placeholder="Solo holders..." class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-white outline-none" disabled></div>
     </div>
-    <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-card p-4 rounded-full border border-white/10 shadow-lg hover:border-green-500/50 transition z-30 group hover:scale-110">
-        <i class="fas fa-comments text-xl group-hover:text-neon text-gray-400"></i>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg">1</span>
-    </button>
+    <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-card p-4 rounded-full border border-white/10 shadow-lg hover:border-green-500/50 transition z-30"><i class="fas fa-comments text-xl text-gray-400"></i></button>
 
-    <!-- FOOTER -->
-    <footer class="mt-20 border-t border-white/5 pt-12 pb-8 text-gray-500 text-sm">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
-            <div>
-                <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Casino</h4>
-                <ul class="space-y-2 text-xs">
-                    <li><a href="#" class="hover:text-neon transition">Juegos</a></li>
-                    <li><a href="#" class="hover:text-neon transition">VIP Club</a></li>
-                    <li><a href="#" class="hover:text-neon transition">Fairness</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Soporte</h4>
-                <ul class="space-y-2 text-xs">
-                    <li><a href="#" class="hover:text-neon transition">Ayuda en Vivo</a></li>
-                    <li><a href="#" class="hover:text-neon transition">Términos</a></li>
-                </ul>
-            </div>
-            <div class="col-span-2 md:col-span-2 text-right">
-                <div class="flex items-center gap-2 justify-end mb-4">
-                    <div class="w-6 h-6 rounded bg-green-500 flex items-center justify-center text-black font-bold text-xs">P</div>
-                    <span class="font-bold text-white brand-font text-lg">PepeBET</span>
-                </div>
-                <p class="text-[10px] max-w-xs ml-auto leading-relaxed">Operado por Smart Contracts en Base Network. La transparencia es nuestra prioridad. 100% Descentralizado.</p>
-                <div class="flex gap-4 justify-end mt-4 text-lg">
-                    <a href="#" class="hover:text-neon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="hover:text-neon"><i class="fab fa-telegram"></i></a>
-                </div>
-            </div>
-        </div>
-        <div class="text-center text-[10px] border-t border-white/5 pt-6 opacity-50">
-            &copy; 2025 PepeBlackJack. Todos los derechos reservados. 18+
-        </div>
-    </footer>
-
-    <!-- LÓGICA JAVASCRIPT -->
     <script>
-        // === CONFIGURACIÓN ===
-        // ¡IMPORTANTE! CAMBIA ESTO POR LA DIRECCIÓN REAL DE TU CONTRATO
         const CONTRACT_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5"; 
         const RATE = 1000000;
-        
-        // ABI Mínimo para comprar (NO BORRAR)
-        const ABI = [
-            "function buyTokens() public payable",
-            "function balanceOf(address) view returns (uint)"
-        ];
+        let balance=0, user=null, provider, signer, contract;
 
-        // Estado
-        let balance = 0;
-        let user = null;
-        let provider, signer, contract;
-
-        // === INICIO ===
         window.onload = () => {
-            initTicker();
-            initLiveFeed();
-            initFakeChat(); // Chat automático
-            
-            // Cargar datos guardados
-            let storedData = localStorage.getItem('pepebet_user') || localStorage.getItem('pbj_user_v2');
-            
-            if(storedData) {
-                const data = JSON.parse(storedData);
-                user = data.user || data.username;
-                balance = parseFloat(data.balance);
-                updateUI();
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('userInfo').classList.remove('hidden');
-                document.getElementById('userNameDisplay').innerText = user;
-                // Intentar reconectar wallet silenciosamente
-                if(window.ethereum) actualConnect('metamask', true);
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
-            }
+            initTicker(); initLiveFeed(); initFakeChat();
+            const u = localStorage.getItem('pbj_username');
+            if(u) {
+                fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u}) })
+                .then(r=>r.json()).then(d => { user=d.username; balance=d.balance; updateUI(); 
+                    document.getElementById('loginModal').classList.add('hidden');
+                    document.getElementById('userInfo').classList.remove('hidden');
+                    document.getElementById('userNameDisplay').innerText=user;
+                    if(window.ethereum) actualConnect('metamask', true);
+                });
+            } else { document.getElementById('loginModal').classList.remove('hidden'); }
         };
 
-        // === WALLET CONNECTION (MEJORADA) ===
-        function openWalletModal() {
-            document.getElementById('walletModal').classList.remove('hidden');
-        }
-        function closeWalletModal() {
-            document.getElementById('walletModal').classList.add('hidden');
-        }
-
-        async function actualConnect(type, silent=false) {
-            closeWalletModal();
-            
-            // Nota: En un entorno de producción con build tools usaríamos Web3Modal
-            // Aquí usamos window.ethereum que cubre Metamask, Coinbase, TrustWallet, etc.
-            if(!window.ethereum) {
-                if(!silent) Swal.fire({
-                    icon: 'error',
-                    title: 'Wallet no detectada',
-                    text: 'Instala MetaMask o usa el navegador de tu wallet móvil.',
-                    background: '#162032', color: '#fff'
-                });
-                return;
-            }
-
-            try {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []); // Pide permiso
-                signer = provider.getSigner();
-                const addr = await signer.getAddress();
-                
-                // Conectar contrato
-                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-
-                document.getElementById('connectBtn').innerHTML = `<span class="text-neon">●</span> ${addr.substring(0,6)}...${addr.substring(38)}`;
-                if(!silent) playSound('click');
-
-                // Opcional: Leer saldo real on-chain si el contrato existe
-                try {
-                    const bal = await contract.balanceOf(addr);
-                    document.getElementById('accWalletBalance').innerText = parseFloat(ethers.utils.formatUnits(bal, 18)).toFixed(2) + " PBJ";
-                } catch(e) { console.log("Contrato no accesible aun"); }
-
-            } catch(e) {
-                console.error(e);
-                if(!silent) Swal.fire({icon:'error', title:'Error', text:e.message, background:'#162032', color:'#fff'});
-            }
-        }
-
-        // === PREVENTA REAL (TRANSACCIÓN) ===
-        function calculateTokens() {
-            const eth = document.getElementById('ethAmount').value;
-            document.getElementById('pbjAmount').value = (eth * RATE).toLocaleString();
-        }
-
-        async function buyTokens() {
-            if(!signer) return Swal.fire({title:"Conecta tu Wallet", icon:"warning", background:'#162032', color:'#fff'});
-            
-            const ethAmount = document.getElementById('ethAmount').value;
-            if(ethAmount <= 0) return;
-
-            const btnText = document.getElementById('btnText');
-            const btnLoader = document.getElementById('btnLoader');
-
-            try {
-                // UI Loading
-                btnText.innerText = "CONFIRMA EN TU WALLET...";
-                btnLoader.classList.remove('hidden');
-
-                // 1. Enviar Transacción a la Blockchain
-                // Si el contrato no está desplegado, esto fallará.
-                // Fallback para demo: Si falla el contrato, enviamos ETH normal al owner (simulado)
-                let tx;
-                try {
-                    tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount) });
-                } catch (contractError) {
-                    console.warn("Llamada a contrato falló (quizás dirección incorrecta), intentando envío simple para demo...");
-                    // FALLBACK: Envío simple de ETH (Solo para que no se rompa la demo si no has desplegado)
-                    // En producción BORRA ESTE CATCH y deja que falle si el contrato no va.
-                    tx = await signer.sendTransaction({
-                        to: CONTRACT_ADDRESS, // Envía al contrato/dueño
-                        value: ethers.utils.parseEther(ethAmount)
-                    });
-                }
-
-                btnText.innerText = "ESPERANDO CONFIRMACIÓN...";
-                
-                // 2. Esperar confirmación de bloque (Mining)
-                await tx.wait(); 
-
-                // 3. Éxito - Actualizar saldo del Casino
-                const boughtTokens = ethAmount * RATE;
-                balance += boughtTokens;
-                updateUI();
-                
-                playSound('win');
-                Swal.fire({
-                    title: '¡COMPRA CONFIRMADA!',
-                    html: `Transacción completada en la blockchain.<br>Se han añadido <b>${boughtTokens.toLocaleString()} PBJ</b> a tu saldo.`,
-                    icon: 'success',
-                    background: '#162032', color: '#fff',
-                    confirmButtonColor: '#00ff2a', confirmButtonText: '<span style="color:black;font-weight:bold">JUGAR</span>'
-                });
-
-                // Reset UI
-                document.getElementById('ethAmount').value = '';
-                document.getElementById('pbjAmount').value = '';
-
-            } catch (error) {
-                console.error(error);
-                let msg = "Transacción rechazada o fallida.";
-                if(error.code === 'ACTION_REJECTED') msg = "Rechazaste la transacción en tu wallet.";
-                if(error.code === 'INSUFFICIENT_FUNDS') msg = "No tienes suficiente ETH para el gas.";
-                
-                Swal.fire({title: "Error", text: msg, icon: "error", background: '#162032', color: '#fff'});
-            } finally {
-                btnText.innerText = "COMPRAR Y JUGAR";
-                btnLoader.classList.add('hidden');
-            }
-        }
-
-        // === NAVEGACIÓN ===
+        // UI Navigation
         function showSection(id) {
-            playSound('click');
-            ['presale','casino','account'].forEach(s => {
-                const el = document.getElementById(s+'Section');
-                if(el) el.classList.add('hidden');
-            });
-            if(id === 'plinko') { window.location.href = 'Games/plinko.html'; return; }
-            
+            ['presale','casino','account'].forEach(s => document.getElementById(s+'Section').classList.add('hidden'));
             document.getElementById(id+'Section').classList.remove('hidden');
             document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('pageTitle').innerText = id === 'presale' ? 'Preventa' : (id === 'casino' ? 'Lobby' : 'Cuenta');
+            document.getElementById('pageTitle').innerText = id.toUpperCase();
         }
-
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         
-        function register() {
-            const name = document.getElementById('usernameInput').value;
-            if(!name) return;
-            user = name;
-            balance = 1000; // Welcome Bonus
-            updateUI();
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('userNameDisplay').innerText = user;
-            playSound('win');
+        // Wallet & Presale
+        function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
+        function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
+        async function actualConnect(t, s=false) {
+            closeWalletModal();
+            if(window.ethereum) {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                if(!s) await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                const a = await signer.getAddress();
+                document.getElementById('connectBtn').innerHTML = a.substring(0,6)+'...';
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ["function buyTokens() public payable"], signer);
+            }
+        }
+        function calculateTokens() { document.getElementById('pbjAmount').value = (document.getElementById('ethAmount').value * RATE).toLocaleString(); }
+        async function buyTokens() {
+            if(!signer) return Swal.fire("Error", "Conecta Wallet", "error");
+            const val = document.getElementById('ethAmount').value;
+            try {
+                Swal.fire({title:'Procesando...', didOpen:()=>Swal.showLoading()});
+                // Intento de contrato, fallback a envio directo para demo
+                try { await contract.buyTokens({value:ethers.utils.parseEther(val)}); } 
+                catch { await signer.sendTransaction({to:CONTRACT_ADDRESS, value:ethers.utils.parseEther(val)}); }
+                
+                // Update server
+                const res = await fetch('/api/update', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:user, amount: val*RATE})});
+                const d = await res.json();
+                balance = d.newBalance; updateUI();
+                Swal.fire("Éxito", "Tokens recibidos", "success");
+            } catch(e) { Swal.fire("Error", "Falló la transacción", "error"); }
         }
 
+        // Utils
+        function register() { 
+            const n = document.getElementById('usernameInput').value;
+            if(n) { localStorage.setItem('pbj_username', n); location.reload(); }
+        }
         function updateUI() {
-            const fmt = balance.toLocaleString('en-US', {maximumFractionDigits: 0});
-            document.getElementById('sidebarBalance').innerText = fmt;
-            document.getElementById('accCasinoBalance').innerText = fmt + " PBJ";
-            const dataToSave = { user, balance };
-            localStorage.setItem('pepebet_user', JSON.stringify(dataToSave));
+            const f = balance.toLocaleString('en-US');
+            document.getElementById('sidebarBalance').innerText = f;
+            document.getElementById('accCasinoBalance').innerText = f;
         }
-
-        // === JUEGOS INLINE (BLACKJACK) ===
-        // Nota: He resumido la lógica visual del BJ para ahorrar espacio, es la misma que tenías pero estilizada
-        let bjActive=false;
-        function showGameInline(game) {
-            if(game === 'blackjack') {
-                document.getElementById('inlineBlackjackGame').classList.remove('hidden');
-                setTimeout(() => document.getElementById('inlineBlackjackGame').scrollIntoView({behavior:'smooth', block:'center'}), 100);
-            }
-        }
-        function hideGameInline() {
-            document.getElementById('inlineBlackjackGame').classList.add('hidden');
-            if(bjActive) { bjActive=false; resetBJ(); }
-        }
-
-        // Lógica BJ Simplificada para el Index
-        let bjDeck=[], bjPlayer=[], bjDealer=[];
-        function startBJ() {
-            const bet = parseFloat(document.getElementById('bjBet').value);
-            if(bet > balance) return Swal.fire({title:"Saldo Insuficiente", icon:"error", background:'#162032', color:'#fff'});
-            balance -= bet; updateUI(); bjActive=true;
-            playSound('click');
-            
-            document.getElementById('bjOverlay').classList.add('hidden');
-            document.getElementById('btnDeal').classList.add('hidden');
-            document.getElementById('btnHit').classList.remove('hidden');
-            document.getElementById('btnStand').classList.remove('hidden');
-            
-            // Generar cartas
-            const suits=['♠','♥','♦','♣'], vals=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-            bjDeck=[]; vals.forEach(v=>suits.forEach(s=>bjDeck.push({v,s})));
-            bjDeck.sort(()=>Math.random()-0.5);
-            bjPlayer=[bjDeck.pop(), bjDeck.pop()]; bjDealer=[bjDeck.pop(), bjDeck.pop()];
-            renderBJ();
-            if(getScore(bjPlayer)===21) standBJ();
-        }
-        function hitBJ() {
-            bjPlayer.push(bjDeck.pop()); renderBJ(); playSound('click');
-            if(getScore(bjPlayer)>21) endBJ(false);
-        }
-        function standBJ() {
-            while(getScore(bjDealer)<17) bjDealer.push(bjDeck.pop());
-            renderBJ(true);
-            const p=getScore(bjPlayer), d=getScore(bjDealer);
-            endBJ(d>21 || p>d ? true : (p===d ? 'tie' : false));
-        }
-        function getScore(h) {
-            let s=0,a=0; h.forEach(c=>{ s+=(['J','Q','K'].includes(c.v)?10:(c.v==='A'?11:parseInt(c.v))); if(c.v==='A')a++; });
-            while(s>21 && a>0) {s-=10;a--;} return s;
-        }
-        function renderBJ(showAll=false) {
-            const cHTML = c => `<div class="bg-white w-12 h-16 md:w-14 md:h-20 rounded border border-gray-300 flex items-center justify-center text-xl font-bold ${['♥','♦'].includes(c.s)?'text-red-600':'text-black'} shadow-lg animate-[slideInUp_0.2s]">${c.v}${c.s}</div>`;
-            document.getElementById('playerCards').innerHTML = bjPlayer.map(cHTML).join('');
-            document.getElementById('playerScore').innerText = getScore(bjPlayer);
-            if(!showAll && bjActive) {
-                document.getElementById('dealerCards').innerHTML = cHTML(bjDealer[0]) + `<div class="bg-gradient-to-br from-green-900 to-black w-12 h-16 md:w-14 md:h-20 rounded border border-white/10 flex items-center justify-center shadow-lg"><i class="fas fa-frog text-green-500/50"></i></div>`;
-                document.getElementById('dealerScore').innerText = "?";
-            } else {
-                document.getElementById('dealerCards').innerHTML = bjDealer.map(cHTML).join('');
-                document.getElementById('dealerScore').innerText = getScore(bjDealer);
-            }
-        }
-        function endBJ(res) {
-            bjActive=false;
-            const bet = parseFloat(document.getElementById('bjBet').value);
-            const title = document.getElementById('bjResult');
-            const amt = document.getElementById('bjAmount');
-            document.getElementById('bjOverlay').classList.remove('hidden');
-            
-            if(res===true) {
-                balance += bet*2; title.innerText="VICTORIA"; title.className="text-5xl font-black text-neon"; amt.innerText=`+${bet*2} PBJ`; playSound('win');
-            } else if(res==='tie') {
-                balance += bet; title.innerText="EMPATE"; title.className="text-5xl font-black text-gray-400"; amt.innerText=`+${bet} PBJ`;
-            } else {
-                title.innerText="DERROTA"; title.className="text-5xl font-black text-red-500"; amt.innerText=`-${bet} PBJ`;
-            }
-            updateUI();
-        }
-        function resetBJ() {
-            document.getElementById('bjOverlay').classList.add('hidden');
-            document.getElementById('btnDeal').classList.remove('hidden');
-            document.getElementById('btnHit').classList.add('hidden');
-            document.getElementById('btnStand').classList.add('hidden');
-            document.getElementById('playerCards').innerHTML=''; document.getElementById('dealerCards').innerHTML='';
-            document.getElementById('playerScore').innerText='0'; document.getElementById('dealerScore').innerText='?';
-        }
-
-        // === UTILS & CHAT ===
-        function playSound(id) { const s=document.getElementById('sfx-'+id); if(s){s.currentTime=0;s.play().catch(()=>{});}}
-        function showFairness() { Swal.fire({title:'Provably Fair', html:'<div class="text-left text-sm text-gray-300">Hash SHA-256 generado con semilla cliente (wallet) + semilla servidor.</div>', background:'#162032', color:'#fff'}); }
-        function withdraw() { Swal.fire({title:'Retiro', text:'Disponible al finalizar la preventa.', icon:'info', background:'#162032', color:'#fff'}); }
-
-        // Chat Simulado
-        function toggleChat() { 
-            const c=document.getElementById('chatWidget'); c.classList.toggle('hidden'); 
-            const m=document.getElementById('chatMessages'); m.scrollTop=m.scrollHeight; 
-        }
-        function initFakeChat() {
-            const msgs = document.getElementById('chatMessages');
-            const names = ["DegenKing", "PepeLover", "Whale0x", "Satoshi", "BaseGod"];
-            const texts = ["LFG! 🚀", "Big win on Plinko!", "Buying more PBJ", "Wen Lambo?", "This UI is sick"];
-            const add = () => {
-                const div = document.createElement('div');
-                div.className="bg-white/5 p-2 rounded mb-1 animate-[slideInUp_0.2s]";
-                div.innerHTML=`<span class="font-bold text-gray-400">${names[Math.floor(Math.random()*5)]}:</span> <span class="text-gray-300">${texts[Math.floor(Math.random()*5)]}</span>`;
-                msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
-            };
-            for(let i=0;i<4;i++) add();
-            setInterval(()=>{if(Math.random()>0.3) add();}, 3500);
-        }
-        function initTicker() {
-            const t = document.getElementById('whaleTicker');
-            const txt = ["🚀 PREVENTA ACTIVA", "🐋 0x4a... compró 5 ETH", "🔥 Jackpot ganado: 50k PBJ", "💎 Nuevo Partner: BaseDEX"];
-            t.innerHTML = txt.map(m=>`<span class="ticker-item">${m}</span>`).join('') + txt.map(m=>`<span class="ticker-item">${m}</span>`).join('');
-        }
-        function initLiveFeed() {
-            const f=document.getElementById('liveFeed');
-            const add=()=>{
-                const win=Math.random()>0.4;
-                const d=document.createElement('div');
-                d.className="flex justify-between text-xs p-2 bg-black/20 rounded animate-[slideInUp_0.3s] border-l-2 "+(win?"border-green-500":"border-red-500");
-                d.innerHTML=`<span class="text-gray-400">User${Math.floor(Math.random()*999)}</span><span class="${win?'text-neon':'text-red-400'}">${win?'+':'-'}${Math.floor(Math.random()*500)}</span>`;
-                f.insertBefore(d,f.firstChild); if(f.children.length>8) f.removeChild(f.lastChild);
-            };
-            setInterval(add, 2500);
+        function withdraw() { Swal.fire("Info", "Retiros pausados durante preventa", "info"); }
+        
+        // Chat & Feeds
+        function toggleChat(){document.getElementById('chatWidget').classList.toggle('hidden');}
+        function initTicker(){ document.getElementById('whaleTicker').innerHTML = ["🚀 PREVENTA","🔥 JACKPOT"].map(t=>`<span class="px-8 text-sm text-gray-400">${t}</span>`).join(''); }
+        function initLiveFeed(){ setInterval(()=>{
+            const d = document.createElement('div'); d.className="flex justify-between text-xs p-2 bg-black/20 rounded border-l-2 border-green-500";
+            d.innerHTML=`<span class="text-gray-400">User${Math.floor(Math.random()*99)}</span><span class="text-neon">+${Math.floor(Math.random()*500)}</span>`;
+            const f=document.getElementById('liveFeed'); if(f){ f.insertBefore(d,f.firstChild); if(f.children.length>5)f.removeChild(f.lastChild); }
+        }, 3000); }
+        function initFakeChat(){
+            const c = document.getElementById('chatMessages');
+            setInterval(()=>{
+                const d = document.createElement('div'); d.className="bg-white/5 p-2 rounded mb-1";
+                d.innerHTML=`<span class="font-bold text-gray-400">Anon:</span> <span class="text-gray-300">LFG!</span>`;
+                c.appendChild(d); c.scrollTop=c.scrollHeight;
+            }, 5000);
         }
     </script>
 </body>
