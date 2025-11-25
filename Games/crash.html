@@ -27,14 +27,49 @@
         .btn-cashout:hover { background: #f59e0b; transform: translateY(-2px); }
 
         .game-wrapper { display: flex; height: 100vh; }
-        .sidebar { width: 320px; flex-shrink: 0; padding: 24px; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
-        .game-area { flex: 1; position: relative; background: radial-gradient(circle at bottom left, #131b29 0%, #070b10 100%); overflow: hidden; display: flex; flex-direction: column; }
+        .sidebar { width: 300px; flex-shrink: 0; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 20; background: #0f1621; border-right: 1px solid var(--border); }
         
+        /* ÁREA DE JUEGO CENTRADA */
+        .game-stage { 
+            flex: 1; 
+            background: radial-gradient(circle at center, #1a2332 0%, #070b10 100%); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
+            position: relative;
+        }
+
+        .canvas-container {
+            width: 100%;
+            max-width: 1000px; /* Limite de ancho para que se vea "cerca" */
+            aspect-ratio: 16/9;
+            background: #0b1018;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
         /* Historial */
-        .history-bar { height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 20px; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 10%); }
-        .badge-mult { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; min-width: 40px; text-align: center; }
+        .history-bar { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            left: 10px; 
+            height: 30px; 
+            display: flex; 
+            justify-content: flex-end;
+            gap: 6px; 
+            overflow: hidden; 
+            z-index: 10;
+            mask-image: linear-gradient(to right, transparent, black 20%);
+        }
+        .badge-mult { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; min-width: 45px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
-        @media(max-width:1024px){ .game-wrapper{flex-direction:column-reverse;overflow-y:auto} .sidebar{width:100%;height:auto} .game-area{min-height:500px} }
+        @media(max-width:1024px){ .game-wrapper{flex-direction:column-reverse;overflow-y:auto} .sidebar{width:100%;height:auto} .game-stage{height:600px} }
     </style>
 </head>
 <body>
@@ -44,10 +79,10 @@
 
     <div class="game-wrapper">
         <!-- SIDEBAR -->
-        <div class="sidebar glass-panel">
-            <div class="flex justify-between items-center mb-4">
-                <a href="../index.html" class="flex items-center gap-2 text-gray-400 hover:text-white"><i class="fas fa-chevron-left"></i> Volver</a>
-                <div class="bg-black/40 px-3 py-1 rounded-full border border-white/5 font-mono font-bold"><span id="displayBalance">0.00</span> PBJ</div>
+        <div class="sidebar">
+            <div class="flex justify-between items-center mb-2">
+                <a href="../index.html" class="flex items-center gap-2 text-gray-400 hover:text-white transition"><i class="fas fa-chevron-left"></i> Volver</a>
+                <div class="bg-black/40 px-3 py-1 rounded-full border border-white/5 font-mono font-bold text-sm text-white"><span id="displayBalance">0.00</span> PBJ</div>
             </div>
 
             <!-- Bet Input -->
@@ -56,50 +91,55 @@
                 <div class="relative">
                     <input type="number" id="betAmount" value="100" class="w-full p-3 input-slot rounded-lg font-bold text-sm">
                     <div class="absolute right-1 top-1 bottom-1 flex gap-1">
-                        <button onclick="multBet(0.5)" class="bg-[#1a2c38] px-2 rounded text-[10px] text-gray-400 font-bold">½</button>
-                        <button onclick="multBet(2)" class="bg-[#1a2c38] px-2 rounded text-[10px] text-gray-400 font-bold">2x</button>
+                        <button onclick="multBet(0.5)" class="bg-[#1a2c38] hover:bg-[#263549] text-gray-400 px-2 rounded text-[10px] font-bold">½</button>
+                        <button onclick="multBet(2)" class="bg-[#1a2c38] hover:bg-[#263549] text-gray-400 px-2 rounded text-[10px] font-bold">2x</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Auto Cashout (Visual por ahora) -->
+            <!-- Auto Cashout -->
             <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                <label class="text-[10px] font-bold text-gray-500 block mb-2">AUTO CASHOUT (x)</label>
-                <input type="number" id="autoCashout" value="2.00" class="w-full p-3 input-slot rounded-lg font-bold text-sm">
+                <label class="text-[10px] font-bold text-gray-500 block mb-2">AUTO RETIRO (x)</label>
+                <input type="number" id="autoCashout" value="2.00" step="0.10" class="w-full p-3 input-slot rounded-lg font-bold text-sm">
             </div>
 
             <!-- Botones de Estado -->
-            <div class="mt-auto">
-                <button onclick="placeBet()" id="btnBet" class="btn-neon btn-action shadow-lg">APOSTAR</button>
-                <button onclick="cashOut()" id="btnCashout" class="btn-cashout btn-action hidden">RETIRAR (<span id="cashoutProfit">0</span>)</button>
-                <button id="btnWaiting" class="bg-gray-700 text-gray-400 btn-action hidden cursor-not-allowed">ESPERANDO...</button>
+            <div class="mt-auto space-y-3">
+                <button onclick="placeBet()" id="btnBet" class="btn-neon btn-action shadow-lg tracking-widest">APOSTAR</button>
+                <button onclick="cashOut()" id="btnCashout" class="btn-cashout btn-action hidden tracking-widest">RETIRAR <br><span id="cashoutProfit" class="text-sm">0.00</span></button>
+                <button id="btnWaiting" class="bg-gray-700 text-gray-400 btn-action hidden cursor-not-allowed font-bold">EN CURSO...</button>
+            </div>
+            
+            <div class="text-[10px] text-center text-gray-600 mt-2">
+                <i class="fas fa-shield-alt"></i> Provably Fair
             </div>
         </div>
 
-        <!-- GAME AREA -->
-        <div class="game-area">
-            <!-- Historial Superior -->
-            <div class="history-bar absolute top-4 left-0 right-0 z-20" id="crashHistory">
-                <!-- Se llenará con JS -->
-            </div>
+        <!-- GAME STAGE (CENTRADO) -->
+        <div class="game-stage">
+            <div class="canvas-container">
+                <!-- Historial -->
+                <div class="history-bar" id="crashHistory"></div>
 
-            <!-- Información Central -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-                <div id="multiplierDisplay" class="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.2)] font-mono">1.00x</div>
-                <div id="statusMessage" class="text-sm font-bold text-gray-400 mt-4 tracking-widest uppercase">Próxima Ronda en 5s</div>
-            </div>
+                <!-- Multiplicador Central -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+                    <div id="multiplierDisplay" class="text-7xl md:text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(0,0,0,0.5)] font-mono tracking-tighter transition-colors duration-100">1.00x</div>
+                    <div id="statusMessage" class="text-xs font-bold text-gray-400 mt-4 tracking-[0.3em] uppercase bg-black/30 px-4 py-1 rounded-full backdrop-blur-sm">Esperando...</div>
+                </div>
 
-            <canvas id="crashCanvas" class="w-full h-full"></canvas>
+                <!-- Canvas -->
+                <canvas id="crashCanvas" class="w-full h-full"></canvas>
+            </div>
         </div>
     </div>
 
-    <!-- LÓGICA -->
+    <!-- LÓGICA (LOCALSTORAGE) -->
     <script>
+        const STORAGE_KEY = 'pepeblackjack_v1';
         const canvas = document.getElementById('crashCanvas');
         const ctx = canvas.getContext('2d');
-        let userBalance = 0, username = null;
         
-        // Variables de Juego
+        let userBalance = 0, username = null;
         let gameState = 'IDLE'; // IDLE, BETTING, RUNNING, CRASHED
         let currentMultiplier = 1.00;
         let crashPoint = 0;
@@ -107,31 +147,40 @@
         let animationId;
         let userBet = 0;
         let userCashedOut = false;
-        
-        // Configuración Visual
         let graphPoints = [];
         let canvasWidth, canvasHeight;
 
         // INIT
         window.onload = () => {
-            const u = localStorage.getItem('pbj_username');
-            if(u) {
-                fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u}) })
-                .then(r=>r.json()).then(d => { userBalance=d.balance; username=d.username; updateUI(); });
-            } else { window.location.href = '../index.html'; }
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if(data) {
+                userBalance = parseFloat(data.balance);
+                username = data.username;
+                updateBalanceUI();
+            } else {
+                window.location.href = '../index.html';
+            }
             
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
-            generateHistory(); // Falso historial inicial
-            gameLoop(); // Loop de renderizado
+            generateHistory(); 
+            
+            // Auto start loop
+            setTimeout(startGame, 1000);
+            render();
         };
 
+        function saveData() {
+            const data = { username: username, balance: userBalance };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            updateBalanceUI();
+        }
+
         // --- CORE GAME LOOP ---
-        
         function startGame() {
             if(userBet > 0) {
-                // Descontar apuesta del servidor
-                updateServerBalance(-userBet);
+                userBalance -= userBet;
+                saveData();
                 document.getElementById('btnBet').classList.add('hidden');
                 document.getElementById('btnCashout').classList.remove('hidden');
                 document.getElementById('btnWaiting').classList.add('hidden');
@@ -139,14 +188,12 @@
 
             gameState = 'RUNNING';
             currentMultiplier = 1.00;
-            speed = 0.005; // Velocidad inicial
+            speed = 0.006; 
             userCashedOut = false;
-            graphPoints = [{x: 0, y: canvasHeight}]; // Reiniciar gráfica
+            graphPoints = [{x: 0, y: canvasHeight}];
             
-            // Determinar punto de Crash (Algoritmo Justo Simulado)
-            // Fórmula estándar: E = 100 / (random * 100 + 1) * (1 - houseEdge)
-            // Aquí simplificado:
-            crashPoint = (Math.floor(Math.random() * 100) === 0) ? 1.00 : parseFloat((100 / (Math.random() * 100 + 1)).toFixed(2)); 
+            // Algoritmo Crash Simple
+            crashPoint = (Math.floor(Math.random() * 33) === 0) ? 1.00 : parseFloat((100 / (Math.random() * 100 + 1)).toFixed(2)); 
             if(crashPoint < 1.00) crashPoint = 1.00; 
             
             document.getElementById('statusMessage').innerText = "EN VIVO";
@@ -159,18 +206,21 @@
         function runGameTick() {
             if(gameState !== 'RUNNING') return;
 
-            // Incrementar Multiplicador (Exponencial)
             currentMultiplier += speed;
-            speed *= 1.005; // Aceleración
+            speed *= 1.003; // Aceleración suave
 
             document.getElementById('multiplierDisplay').innerText = currentMultiplier.toFixed(2) + "x";
             
-            // Actualizar botón de retiro
+            // Auto Cashout Logic
+            const auto = parseFloat(document.getElementById('autoCashout').value);
+            if(userBet > 0 && !userCashedOut && auto > 1.0 && currentMultiplier >= auto) {
+                cashOut();
+            }
+
             if(userBet > 0 && !userCashedOut) {
                 document.getElementById('cashoutProfit').innerText = (userBet * currentMultiplier).toFixed(2);
             }
 
-            // Chequear Crash
             if(currentMultiplier >= crashPoint) {
                 crash();
             } else {
@@ -185,74 +235,60 @@
             document.getElementById('multiplierDisplay').classList.remove('text-white');
             document.getElementById('multiplierDisplay').classList.add('text-red-500');
             document.getElementById('statusMessage').innerText = "CRASHED";
-            
             document.getElementById('sfx-crash').play();
             
-            // Resetear UI de botones
             document.getElementById('btnCashout').classList.add('hidden');
+            document.getElementById('btnBet').classList.remove('hidden');
+            
             if(userBet > 0 && !userCashedOut) {
-                // Perdió
-                userBet = 0; 
-                document.getElementById('btnBet').classList.remove('hidden');
+                userBet = 0; // Perdió
+                document.getElementById('btnBet').innerText = "APOSTAR";
+                document.getElementById('btnBet').classList.remove('opacity-50');
             } else if (userCashedOut) {
-                // Ya ganó, botón listo para siguiente ronda
-                document.getElementById('btnBet').classList.remove('hidden');
                 document.getElementById('btnWaiting').classList.add('hidden');
-            } else {
-                // No apostó
-                document.getElementById('btnBet').classList.remove('hidden');
+                document.getElementById('btnBet').innerText = "APOSTAR";
+                document.getElementById('btnBet').classList.remove('opacity-50');
             }
 
             addToHistory(crashPoint);
             
-            // Auto Restart
-            let countdown = 5;
+            // Restart Countdown
+            let countdown = 4;
             const timer = setInterval(() => {
                 document.getElementById('statusMessage').innerText = `Próxima Ronda en ${countdown}s`;
                 countdown--;
                 if(countdown < 0) {
                     clearInterval(timer);
-                    if(userBet > 0) { 
-                        // Si el usuario pulsó apostar durante el tiempo de espera
-                        startGame(); 
-                    } else {
-                        // Esperar a que apueste o arrancar sin él (simulado)
-                        startGame(); // En realidad arranca siempre
-                    }
+                    startGame();
                 }
             }, 1000);
         }
 
         // --- PLAYER ACTIONS ---
-
         function placeBet() {
             const amount = parseFloat(document.getElementById('betAmount').value);
-            if(amount > userBalance) return Swal.fire({title:"Saldo Insuficiente", icon:"error"});
+            if(amount > userBalance) return Swal.fire({title:"Saldo Insuficiente", icon:"error", background:'#0f1621', color:'#fff'});
             if(amount <= 0) return;
 
+            userBet = amount;
             if(gameState === 'RUNNING') {
-                // Si ya está corriendo, encolar para la siguiente
-                userBet = amount;
                 document.getElementById('btnBet').classList.add('hidden');
                 document.getElementById('btnWaiting').classList.remove('hidden');
-                Swal.fire({toast:true, position:'top-end', icon:'info', title:'Apuesta para la sig. ronda', timer:1500, showConfirmButton:false});
+                document.getElementById('btnWaiting').innerText = "APUESTA EN COLA...";
+                document.getElementById('btnWaiting').classList.remove('bg-green-600', 'text-white');
             } else {
-                userBet = amount;
-                // Bloquear botón visualmente hasta que arranque
                 document.getElementById('btnBet').innerText = "APOSTADO";
                 document.getElementById('btnBet').classList.add('opacity-50');
             }
         }
 
-        async function cashOut() {
+        function cashOut() {
             if(gameState !== 'RUNNING' || userCashedOut) return;
-            
             userCashedOut = true;
             const winAmount = userBet * currentMultiplier;
-            const profit = winAmount - userBet; // Solo profit para mostrar, pero sumamos todo al balance
             
-            // Pagar en servidor
-            await updateServerBalance(winAmount); // Devolvemos apuesta + ganancia (porque ya descontamos la apuesta al inicio)
+            userBalance += winAmount;
+            saveData();
             
             document.getElementById('sfx-win').play();
             document.getElementById('btnCashout').classList.add('hidden');
@@ -260,108 +296,89 @@
             document.getElementById('btnWaiting').innerText = "GANADO: " + winAmount.toFixed(0);
             document.getElementById('btnWaiting').classList.add('bg-green-600', 'text-white');
             
-            // Reset botón waiting styles despues del crash
-            setTimeout(() => {
-                userBet = 0; // Limpiar apuesta
-            }, 100);
+            userBet = 0; 
         }
 
-        // --- CANVAS DRAWING ---
+        // --- CANVAS RENDER ---
         function render() {
-            if(gameState !== 'RUNNING' && gameState !== 'CRASHED') {
-                requestAnimationFrame(render);
-                return;
-            }
-
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             
-            // Dibujar Grid
+            // Grid
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            for(let i=0; i<canvasWidth; i+=50) { ctx.moveTo(i,0); ctx.lineTo(i,canvasHeight); }
-            for(let i=0; i<canvasHeight; i+=50) { ctx.moveTo(0,i); ctx.lineTo(canvasWidth,i); }
+            for(let i=0; i<canvasWidth; i+=80) { ctx.moveTo(i,0); ctx.lineTo(i,canvasHeight); }
+            for(let i=0; i<canvasHeight; i+=80) { ctx.moveTo(0,i); ctx.lineTo(canvasWidth,i); }
             ctx.stroke();
 
-            // Dibujar Curva
-            // Mapear tiempo (X) y Multiplicador (Y) al canvas
-            // Simple visualización: una curva Bezier que crece
-            
-            const progress = Math.min(1, (currentMultiplier - 1) / 10); // Escala visual hasta 10x
-            const endX = canvasWidth * 0.8; 
-            const endY = canvasHeight * 0.8;
-            
-            const currentX = progress * endX;
-            const currentY = canvasHeight - (progress * endY);
+            if(gameState === 'RUNNING' || gameState === 'CRASHED') {
+                // Calcular curva
+                // X axis: Time (lineal) | Y axis: Multiplier (exponencial visual)
+                const progress = Math.min(1, (currentMultiplier - 1) / 5); // Zoom visual
+                
+                const startX = 0;
+                const startY = canvasHeight;
+                const endX = canvasWidth * 0.8;
+                const endY = canvasHeight * 0.2; // Sube hasta el 20% top
+                
+                const curX = startX + (progress * endX);
+                const curY = startY - (Math.pow(progress, 0.8) * (startY - endY)); // Curva suave
 
-            ctx.beginPath();
-            ctx.moveTo(0, canvasHeight);
-            ctx.quadraticCurveTo(currentX / 2, canvasHeight, currentX, currentY);
-            
-            ctx.strokeStyle = gameState === 'CRASHED' ? '#ef4444' : '#00ff2a';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-            
-            // Relleno
-            ctx.lineTo(currentX, canvasHeight);
-            ctx.fillStyle = gameState === 'CRASHED' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(0, 255, 42, 0.1)';
-            ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(0, canvasHeight);
+                ctx.quadraticCurveTo(curX * 0.5, canvasHeight, curX, curY);
+                
+                ctx.strokeStyle = gameState === 'CRASHED' ? '#ef4444' : '#00ff2a';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                
+                // Gradiente debajo
+                ctx.lineTo(curX, canvasHeight);
+                const grad = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+                grad.addColorStop(0, gameState === 'CRASHED' ? 'rgba(239,68,68,0.2)' : 'rgba(0,255,42,0.2)');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.fill();
 
-            // Cohete / Punto
-            ctx.save();
-            ctx.translate(currentX, currentY);
-            ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(0, 0, 6, 0, Math.PI*2);
-            ctx.fill();
-            
-            // Texto Cohete
-            ctx.font = "20px Arial";
-            ctx.fillText("🚀", -10, -10);
-            ctx.restore();
+                // Cohete
+                ctx.save();
+                ctx.translate(curX, curY);
+                // Rotación basada en la pendiente
+                const angle = -Math.PI / 4 * progress; 
+                ctx.rotate(angle);
+                
+                ctx.font = "30px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(gameState==='CRASHED' ? "💥" : "🚀", 0, 0);
+                ctx.restore();
+            }
 
             requestAnimationFrame(render);
         }
-        render(); // Iniciar loop gráfico
 
         // --- UTILS ---
-        async function updateServerBalance(amount) {
-            const res = await fetch('/api/update', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username, amount})});
-            const d = await res.json();
-            if(d.success) { userBalance = d.newBalance; updateBalanceUI(); }
-        }
-        function updateBalanceUI() { 
-            document.getElementById('displayBalance').innerText = userBalance.toFixed(2); 
-            // Restaurar botón de apostar si se reseteó
-            const btn = document.getElementById('btnBet');
-            if(btn.innerText === "APOSTADO" && gameState === 'IDLE') {
-                btn.innerText = "APOSTAR";
-                btn.classList.remove('opacity-50');
-            }
-        }
+        function updateBalanceUI() { document.getElementById('displayBalance').innerText = userBalance.toFixed(2); }
         function multBet(m) { document.getElementById('betAmount').value *= m; }
         function resizeCanvas() {
-            canvas.width = document.querySelector('.game-area').offsetWidth;
-            canvas.height = document.querySelector('.game-area').offsetHeight;
+            const cont = document.querySelector('.canvas-container');
+            canvas.width = cont.offsetWidth;
+            canvas.height = cont.offsetHeight;
             canvasWidth = canvas.width;
             canvasHeight = canvas.height;
         }
-        
         function generateHistory() {
             const hist = document.getElementById('crashHistory');
-            for(let i=0; i<10; i++) {
-                let r = (Math.random() * 10 + 1).toFixed(2);
-                addToHistory(r);
-            }
+            for(let i=0; i<8; i++) addToHistory((Math.random()*5+1).toFixed(2));
         }
-        
         function addToHistory(val) {
             const hist = document.getElementById('crashHistory');
             const div = document.createElement('div');
-            div.className = `badge-mult ${val >= 2 ? 'bg-green-500/20 text-green-400' : 'bg-gray-700/50 text-gray-400'}`;
+            div.className = `badge-mult ${val >= 2 ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-700/50 text-gray-400 border border-gray-600/30'}`;
             div.innerText = val + 'x';
             hist.prepend(div);
-            if(hist.children.length > 15) hist.removeChild(hist.lastChild);
+            if(hist.children.length > 10) hist.removeChild(hist.lastChild);
         }
     </script>
 </body>
