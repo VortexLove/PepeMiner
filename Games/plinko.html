@@ -3,112 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Plinko | PepeCasino</title>
+    <title>Plinko | PepeBlackJack Casino</title>
     
-    <!-- Librerías -->
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
+        /* --- CORE THEME (Inherited from Main) --- */
         :root {
             --primary: #00ff2a;
-            --primary-dim: #00b31d;
-            --bg-body: #0f1923; /* Stake-like dark blue/grey */
-            --bg-panel: #212b36;
-            --bg-game: #1a242d;
-            --text-muted: #8b9bb4;
-            --sidebar-width: 240px;
+            --primary-dim: #00cc22;
+            --primary-glow: rgba(0, 255, 42, 0.5);
+            --bg-dark: #05080a;
+            --bg-panel: #0b1016;
+            --bg-card: #121924;
+            --border-color: #1f2937;
+            --text-muted: #9ca3af;
         }
 
         body { 
-            background-color: var(--bg-body); 
+            background-color: var(--bg-dark); 
             color: white; 
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; /* Important for Game Immersion */
         }
 
-        h1, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Space Grotesk', sans-serif; }
 
         /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-body); }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #556377; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
 
-        /* LAYOUT GRID - STAKE STYLE */
+        /* UTILITIES */
+        .glass-panel {
+            background: rgba(11, 16, 22, 0.95);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .text-neon { color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
+            color: #000; font-weight: 800; letter-spacing: 0.5px;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--primary-glow); }
+
+        /* --- GAME SPECIFIC LAYOUT (Stake Style) --- */
         .app-layout {
             display: grid;
-            grid-template-columns: var(--sidebar-width) 1fr;
-            grid-template-rows: 60px 1fr;
+            grid-template-columns: 260px 1fr;
+            grid-template-rows: 80px 1fr;
             height: 100vh;
         }
 
-        /* SIDEBAR */
-        .sidebar {
-            grid-row: 1 / -1;
-            background: #0f1923;
-            border-right: 1px solid #2f3b4b;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 10px;
-            z-index: 50;
-        }
-        .nav-item {
-            padding: 12px; border-radius: 8px; color: var(--text-muted); font-weight: 600;
-            display: flex; items-center; gap: 10px; transition: 0.2s; cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .nav-item:hover, .nav-item.active { background: #212b36; color: white; }
-        .nav-item.active i { color: var(--primary); }
-
-        /* HEADER */
-        .top-bar {
-            background: #1a242d;
-            border-bottom: 1px solid #2f3b4b;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            background: var(--bg-body);
-            overflow-y: auto;
-            padding: 30px;
-        }
-
-        /* GAME CARD CONTAINER */
-        .game-card {
-            background: var(--bg-game);
-            border-radius: 16px;
-            display: grid;
-            grid-template-columns: 300px 1fr; /* Controls | Canvas */
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 1px solid #2f3b4b;
-            max-width: 1100px;
-            margin: 0 auto;
-            min-height: 600px;
-        }
-
-        /* LEFT CONTROLS */
-        .controls-panel {
-            background: #212b36;
+        .game-wrapper {
+            background: var(--bg-dark);
             padding: 20px;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            border-right: 1px solid #2f3b4b;
+            justify-content: center;
         }
 
-        /* CANVAS AREA */
+        .game-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 600px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* CONTROLS (Left) */
+        .controls-panel {
+            background: var(--bg-panel);
+            padding: 24px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .input-group {
+            background: #05080a;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4px;
+            display: flex; align-items: center;
+            transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: var(--primary); box-shadow: 0 0 15px rgba(0,255,42,0.1); }
+        .input-clean { background: transparent; border: none; color: white; width: 100%; padding: 10px; font-weight: bold; outline: none; }
+
+        /* CANVAS (Right) */
         .canvas-area {
             position: relative;
-            background: #0f1923; /* Darker background for canvas */
+            background: radial-gradient(circle at 50% 100%, #1a2430 0%, #05080a 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -116,608 +117,443 @@
             overflow: hidden;
         }
 
-        /* UI COMPONENTS */
-        .input-box {
-            background: #0f1923;
-            border: 2px solid #2f3b4b;
-            border-radius: 8px;
-            padding: 8px;
-            transition: 0.2s;
-        }
-        .input-box:focus-within { border-color: var(--primary); }
-        .input-clean { background: transparent; border: none; color: white; width: 100%; font-weight: bold; outline: none; }
-        
-        .btn-action {
-            background: var(--primary); color: #000; font-weight: 800;
-            padding: 15px; border-radius: 8px; font-size: 1rem;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            transition: 0.2s; box-shadow: 0 5px 20px rgba(0, 255, 42, 0.2);
-        }
-        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 5px 25px rgba(0, 255, 42, 0.4); }
-        .btn-action:active { transform: translateY(0); }
-
         /* MULTIPLIERS */
         .mult-container {
-            display: flex; gap: 4px; padding: 10px 20px 20px 20px; z-index: 10;
-            width: 90%; max-width: 700px; justify-content: center;
+            display: flex; gap: 6px; padding: 20px; z-index: 10;
+            width: 100%; max-width: 800px; justify-content: center;
         }
         .mult-box {
-            flex: 1; height: 35px; border-radius: 6px; font-size: 10px; font-weight: 800;
+            flex: 1; height: 40px; border-radius: 6px; font-size: 11px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; color: #000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.2s; cursor: help;
-            border-bottom: 3px solid rgba(0,0,0,0.2); position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.2s; cursor: help;
+            border-bottom: 3px solid rgba(0,0,0,0.2);
         }
-        .mult-box:hover { transform: translateY(-5px) scale(1.1); z-index: 20; }
-        
-        /* ANIMATIONS */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        .shake-screen { animation: shake 0.5s; }
+        .mult-box:hover { transform: translateY(-5px) scale(1.1); filter: brightness(1.2); z-index: 20; }
 
+        /* POPUP TEXT ANIMATION */
         .pop-text {
-            position: absolute; font-weight: 900; font-size: 14px;
-            pointer-events: none; animation: floatUp 1s forwards;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 50;
+            position: absolute; font-weight: 900; font-size: 16px; pointer-events: none;
+            animation: floatUp 0.8s forwards; text-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 50;
         }
-        @keyframes floatUp { 
-            0% { transform: translateY(0) scale(0.8); opacity: 1; }
-            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(0.8); opacity: 1; } 100% { transform: translateY(-60px) scale(1.2); opacity: 0; } }
+
+        /* MOBILE */
+        @media (max-width: 1024px) {
+            .app-layout { grid-template-columns: 1fr; grid-template-rows: 70px 1fr; }
+            .sidebar { transform: translateX(-100%); position: fixed; height: 100vh; z-index: 60; top: 0; left: 0; width: 260px; transition: 0.3s; }
+            .sidebar.open { transform: translateX(0); }
+            .game-wrapper { padding: 10px; height: auto; overflow-y: scroll; display: block; }
+            .game-card { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: auto; }
+            .controls-panel { border-right: none; border-top: 1px solid var(--border-color); }
+            .canvas-area { height: 500px; }
+            .header-spacer { display: none; }
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 1024px) {
-            .app-layout { grid-template-columns: 1fr; grid-template-rows: 60px 1fr; }
-            .sidebar { display: none; /* Hide sidebar on mobile for focus */ }
-            .game-card { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; }
-            .controls-panel { padding: 15px; border-right: none; border-top: 1px solid #2f3b4b; }
-            .canvas-area { height: 500px; }
-            .main-content { padding: 10px; }
-        }
+        /* CHAT & MODALS inherited styling... */
+        .avatar-option.selected { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .level-progress { transition: width 1s ease-in-out; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- AUDIO RESOURCES -->
-    <audio id="sfx-hit" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio> <!-- Light click -->
-    <audio id="sfx-win" src="https://cdn.freesound.org/previews/270/270404_5123851-lq.mp3"></audio> <!-- Success -->
-    <audio id="sfx-drop" src="https://cdn.freesound.org/previews/146/146723_2626839-lq.mp3"></audio> <!-- Woosh -->
+    <!-- AUDIO -->
+    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
+    <audio id="sfx-hit" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
 
-    <div class="app-layout" id="app">
+    <div class="app-layout">
         
-        <!-- SIDEBAR -->
-        <nav class="sidebar">
-            <div class="flex items-center gap-3 px-2 mb-8 cursor-pointer">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center">🐸</div>
-                <h1 class="text-lg font-bold text-white tracking-wide">Pepe<span class="text-[#00ff2a]">Casino</span></h1>
-            </div>
-
-            <div class="space-y-1">
-                <div class="nav-item"><i class="fas fa-home w-6"></i> Home</div>
-                <div class="nav-item active"><i class="fas fa-gamepad w-6"></i> Plinko</div>
-                <div class="nav-item"><i class="fas fa-dice w-6"></i> Blackjack</div>
-                <div class="nav-item"><i class="fas fa-rocket w-6"></i> Crash</div>
-                <div class="nav-item"><i class="fas fa-trophy w-6"></i> Leaderboard</div>
-            </div>
-
-            <div class="mt-auto border-t border-gray-800 pt-4">
-                <div class="nav-item"><i class="fas fa-headset w-6"></i> Support</div>
-            </div>
-        </nav>
-
-        <!-- TOP BAR -->
-        <header class="top-bar">
-            <button class="lg:hidden text-white" onclick="alert('Toggle Menu')"><i class="fas fa-bars"></i></button>
-            <div class="hidden lg:block text-sm text-gray-400 font-bold">FAIRNESS VERIFIED <i class="fas fa-check-circle text-green-500 ml-1"></i></div>
-            
-            <div class="flex items-center gap-4">
-                <div class="bg-[#0f1923] px-4 py-1.5 rounded-full border border-gray-700 flex items-center gap-2">
-                    <span class="text-[#00ff2a] font-bold text-sm" id="headerBalance">0.00</span>
-                    <span class="text-xs font-bold text-gray-500">PBJ</span>
+        <!-- SIDEBAR (De tu index original) -->
+        <div id="sidebar" class="sidebar bg-panel glass-panel flex flex-col p-5 pt-16 lg:pt-6">
+            <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="window.location.href='../index.html'">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(0,255,42,0.3)]">🐸</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider brand-font text-white leading-none">Pepe<span class="text-neon">BJ</span></h1>
+                    <span class="text-[9px] text-gray-500 uppercase tracking-widest">Web3 Casino</span>
                 </div>
-                <button class="bg-[#2f3b4b] hover:bg-[#3f4b5b] text-white text-xs font-bold px-4 py-2 rounded transition">Wallet</button>
-                <div class="w-8 h-8 rounded-full bg-gray-700 border border-gray-600"></div>
+            </div>
+
+            <nav class="flex-1 space-y-1 overflow-y-auto pr-2">
+                <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-4 mb-2">Platform</p>
+                <a href="../index.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-home text-blue-400"></i> Home</a>
+                <a href="../index.html#presale" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-green-900/10 border border-green-500/20 text-white font-bold transition"><i class="fas fa-rocket text-neon"></i> PRESALE</a>
+                
+                <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Games</p>
+                <a href="blackjack.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-heart text-red-500"></i> BlackJack</a>
+                <a href="#" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-white/5 text-neon font-bold transition border-l-2 border-neon"><i class="fas fa-caret-down"></i> Plinko</a>
+                <a href="crash.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-rocket text-purple-500"></i> Crash</a>
+            </nav>
+        </div>
+
+        <!-- MOBILE TOGGLE -->
+        <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 bg-panel p-3 rounded-xl border border-white/10 text-white shadow-lg"><i class="fas fa-bars"></i></button>
+
+        <!-- HEADER (De tu index original) -->
+        <header class="col-span-1 lg:col-span-2 flex items-center justify-between px-6 bg-bg-dark/80 backdrop-blur-md border-b border-white/5 z-40">
+            <div class="lg:hidden"></div> <!-- Spacer for mobile toggle -->
+            <div class="hidden lg:block w-1/3"></div> <!-- Spacer layout -->
+            
+            <!-- STAKE STYLE BALANCE -->
+            <div class="flex items-center bg-black/40 border border-white/10 rounded-lg px-4 py-2 shadow-inner cursor-pointer hover:border-neon/50 transition">
+                <span class="text-sm font-bold text-white mr-2" id="headerBalance">0.00</span>
+                <span class="text-xs text-neon font-bold mr-3">PBJ</span>
+                <button class="bg-primary text-black text-xs font-bold px-2 py-0.5 rounded hover:scale-110 transition">+</button>
+            </div>
+
+            <div class="flex gap-4 items-center ml-auto w-1/3 justify-end">
+                <div id="userInfo" class="hidden flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition" onclick="openProfile()">
+                    <div class="text-right hidden sm:block">
+                        <div class="flex items-center gap-2 justify-end">
+                            <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
+                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-2 py-0.5 rounded" id="userRank">Rank</span>
+                        </div>
+                        <div class="w-28 h-1.5 bg-gray-800 rounded-full mt-1.5 overflow-hidden">
+                            <div id="xpBar" class="bg-neon h-full w-[0%] level-progress"></div>
+                        </div>
+                    </div>
+                    <img id="headerAvatar" src="" class="w-9 h-9 rounded-full border-2 border-white/10 bg-black">
+                </div>
+                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-4 py-2 rounded-xl text-xs font-bold shadow-lg">Wallet</button>
             </div>
         </header>
 
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
-            
+        <!-- GAME CONTENT -->
+        <div class="game-wrapper custom-scrollbar">
             <div class="game-card">
                 
-                <!-- CONTROLS (Left) -->
+                <!-- LEFT CONTROLS -->
                 <div class="controls-panel">
-                    <!-- Mode Switch -->
-                    <div class="bg-[#0f1923] p-1 rounded-lg flex mb-2">
-                        <button id="modeManual" onclick="setMode('manual')" class="flex-1 py-2 text-xs font-bold rounded bg-[#2f3b4b] text-white shadow">Manual</button>
-                        <button id="modeAuto" onclick="setMode('auto')" class="flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white">Auto</button>
+                    <div class="flex bg-black/40 p-1 rounded-lg mb-2">
+                        <button id="modeManual" onclick="setMode('manual')" class="flex-1 py-2 rounded-md text-xs font-bold bg-[#1f2937] text-white shadow transition">Manual</button>
+                        <button id="modeAuto" onclick="setMode('auto')" class="flex-1 py-2 rounded-md text-xs font-bold text-gray-500 hover:text-white transition">Auto</button>
                     </div>
 
-                    <!-- Bet Input -->
                     <div>
                         <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase mb-1">
                             <span>Bet Amount</span>
-                            <span id="maxBetLabel">0.00 PBJ</span>
+                            <span>Max: 10,000</span>
                         </div>
-                        <div class="input-box flex items-center">
-                            <input type="number" id="betInput" value="10" class="input-clean" step="0.1">
-                            <div class="flex gap-1">
-                                <button onclick="modBet(0.5)" class="px-2 py-1 bg-[#2f3b4b] text-[10px] rounded text-gray-400 hover:text-white">½</button>
-                                <button onclick="modBet(2)" class="px-2 py-1 bg-[#2f3b4b] text-[10px] rounded text-gray-400 hover:text-white">2x</button>
+                        <div class="input-group">
+                            <input type="number" id="betInput" value="10" class="input-clean" step="1">
+                            <div class="flex gap-1 pr-1">
+                                <button onclick="modBet(0.5)" class="px-2 py-1 bg-[#1a2c38] hover:bg-[#263549] text-gray-400 text-[10px] rounded font-bold">½</button>
+                                <button onclick="modBet(2)" class="px-2 py-1 bg-[#1a2c38] hover:bg-[#263549] text-gray-400 text-[10px] rounded font-bold">2x</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Risk Select -->
                     <div>
-                        <label class="text-[10px] text-gray-400 font-bold uppercase mb-1 block">Risk</label>
-                        <select id="riskSelect" onchange="updateGameSettings()" class="w-full bg-[#0f1923] border border-[#2f3b4b] text-white text-sm font-bold rounded-lg p-3 outline-none focus:border-[#00ff2a]">
+                        <label class="text-[10px] text-gray-400 font-bold uppercase mb-1 block">Risk Level</label>
+                        <select id="riskSelect" onchange="updateGameSettings()" class="w-full bg-[#05080a] border border-[#1f2937] text-white text-sm font-bold rounded-lg p-3 outline-none focus:border-neon">
                             <option value="low">Low</option>
                             <option value="medium" selected>Medium</option>
                             <option value="high">High</option>
                         </select>
                     </div>
 
-                    <!-- Rows Select -->
                     <div>
                         <label class="text-[10px] text-gray-400 font-bold uppercase mb-1 block">Rows: <span id="rowDisp" class="text-white">16</span></label>
-                        <select id="rowsSelect" onchange="updateGameSettings()" class="w-full bg-[#0f1923] border border-[#2f3b4b] text-white text-sm font-bold rounded-lg p-3 outline-none focus:border-[#00ff2a]">
+                        <select id="rowsSelect" onchange="updateGameSettings()" class="w-full bg-[#05080a] border border-[#1f2937] text-white text-sm font-bold rounded-lg p-3 outline-none focus:border-neon">
                             <option value="8">8 Rows</option>
-                            <option value="10">10 Rows</option>
                             <option value="12">12 Rows</option>
-                            <option value="14">14 Rows</option>
                             <option value="16" selected>16 Rows</option>
                         </select>
                     </div>
 
-                    <button id="playBtn" class="btn-action mt-2 w-full" onclick="play()">BET</button>
-                    
-                    <!-- Stats Footer -->
-                    <div class="mt-auto pt-4 border-t border-gray-700 grid grid-cols-2 gap-2 text-center">
-                         <div>
-                             <p class="text-[9px] text-gray-500 uppercase">Profit on Win</p>
-                             <p class="text-xs font-bold text-[#00ff2a]" id="maxWinDisp">0.00</p>
-                         </div>
-                         <div>
-                             <p class="text-[9px] text-gray-500 uppercase">House Edge</p>
-                             <p class="text-xs font-bold text-gray-300">3.5%</p>
-                         </div>
+                    <button id="playBtn" class="btn-gradient w-full py-4 rounded-xl mt-2 text-lg uppercase shadow-lg" onclick="play()">BET</button>
+
+                    <div class="mt-auto grid grid-cols-2 gap-2 text-center bg-white/5 p-3 rounded-lg border border-white/5">
+                        <div>
+                            <p class="text-[9px] text-gray-500 uppercase">Max Win</p>
+                            <p class="text-xs font-bold text-neon" id="maxWinDisp">0.00</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-500 uppercase">Total Bets</p>
+                            <p class="text-xs font-bold text-white" id="statBets">0</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- CANVAS GAME (Right) -->
+                <!-- RIGHT CANVAS -->
                 <div class="canvas-area" id="canvasWrapper">
-                    <!-- History Strip -->
-                    <div class="absolute top-4 right-4 flex gap-1 z-10" id="historyBar">
-                        <!-- Filled by JS -->
-                    </div>
-
+                    <div id="historyBar" class="absolute top-4 right-4 flex gap-1 z-20"></div>
                     <canvas id="gameCanvas"></canvas>
-                    
-                    <!-- Multipliers Overlay -->
                     <div id="multipliersContainer" class="mult-container"></div>
                 </div>
-
             </div>
-
-            <!-- Footer info -->
-            <div class="max-w-[1100px] mx-auto mt-6 text-center text-gray-500 text-xs">
-                <p>Provably Fair System • Decentralized Outcomes • 60 FPS Engine</p>
+            
+            <!-- FOOTER INFO -->
+            <div class="w-full text-center mt-6 pb-20">
+                 <p class="text-xs text-gray-500">Provably Fair • Powered by PepeChain • <a href="#" class="text-neon">Verify</a></p>
             </div>
-
-        </main>
+        </div>
     </div>
 
-    <!-- LOGICA DEL JUEGO -->
-    <script>
-        /**
-         * PLINKO ENGINE V3 (Casino Tier)
-         * - Matemáticas corregidas (Bell Curve distribution)
-         * - Multiplicadores basados en probabilidad real
-         * - Renderizado optimizado
-         */
+    <!-- === MODALS (Reutilizados del Index) === -->
+    
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[90] hidden">
+        <div class="bg-card w-full max-w-sm p-8 rounded-3xl border border-white/10 text-center shadow-[0_0_50px_rgba(0,255,42,0.1)]">
+            <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-24 h-24 mx-auto mb-4 rounded-full border-4 border-neon bg-black">
+            <h2 class="text-3xl font-black mb-2 text-white brand-font">PEPE BET</h2>
+            <p class="text-gray-400 text-sm mb-8">Login to Play Plinko</p>
+            <input type="text" id="usernameInput" placeholder="Username" class="w-full p-4 rounded-xl bg-[#0b1018] border border-white/10 text-white mb-4 outline-none focus:border-neon text-center font-bold">
+            <button onclick="register()" class="btn-gradient w-full py-4 rounded-xl font-bold text-lg">START PLAYING</button>
+        </div>
+    </div>
 
+    <!-- CHAT WIDGET -->
+    <div id="chatWidget" class="fixed bottom-4 right-4 w-80 h-96 bg-card rounded-2xl border border-white/10 shadow-2xl z-50 hidden flex-col">
+        <div class="bg-black/30 p-3 border-b border-white/5 flex justify-between items-center backdrop-blur-md">
+            <span class="font-bold text-xs uppercase text-gray-400">Global Chat</span>
+            <button onclick="toggleChat()" class="text-gray-500"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs"></div>
+        <div class="p-3 border-t border-white/5"><input type="text" placeholder="Type..." class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-white outline-none"></div>
+    </div>
+    <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-card p-4 rounded-full border border-white/10 shadow-lg hover:border-neon transition z-40 group">
+        <i class="fas fa-comments text-xl group-hover:text-neon text-gray-400"></i>
+    </button>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- SHARED STATE MANAGEMENT ---
+        const STORAGE_KEY = 'pepeblackjack_v2';
+        let state = { user: null, balance: 1000, xp: 0, level: 1, avatar: '', bets: 0, wins: 0, wagered: 0 };
+        
+        // --- PLINKO ENGINE ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: true });
         const wrapper = document.getElementById('canvasWrapper');
-
-        // --- ESTADO ---
-        let state = {
-            balance: 1000.00,
-            rows: 16,
-            risk: 'medium', // low, medium, high
-            balls: [],
-            pegs: [],
-            particles: [],
-            mode: 'manual', // manual, auto
-            autoInterval: null
-        };
-
-        // --- MATEMÁTICAS REALES (Multiplicadores Hardcoded para Rentabilidad) ---
-        // Estos valores imitan a Stake para garantizar que el centro paga poco y los bordes mucho.
-        const MULTIPLIERS = {
-            low: {
-                8: [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6],
-                16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16]
-            },
-            medium: {
-                8: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13],
-                16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110]
-            },
-            high: {
-                8: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29],
-                16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000]
-            }
-        };
         
-        // Colors mapping for multipliers
-        const COLORS = {
-            peg: '#475569',
-            pegHit: '#ffffff',
-            ball: '#00ff2a',
-            loss: '#3f4b5b',
-            win: '#00ff2a', 
-            bigWin: '#eab308' 
+        let gameConfig = { rows: 16, risk: 'medium', mode: 'manual' };
+        let balls = [], pegs = [], particles = [];
+        let autoInterval = null;
+
+        // MULTIPLIER TABLES (House Edge Included)
+        const PAYOUTS = {
+            low: { 8: [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6], 12: [10, 3, 1.6, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.6, 3, 10], 16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16] },
+            medium: { 8: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13], 12: [33, 11, 4, 2, 1.1, 0.6, 0.3, 0.6, 1.1, 2, 4, 11, 33], 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110] },
+            high: { 8: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29], 12: [170, 51, 14, 5, 2, 0.3, 0.2, 0.3, 2, 5, 14, 51, 170], 16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000] }
         };
 
-        // --- INICIALIZACIÓN ---
         window.onload = () => {
-            updateBalanceUI();
+            loadUserData();
+            initFakeChat();
             updateGameSettings();
-            resizeCanvas();
+            animate();
             window.addEventListener('resize', resizeCanvas);
-            gameLoop();
         };
 
-        function resizeCanvas() {
-            const rect = wrapper.getBoundingClientRect();
-            // Scale for Retina/High DPI
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            canvas.style.width = rect.width + 'px';
-            canvas.style.height = rect.height + 'px';
-            ctx.scale(dpr, dpr);
-            
-            initPegs(rect.width, rect.height);
-        }
-
-        // --- LÓGICA DE CLAVOS (PEGS) ---
-        function initPegs(w, h) {
-            state.pegs = [];
-            const rows = state.rows;
-            const bottomSpace = 60; // Espacio para multiplicadores
-            const startY = 50;
-            const availableH = h - startY - bottomSpace;
-            const gap = availableH / rows; // Distancia vertical dinámica
-            
-            for(let r=0; r < rows; r++) {
-                for(let c=0; c <= r; c++) {
-                    // Centrar pirámide
-                    const x = (w / 2) - (r * gap / 2) + (c * gap);
-                    const y = startY + (r * gap);
-                    state.pegs.push({ x, y, r: 3, glow: 0 }); // r = radio, glow = intensidad brillo
-                }
+        function loadUserData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if(stored) {
+                state = { ...state, ...JSON.parse(stored) };
+                updateUI();
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('loginModal').classList.add('hidden');
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
             }
-            state.gap = gap; // Guardar gap para cálculos de física
-            state.finishY = startY + (rows * gap);
         }
 
-        function updateGameSettings() {
-            state.rows = parseInt(document.getElementById('rowsSelect').value);
-            state.risk = document.getElementById('riskSelect').value;
-            document.getElementById('rowDisp').innerText = state.rows;
+        function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateUI(); }
+        
+        function updateUI() {
+            const fmt = state.balance.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('headerBalance').innerText = fmt;
+            document.getElementById('userNameDisplay').innerText = state.user;
+            document.getElementById('headerAvatar').src = state.avatar;
+            document.getElementById('userRank').innerText = state.level < 5 ? "Noob" : "Degen";
+            document.getElementById('statBets').innerText = state.bets;
             
-            // Generar multiplicadores HTML
-            renderMultipliers();
-            resizeCanvas();
+            const xpNext = state.level * 100;
+            document.getElementById('xpBar').style.width = ((state.xp / xpNext) * 100) + "%";
         }
 
-        // --- SISTEMA DE MULTIPLICADORES ---
-        function renderMultipliers() {
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function toggleChat() { document.getElementById('chatWidget').classList.toggle('hidden'); }
+
+        // --- GAME LOGIC ---
+        function updateGameSettings() {
+            gameConfig.rows = parseInt(document.getElementById('rowsSelect').value);
+            gameConfig.risk = document.getElementById('riskSelect').value;
+            document.getElementById('rowDisp').innerText = gameConfig.rows;
+            
+            // Build Multipliers
+            const arr = PAYOUTS[gameConfig.risk][gameConfig.rows] || [];
             const container = document.getElementById('multipliersContainer');
             container.innerHTML = '';
             
-            // Obtener array (fallback si no existe la tabla exacta, interpolamos)
-            let arr = MULTIPLIERS[state.risk][state.rows];
-            if(!arr) arr = generateFallbackMultipliers(state.rows); // Safety catch
-            
-            state.currentMultipliers = arr;
-
             arr.forEach((val, i) => {
                 const div = document.createElement('div');
                 div.className = 'mult-box';
                 div.id = `mult-${i}`;
                 div.innerText = val + 'x';
                 
-                // Color Logic
-                let bg1 = '#374151', bg2 = '#1f2937';
-                if(val >= 1) { bg1 = '#22c55e'; bg2 = '#15803d'; } // Greenish
-                if(val >= 10) { bg1 = '#eab308'; bg2 = '#a16207'; } // Gold
-                if(val >= 50) { bg1 = '#ef4444'; bg2 = '#b91c1c'; } // Red
-                if(val < 1) { div.style.opacity = "0.7"; }
+                let bg1='#374151', bg2='#1f2937';
+                if(val>=1) { bg1='#16a34a'; bg2='#14532d'; }
+                if(val>=10) { bg1='#eab308'; bg2='#713f12'; }
+                if(val>=50) { bg1='#dc2626'; bg2='#7f1d1d'; }
+                if(val<1) div.style.opacity = "0.7";
                 
                 div.style.background = `linear-gradient(180deg, ${bg1}, ${bg2})`;
-                div.style.color = val >= 10 || val < 1 ? 'white' : 'black';
-                
+                div.style.color = val>=10 || val<1 ? 'white' : 'black';
                 container.appendChild(div);
             });
             
-            // UI Max Win
-            const maxVal = Math.max(...arr);
             const bet = parseFloat(document.getElementById('betInput').value || 0);
-            document.getElementById('maxWinDisp').innerText = (bet * maxVal).toFixed(2);
-        }
-        
-        function generateFallbackMultipliers(rows) {
-            // Generador básico por si falta la config
-            const res = [];
-            for(let i=0; i<=rows; i++) res.push(1.5);
-            return res;
+            document.getElementById('maxWinDisp').innerText = (bet * Math.max(...arr)).toFixed(0);
+            
+            resizeCanvas();
         }
 
-        // --- GAMEPLAY & PHYSICS ---
+        function resizeCanvas() {
+            const rect = wrapper.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            initGeometry();
+        }
+
+        function initGeometry() {
+            pegs = [];
+            const rows = gameConfig.rows;
+            const startY = 40;
+            const availableH = canvas.height - startY - 50; // space for bottom
+            const gap = availableH / rows;
+            gameConfig.gap = gap;
+            gameConfig.finishY = startY + (rows * gap) + (gap/2);
+
+            for(let r=0; r<rows; r++) {
+                for(let c=0; c<=r; c++) {
+                    pegs.push({
+                        x: (canvas.width/2) - (r*gap/2) + (c*gap),
+                        y: startY + (r*gap),
+                        r: 3, glow: 0
+                    });
+                }
+            }
+        }
+
         function play() {
-            const amount = parseFloat(document.getElementById('betInput').value);
-            if(amount <= 0 || isNaN(amount)) return Swal.fire({toast:true, position:'top', title:'Invalid Bet', icon:'warning', background: '#212b36', color:'#fff'});
-            if(amount > state.balance) return Swal.fire({toast:true, position:'top', title:'Insufficient Funds', icon:'error', background: '#212b36', color:'#fff'});
-
-            state.balance -= amount;
-            updateBalanceUI();
+            const bet = parseFloat(document.getElementById('betInput').value);
+            if(state.balance < bet) return Swal.fire("No funds", "Deposit more PBJ", "error");
+            if(bet <= 0) return;
             
-            spawnBall(amount);
+            state.balance -= bet;
+            state.bets++;
+            state.wagered += bet;
+            state.xp += bet * 0.1;
+            saveData();
             
-            if(state.mode === 'manual') {
-                const btn = document.getElementById('playBtn');
-                btn.classList.add('scale-95');
-                setTimeout(()=>btn.classList.remove('scale-95'), 100);
-            }
-        }
-
-        function setMode(m) {
-            state.mode = m;
-            document.getElementById('modeManual').className = m=='manual' ? 'flex-1 py-2 text-xs font-bold rounded bg-[#2f3b4b] text-white shadow' : 'flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white';
-            document.getElementById('modeAuto').className = m=='auto' ? 'flex-1 py-2 text-xs font-bold rounded bg-[#00ff2a] text-black shadow' : 'flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white';
+            spawnBall(bet);
             
-            const btn = document.getElementById('playBtn');
-            if(m === 'auto') {
-                btn.innerText = "START AUTO";
-                btn.onclick = toggleAuto;
-            } else {
-                clearInterval(state.autoInterval);
-                state.autoInterval = null;
-                btn.innerText = "BET";
-                btn.classList.remove('bg-red-500');
-                btn.onclick = play;
-            }
-        }
-
-        function toggleAuto() {
-            const btn = document.getElementById('playBtn');
-            if(state.autoInterval) {
-                clearInterval(state.autoInterval);
-                state.autoInterval = null;
-                btn.innerText = "START AUTO";
-                btn.classList.remove('bg-red-500');
-            } else {
-                state.autoInterval = setInterval(play, 200);
-                btn.innerText = "STOP AUTO";
-                btn.classList.add('bg-red-500');
+            if(gameConfig.mode === 'manual') {
+                const b = document.getElementById('playBtn');
+                b.style.transform = "scale(0.95)";
+                setTimeout(()=>b.style.transform = "scale(1)", 100);
             }
         }
 
         function spawnBall(bet) {
-            // Calcular ruta determinista basada en distribución normal
-            // 0 = Izquierda, 1 = Derecha
+            // Calculate Path
             const path = [];
-            for(let i=0; i<state.rows; i++) {
-                path.push(Math.random() < 0.5 ? -0.5 : 0.5); 
-            }
-            // El índice final es la suma de movimientos a la derecha
-            // Como empezamos en el centro, el mapeo es directo a los buckets
+            for(let i=0; i<gameConfig.rows; i++) path.push(Math.random() < 0.5 ? -0.5 : 0.5);
             
-            document.getElementById('sfx-drop').currentTime=0;
-            document.getElementById('sfx-drop').volume=0.3;
-            document.getElementById('sfx-drop').play().catch(e=>{});
-
-            state.balls.push({
-                x: canvas.width / 2 / (window.devicePixelRatio||1),
-                y: 30,
-                vx: 0, 
-                vy: 0,
-                radius: 4,
-                path: path,
-                row: 0,
-                bet: bet,
-                color: Math.random() > 0.9 ? '#ff0055' : '#00ff2a' // easter egg color rare
+            balls.push({
+                x: canvas.width/2, y: 20, vx:0, vy:0,
+                path: path, row: 0, bet: bet, 
+                color: Math.random()>0.5 ? '#00ff2a' : '#ffffff'
             });
         }
 
-        // --- RENDER LOOP ---
-        function gameLoop() {
-            // Limpiar con fade effect para trail leve
-            ctx.fillStyle = '#0f1923'; 
-            ctx.fillRect(0,0, canvas.width, canvas.height);
+        function animate() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
             
-            // 1. DIBUJAR CLAVOS (PEGS)
-            state.pegs.forEach(p => {
+            // Draw Pegs
+            pegs.forEach(p => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                
-                if(p.glow > 0.1) {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${p.glow})`;
-                    ctx.shadowColor = 'white';
-                    ctx.shadowBlur = 10;
-                    p.glow *= 0.9; // Fade out
+                if(p.glow > 0) {
+                    ctx.fillStyle = `rgba(255,255,255,${p.glow})`;
+                    ctx.shadowBlur = 10; ctx.shadowColor = "white";
+                    p.glow *= 0.9;
                 } else {
-                    ctx.fillStyle = COLORS.peg;
-                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = "#374151"; ctx.shadowBlur = 0;
                 }
                 ctx.fill();
-                ctx.closePath();
             });
-            ctx.shadowBlur = 0; // Reset
+            ctx.shadowBlur = 0;
 
-            // 2. BOLAS
-            for(let i = state.balls.length - 1; i >= 0; i--) {
-                const b = state.balls[i];
+            // Draw Balls
+            for(let i=balls.length-1; i>=0; i--) {
+                const b = balls[i];
+                b.vy += 0.25; b.y += b.vy; b.x += b.vx;
                 
-                // Física simple + Guía
-                b.vy += 0.25; // Gravedad
-                b.y += b.vy;
-                b.x += b.vx;
-
-                // Detectar si estamos en nivel de un clavo
-                const rowY = 50 + (b.row * state.gap);
-                
-                // Collision check (Distance based)
-                // Chequeo contra TODOS los clavos cercanos (optimización PC/Móvil)
-                let hit = false;
-                if (b.y > rowY - 5 && b.row < state.rows) {
-                    // Momento del impacto
-                    // Forzamos un poco la dirección precalculada para asegurar la matemática
-                    const dir = b.path[b.row]; // -0.5 or 0.5
-                    const noise = (Math.random() - 0.5) * 0.2; // Variación natural
-                    
-                    b.vx = (dir * 2) + noise; 
-                    b.vy *= 0.6; // Pérdida energía
+                // Collision Logic
+                const targetY = 40 + (b.row * gameConfig.gap);
+                if(b.y > targetY - 5 && b.row < gameConfig.rows) {
+                    const dir = b.path[b.row];
+                    b.vx = (dir * 2) + (Math.random()-0.5)*0.5;
+                    b.vy *= 0.5;
                     b.row++;
                     
-                    // Encontrar clavo más cercano para iluminarlo
-                    // En esta lógica simplificada, el clavo "target" está cerca de b.x
-                    // Simplemente buscamos por distancia bruta en el array de pegs
-                    // Optimización: Solo buscar en el rango de Y
-                    state.pegs.forEach(p => {
-                        if(Math.abs(p.y - b.y) < 15 && Math.abs(p.x - b.x) < 15) {
-                            p.glow = 1;
-                            hit = true;
-                        }
-                    });
-                    
-                    if(hit) {
-                        const sfx = document.getElementById('sfx-hit').cloneNode();
-                        sfx.volume = 0.1;
-                        sfx.play().catch(()=>{});
-                    }
+                    // Glow nearest peg
+                    const peg = pegs.find(p => Math.abs(p.y - b.y) < 15 && Math.abs(p.x - b.x) < 15);
+                    if(peg) { peg.glow = 1; document.getElementById('sfx-hit').cloneNode().play().catch(()=>{}); }
                 }
 
-                // Dibujar Bola
+                if(b.y > gameConfig.finishY) {
+                    finishBall(b, i);
+                    continue;
+                }
+
                 ctx.beginPath();
-                ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
+                ctx.arc(b.x, b.y, 4, 0, Math.PI*2);
                 ctx.fillStyle = b.color;
                 ctx.shadowColor = b.color;
-                ctx.shadowBlur = 8;
+                ctx.shadowBlur = 10;
                 ctx.fill();
-                ctx.closePath();
-
-                // Finalizar Bola
-                if(b.y > state.finishY) {
-                    resolveBall(b, i);
-                }
             }
             
-            // 3. TEXTOS FLOTANTES Y PARTICULAS
+            // Draw Particles
             updateParticles();
-
-            requestAnimationFrame(gameLoop);
+            
+            requestAnimationFrame(animate);
         }
 
-        function resolveBall(b, index) {
-            state.balls.splice(index, 1);
+        function finishBall(b, idx) {
+            balls.splice(idx, 1);
+            const rightMoves = b.path.filter(m => m === 0.5).length;
+            const mults = PAYOUTS[gameConfig.risk][gameConfig.rows];
+            const val = mults[rightMoves];
+            const win = b.bet * val;
             
-            // Calcular bucket index
-            // Las bolas se mueven 0.5 unidades a la izquierda o derecha por fila.
-            // Para mapear al bucket, contamos los movimientos "derecha" (val 0.5)
-            const rightMoves = b.path.filter(x => x === 0.5).length;
-            const multiplier = state.currentMultipliers[rightMoves];
+            state.balance += win;
+            if(win > 0) state.wins++;
             
-            const winAmount = b.bet * multiplier;
-            state.balance += winAmount;
-            updateBalanceUI();
+            // Level Up Check
+            if(state.xp >= state.level*100) { state.level++; state.xp=0; Swal.fire("Level Up!", `Level ${state.level}`, "success"); }
+            saveData();
             
-            // Visual Feedback
+            // Visuals
             animateBucket(rightMoves);
+            spawnText(b.x, win, val);
+            addToHistory(val);
             
-            // Floating Text
-            spawnFloatingText(b.x, state.finishY, winAmount, multiplier);
-
-            // History
-            addToHistory(multiplier);
-
-            // Sounds & Shake
-            if(multiplier >= 10) {
-                document.getElementById('sfx-win').play();
-                document.getElementById('app').classList.add('shake-screen');
-                setTimeout(()=>document.getElementById('app').classList.remove('shake-screen'), 500);
-            }
+            if(val >= 10) document.getElementById('sfx-win').play();
             
             // Particles
-            for(let k=0; k<10; k++) {
-                state.particles.push({
-                    x: b.x, y: state.finishY,
-                    vx: (Math.random()-0.5)*5, vy: (Math.random()-1)*5,
-                    life: 1.0, color: multiplier > 1 ? '#00ff2a' : '#888'
-                });
+            for(let k=0; k<8; k++) {
+                particles.push({x: b.x, y: gameConfig.finishY, vx: (Math.random()-0.5)*4, vy: -Math.random()*4, life: 1, color: val>1?'#00ff2a':'#555'});
             }
-        }
-
-        // --- VISUAL EXTRAS ---
-        function animateBucket(idx) {
-            const el = document.getElementById(`mult-${idx}`);
-            if(el) {
-                el.style.transform = "translateY(5px) scale(1.1)";
-                el.style.filter = "brightness(1.5)";
-                setTimeout(() => {
-                    el.style.transform = "translateY(0) scale(1)";
-                    el.style.filter = "none";
-                }, 150);
-            }
-        }
-
-        function spawnFloatingText(x, y, amount, mult) {
-            const div = document.createElement('div');
-            div.className = 'pop-text';
-            div.style.left = (x + wrapper.offsetLeft) + 'px'; // Ajuste básico pos
-            div.style.left = `50%`; // Centrado relativo al contenedor suele ser mejor
-            // En canvas es difícil mapear coordenadas HTML exactas sin bounding rects complejos
-            // Truco: Usar posición fija relativa al multiplicador
-            const multEl = document.getElementById(`mult-0`).parentNode; // Contenedor
-            // Mejor: append al wrapper
-            
-            div.style.left = (x) + 'px'; // Relativo al wrapper
-            div.style.bottom = '50px';
-            
-            if(mult < 1) {
-                div.innerHTML = `<span style="color:#888">${amount.toFixed(2)}</span>`;
-            } else if (mult >= 10) {
-                div.innerHTML = `<span style="color:#ffcc00; font-size:20px">💎 ${amount.toFixed(0)}</span>`;
-            } else {
-                div.innerHTML = `<span style="color:#00ff2a">+${amount.toFixed(2)}</span>`;
-            }
-            
-            wrapper.appendChild(div);
-            setTimeout(() => div.remove(), 1000);
         }
 
         function updateParticles() {
-            for(let i=state.particles.length-1; i>=0; i--) {
-                const p = state.particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.2; // gravity
-                p.life -= 0.05;
-                
-                if(p.life <= 0) state.particles.splice(i,1);
+            for(let i=particles.length-1; i>=0; i--) {
+                const p = particles[i];
+                p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life-=0.05;
+                if(p.life<=0) particles.splice(i,1);
                 else {
                     ctx.globalAlpha = p.life;
                     ctx.fillStyle = p.color;
@@ -727,31 +563,79 @@
             }
         }
 
+        function spawnText(x, win, val) {
+            const div = document.createElement('div');
+            div.className = 'pop-text';
+            div.style.left = (x + wrapper.getBoundingClientRect().left - 20) + 'px'; // Abs positioning fix could be better but works
+            div.style.left = x + 'px'; // Relative to canvas wrapper
+            div.style.bottom = '50px';
+            
+            div.innerHTML = val < 1 ? `<span style="color:gray">${val}x</span>` : `<span class="text-neon">+${win.toFixed(0)}</span>`;
+            wrapper.appendChild(div);
+            setTimeout(()=>div.remove(), 800);
+        }
+
+        function animateBucket(i) {
+            const el = document.getElementById(`mult-${i}`);
+            if(el) {
+                el.style.transform = "scale(1.3) translateY(-5px)";
+                el.style.filter = "brightness(1.5)";
+                setTimeout(() => { el.style.transform = "none"; el.style.filter = "none"; }, 200);
+            }
+        }
+        
         function addToHistory(val) {
             const bar = document.getElementById('historyBar');
-            const div = document.createElement('div');
-            div.className = 'w-8 h-6 rounded flex items-center justify-center text-[9px] font-bold shadow-md animate-fade-in';
-            div.innerText = val + 'x';
-            
-            if(val < 1) { div.style.background = '#374151'; div.style.color = '#9ca3af'; }
-            else if (val < 3) { div.style.background = '#22c55e'; div.style.color = 'black'; }
-            else { div.style.background = '#eab308'; div.style.color = 'black'; }
-
-            bar.prepend(div);
+            const d = document.createElement('div');
+            d.className = "w-8 h-6 rounded flex items-center justify-center text-[9px] font-bold shadow animate-bounce";
+            d.innerText = val + "x";
+            d.style.background = val>=2 ? (val>=10?'#eab308':'#16a34a') : '#374151';
+            d.style.color = val>=2 ? 'black' : 'white';
+            bar.prepend(d);
             if(bar.children.length > 5) bar.removeChild(bar.lastChild);
         }
 
-        // --- HELPERS ---
-        function updateBalanceUI() {
-            document.getElementById('headerBalance').innerText = state.balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        // --- UTILS ---
+        function register() {
+            const u = document.getElementById('usernameInput').value;
+            if(!u) return;
+            state.user = u; state.avatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${u}`;
+            saveData();
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
         }
+
+        function setMode(m) {
+            gameConfig.mode = m;
+            document.getElementById('modeManual').className = m=='manual'?"flex-1 py-2 rounded-md text-xs font-bold bg-[#1f2937] text-white shadow transition":"flex-1 py-2 rounded-md text-xs font-bold text-gray-500 hover:text-white transition";
+            document.getElementById('modeAuto').className = m=='auto'?"flex-1 py-2 rounded-md text-xs font-bold bg-neon text-black shadow transition":"flex-1 py-2 rounded-md text-xs font-bold text-gray-500 hover:text-white transition";
+            const btn = document.getElementById('playBtn');
+            if(m=='auto') { btn.innerText = "START AUTO"; btn.onclick = toggleAuto; }
+            else { clearInterval(autoInterval); autoInterval=null; btn.innerText = "BET"; btn.onclick = play; btn.classList.remove('bg-red-500'); }
+        }
+
+        function toggleAuto() {
+            if(autoInterval) { clearInterval(autoInterval); autoInterval=null; document.getElementById('playBtn').innerText="START AUTO"; document.getElementById('playBtn').classList.remove('bg-red-500'); }
+            else { autoInterval = setInterval(play, 200); document.getElementById('playBtn').innerText="STOP AUTO"; document.getElementById('playBtn').classList.add('bg-red-500'); }
+        }
+
         function modBet(m) {
             const inp = document.getElementById('betInput');
             let v = parseFloat(inp.value) * m;
-            if(v < 0.1) v = 0.1;
-            inp.value = parseFloat(v.toFixed(2));
+            if(v<1) v=1; inp.value = v.toFixed(0);
+            updateGameSettings();
         }
 
+        function initFakeChat(){
+            const c = document.getElementById('chatMessages');
+            const names = ["Degen", "PepeLover", "Whale0x"];
+            const msgs = ["Big win!", "Plinko pays!", "LFG"];
+            setInterval(()=>{
+                const d=document.createElement('div'); d.className="bg-white/5 p-1 rounded mb-1 text-xs";
+                d.innerHTML=`<span class="text-neon font-bold">${names[Math.floor(Math.random()*3)]}:</span> ${msgs[Math.floor(Math.random()*3)]}`;
+                c.appendChild(d); c.scrollTop=c.scrollHeight;
+            }, 5000);
+        }
     </script>
 </body>
 </html>
