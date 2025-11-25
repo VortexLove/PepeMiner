@@ -200,68 +200,62 @@
             </div>
         </div>
 
-        <!-- === PLINKO GAME (NUEVO) === -->
-        <div id="plinkoSection" class="hidden px-4 pb-10 max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                
-                <!-- Controles Izquierda -->
-                <div class="lg:col-span-1 bg-[#1a2c38] p-4 rounded-xl border border-[#2f4553] h-fit">
-                    <h3 class="font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-caret-down text-pink-500"></i> PLINKO</h3>
-                    
-                    <!-- Apuesta -->
-                    <div class="mb-6">
-                        <label class="text-xs text-gray-500 font-bold">MONTO DE APUESTA</label>
-                        <div class="relative mt-1">
-                            <input type="number" id="plinkoBet" value="100" class="w-full bg-[#0f212e] border border-[#2f4553] rounded p-2 text-white font-bold focus:border-pink-500 outline-none pr-12">
-                            <span class="absolute right-3 top-2.5 text-xs text-gray-500">PBJ</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 mt-2">
-                            <button onclick="setPlinkoBet(0.5)" class="bg-[#2f4553] text-xs py-1 rounded hover:bg-[#3d5564]">1/2</button>
-                            <button onclick="setPlinkoBet(2)" class="bg-[#2f4553] text-xs py-1 rounded hover:bg-[#3d5564]">x2</button>
-                        </div>
-                    </div>
-
-                    <!-- Riesgo -->
-                    <div class="mb-6">
-                        <label class="text-xs text-gray-500 font-bold">RIESGO</label>
-                        <select id="plinkoRisk" onchange="updatePlinkoMultipliers()" class="w-full bg-[#0f212e] border border-[#2f4553] rounded p-2 text-white mt-1 outline-none">
-                            <option value="low">Bajo</option>
-                            <option value="medium" selected>Medio</option>
-                            <option value="high">Alto</option>
-                        </select>
-                    </div>
-
-                    <!-- Filas -->
-                    <div class="mb-6">
-                        <label class="text-xs text-gray-500 font-bold">FILAS (<span id="rowCountDisplay">16</span>)</label>
-                        <input type="range" id="plinkoRows" min="8" max="16" value="16" oninput="updatePlinkoRows()" class="w-full mt-2 accent-pink-500">
-                    </div>
-
-                    <button onclick="dropBall()" id="btnPlinkoDrop" class="btn-primary w-full py-4 rounded font-bold text-lg shadow-lg relative top-0 hover:-top-1 transition-all bg-gradient-to-b from-pink-500 to-pink-700 border-none text-white">
-                        SOLTAR BOLA
-                    </button>
-                </div>
-
-                <!-- Canvas Juego -->
-                <div class="lg:col-span-3 bg-[#0f212e] rounded-xl border border-[#2f4553] p-4 flex flex-col items-center justify-center relative min-h-[600px] overflow-hidden">
-                    <!-- Score flotante -->
-                    <div id="plinkoFloatScore" class="absolute top-10 text-4xl font-bold text-white opacity-0 transition pointer-events-none z-20">0.00</div>
-                    
-                    <canvas id="plinkoCanvas" width="800" height="600" class="max-w-full h-auto"></canvas>
-                    
-                    <!-- Contenedor de Multiplicadores (HTML Overlay para mejor estilo) -->
-                    <div id="multipliersContainer" class="flex justify-center gap-1 mt-[-30px] w-full max-w-[800px] px-4 z-10 relative">
-                        <!-- JS generará esto -->
-                    </div>
-                </div>
-            </div>
+        <!-- === SECCIÓN DE JUEGOS (CATÁLOGO) === -->
+<div id="casinoSection" class="hidden px-4 pb-10 max-w-7xl mx-auto">
+    
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4"><i class="fas fa-gamepad text-neon mr-2"></i>Juegos Disponibles</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <!-- Historial Reciente -->
-            <div class="mt-4 flex gap-2 overflow-x-auto pb-2" id="plinkoHistory">
-                <!-- Se llena con JS -->
-            </div>
-        </div>
+            <!-- TARJETA PLINKO (Enlace al nuevo archivo) -->
+            <a href="Games/plinko.html" class="group relative bg-[#1a2c38] rounded-xl overflow-hidden border border-[#2f4553] hover:border-[#00E701] transition-all hover:-translate-y-2 shadow-xl cursor-pointer">
+                <!-- Imagen Cover (Usamos un degradado CSS o imagen placeholder) -->
+                <div class="h-40 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+                    <i class="fas fa-caret-down text-6xl text-white drop-shadow-lg group-hover:scale-110 transition duration-300"></i>
+                    <!-- Badge -->
+                    <span class="absolute top-2 right-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">POPULAR</span>
+                </div>
+                
+                <div class="p-4">
+                    <h3 class="text-xl font-bold text-white group-hover:text-neon transition">PLINKO</h3>
+                    <p class="text-gray-400 text-xs mt-1">Multiplicadores hasta 1000x. El clásico juego de la bola cayendo.</p>
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">RTP: 99%</span>
+                        <button class="bg-[#00E701] text-black text-xs font-bold px-4 py-2 rounded-full hover:bg-white transition">JUGAR AHORA</button>
+                    </div>
+                </div>
+            </a>
 
+            <!-- TARJETA BLACKJACK (Este se queda en el index o puedes moverlo luego) -->
+            <div onclick="showGameInline('blackjack')" class="group relative bg-[#1a2c38] rounded-xl overflow-hidden border border-[#2f4553] hover:border-[#00E701] transition-all hover:-translate-y-2 shadow-xl cursor-pointer">
+                <div class="h-40 bg-gradient-to-br from-green-800 to-green-900 flex items-center justify-center relative">
+                    <i class="fas fa-heart text-6xl text-red-500 drop-shadow-lg group-hover:scale-110 transition duration-300"></i>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-xl font-bold text-white group-hover:text-neon transition">BLACKJACK</h3>
+                    <p class="text-gray-400 text-xs mt-1">Vence al dealer y consigue 21. El juego de cartas definitivo.</p>
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">RTP: 99.5%</span>
+                        <button class="bg-[#2f4553] text-white text-xs font-bold px-4 py-2 rounded-full group-hover:bg-[#00E701] group-hover:text-black transition">JUGAR AQUÍ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA PRÓXIMAMENTE -->
+            <div class="opacity-50 grayscale cursor-not-allowed bg-[#1a2c38] rounded-xl border border-[#2f4553] p-4 flex flex-col items-center justify-center text-center">
+                <i class="fas fa-rocket text-4xl mb-2 text-gray-500"></i>
+                <h3 class="font-bold">CRASH</h3>
+                <p class="text-xs">Próximamente</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- AQUÍ MANTENEMOS EL CONTENEDOR DE BLACKJACK "INLINE" (El código viejo de BJ va aquí abajo) -->
+    <div id="inlineBlackjackGame" class="hidden mt-8 border-t border-[#2f4553] pt-8">
+        <!-- ... (Aquí pega todo el código HTML de la mesa de BlackJack que ya tenías) ... -->
         <!-- === BLACKJACK === -->
         <div id="casinoSection" class="hidden px-4 pb-10 max-w-6xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -311,7 +305,10 @@
                 </div>
             </div>
         </div>
-
+        <!-- NOTA: Asegúrate de rodear tu código de BlackJack anterior con este div ID "inlineBlackjackGame" -->
+    </div>
+</div>
+        
         <!-- === CUENTA === -->
         <div id="accountSection" class="hidden px-4">
             <div class="max-w-md mx-auto bg-[#1a2c38] p-6 rounded-xl border border-[#2f4553] shadow-lg mt-10 text-center">
