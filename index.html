@@ -3,720 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PepeBlackJack | The #1 Web3 Degen Casino</title>
-    
-    <!-- Libraries -->
+    <title>PepeBlackJack | Casino Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CYBER-PEPE THEME --- */
-        :root {
-            --primary: #00ff2a;
-            --primary-dim: #00cc22;
-            --primary-glow: rgba(0, 255, 42, 0.5);
-            --bg-dark: #05080a;
-            --bg-panel: #0b1016;
-            --bg-card: #121924;
-            --border-color: #1f2937;
-            --text-muted: #9ca3af;
-        }
-
-        body { 
-            background-color: var(--bg-dark); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(0, 255, 42, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 90%, rgba(0, 89, 255, 0.05) 0%, transparent 20%);
-        }
-
-        h1, h2, h3, h4, .brand-font { font-family: 'Space Grotesk', sans-serif; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-        /* Utilities & Effects */
-        .glass-panel {
-            background: rgba(18, 25, 36, 0.85);
-            backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        :root { --primary: #00ff2a; --bg-dark: #05080a; --bg-panel: #0b1016; }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
         
-        .text-neon { 
-            color: var(--primary); 
-            text-shadow: 0 0 10px var(--primary-glow); 
-        }
-
-        .btn-gradient {
-            background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
-            color: #000;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-gradient::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-        .btn-gradient:hover::after { left: 100%; }
-        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--primary-glow); }
-
-        .game-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            transition: all 0.4s ease;
-        }
-        .game-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--primary);
-            box-shadow: 0 10px 40px -10px rgba(0, 255, 42, 0.15);
-        }
-
-        /* Avatar Selection */
-        .avatar-option { border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
-        .avatar-option:hover { transform: scale(1.1); }
-        .avatar-option.selected { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
-
-        /* Sidebar Responsive */
-        @media (min-width: 1024px) {
-            .sidebar { width: 260px; position: fixed; height: 100vh; top: 0; left: 0; z-index: 50; border-right: 1px solid var(--border-color); }
-            .main-content { margin-left: 260px; }
-        }
-        @media (max-width: 1023px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; position: fixed; height: 100vh; z-index: 60; top: 0; left: 0; width: 260px; }
-            .sidebar.open { transform: translateX(0); }
-        }
-
-        .loader-spin { border: 3px solid rgba(255,255,255,0.1); border-left-color: #000; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+        /* Layout Grid */
+        .app-layout { display: grid; grid-template-columns: 260px 1fr; height: 100vh; }
         
-        .level-progress { transition: width 1s ease-in-out; }
+        /* Sidebar */
+        .sidebar { background: rgba(11, 16, 22, 0.95); border-right: 1px solid #1f2937; display: flex; flex-direction: column; padding: 20px; z-index: 20; }
         
-        /* Table Styles */
-        .custom-table th { text-align: left; padding: 12px; color: #6b7280; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .custom-table td { padding: 16px 12px; border-top: 1px solid #1f2937; font-size: 0.875rem; }
-        .custom-table tr:hover td { background-color: rgba(255,255,255,0.02); }
+        /* Header */
+        .top-bar { height: 70px; display: flex; align-items: center; justify-content: flex-end; padding: 0 30px; border-bottom: 1px solid #1f2937; background: #05080a; }
+
+        /* EL TRUCO: El Game Frame */
+        .game-viewport {
+            width: 100%;
+            height: calc(100vh - 70px); /* Restar altura del header */
+            border: none;
+            display: block;
+            background: radial-gradient(circle at 50% 50%, #1a2530 0%, #05080a 100%);
+        }
+
+        /* Mobile */
+        @media (max-width: 1024px) {
+            .app-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; } /* Aquí iría tu lógica de toggle menú móvil */
+        }
     </style>
 </head>
-<body class="antialiased selection:bg-green-500 selection:text-black">
+<body>
 
-    <!-- AUDIO SYSTEM -->
-    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
-    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
-    <audio id="sfx-levelup" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-
-    <!-- SIDEBAR -->
-    <div id="sidebar" class="sidebar bg-panel glass-panel flex flex-col p-5 pt-16 lg:pt-6">
-        <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="showSection('home')">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(0,255,42,0.3)] group-hover:rotate-12 transition duration-300">🐸</div>
-            <div>
-                <h1 class="text-xl font-bold tracking-wider brand-font text-white leading-none">Pepe<span class="text-neon">BJ</span></h1>
-                <span class="text-[9px] text-gray-500 uppercase tracking-widest">Web3 Casino</span>
-            </div>
-        </div>
-
-        <nav class="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
-            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-4 mb-2">Platform</p>
-            <button onclick="showSection('home')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-white font-medium transition group border border-transparent hover:border-white/5">
-                <i class="fas fa-home text-blue-400 group-hover:text-blue-300"></i> Home
-            </button>
-            <button onclick="showSection('presale')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-green-900/10 border border-green-500/20 text-white font-bold transition group hover:bg-green-900/20">
-                <i class="fas fa-rocket text-neon animate-pulse"></i> PRESALE
-            </button>
-            
-            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Games</p>
-            <a href="Games/blackjack.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-heart text-red-500"></i> BlackJack</a>
-            <a href="Games/plinko.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-caret-down text-pink-500"></i> Plinko</a>
-            <a href="Games/crash.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-rocket text-purple-500"></i> Crash</a>
-            
-            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Account & Info</p>
-            <button onclick="showSection('profile')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-user text-indigo-400"></i> Profile</button>
-            <button onclick="showSection('partners')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-handshake text-orange-400"></i> Partners</button>
-            <button onclick="showSection('tokenomics')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-chart-pie text-yellow-400"></i> Tokenomics</button>
-            <button onclick="showSection('roadmap')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-map-signs text-cyan-400"></i> Roadmap</button>
-            <button onclick="showSection('tutorial')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-book text-white"></i> Tutorials</button>
-        </nav>
-    </div>
-
-    <!-- MOBILE TOGGLE -->
-    <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 bg-panel p-3 rounded-xl border border-white/10 text-white shadow-lg">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content pt-24 min-h-screen pb-20 px-4 md:px-8">
-        
-        <!-- HEADER SUPERIOR (BALANCE CENTRADO) -->
-        <header class="fixed top-0 left-0 lg:left-[260px] right-0 h-20 bg-bg-dark/80 backdrop-blur-md z-40 flex items-center px-6 border-b border-white/5 justify-between">
-            
-            <!-- Placeholder izquierdo para balance visual -->
-            <div class="hidden md:block w-1/3"></div>
-
-            <!-- BALANCE CENTRADO (ESTILO STAKE) -->
-            <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center bg-black/40 border border-white/10 rounded-lg px-4 py-2 shadow-inner cursor-pointer hover:border-neon/50 transition group" onclick="showSection('presale')">
-                <span class="text-sm font-bold text-white mr-2" id="headerBalance">0.00</span>
-                <span class="text-xs text-neon font-bold mr-3">PBJ</span>
-                <button class="bg-primary text-black text-xs font-bold px-2 py-0.5 rounded hover:scale-110 transition">+</button>
+    <div class="app-layout">
+        <!-- 1. SIDEBAR (Fijo) -->
+        <nav class="sidebar">
+            <div class="flex items-center gap-3 mb-10 text-2xl font-bold font-mono">
+                🐸 PepeBJ
             </div>
             
-            <div class="flex gap-4 items-center ml-auto w-1/3 justify-end">
-                <!-- User Info -->
-                <div id="userInfo" class="hidden flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition relative group" onclick="showSection('profile')">
-                    <div class="text-right hidden sm:block">
-                        <div class="flex items-center gap-2 justify-end">
-                            <span class="text-sm font-bold text-white" id="userNameDisplay">Degen</span>
-                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-2 py-0.5 rounded" id="userRank">Noob</span>
-                        </div>
-                        <div class="w-28 h-1.5 bg-gray-800 rounded-full mt-1.5 overflow-hidden relative">
-                            <div id="xpBar" class="bg-neon h-full w-[0%] level-progress shadow-[0_0_10px_#00ff2a]"></div>
-                        </div>
-                    </div>
-                    <img id="headerAvatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-9 h-9 rounded-full border-2 border-white/10 bg-black">
-                </div>
-
-                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-5 py-2 rounded-xl text-sm transition flex items-center gap-2 shadow-lg hover:scale-105">
-                    <i class="fas fa-wallet"></i> <span class="hidden sm:inline">Wallet</span>
+            <div class="space-y-2">
+                <!-- Botones que cargan juegos -->
+                <button onclick="loadGame('welcome.html')" class="w-full text-left p-3 rounded hover:bg-white/5 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-home w-6"></i> Home
+                </button>
+                <button onclick="loadGame('games/plinko.html')" class="w-full text-left p-3 rounded hover:bg-white/5 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-caret-down w-6 text-green-500"></i> Plinko
+                </button>
+                <button onclick="loadGame('games/blackjack.html')" class="w-full text-left p-3 rounded hover:bg-white/5 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-heart w-6 text-red-500"></i> Blackjack
                 </button>
             </div>
-        </header>
+        </nav>
 
-        <!-- === SECCIÓN: HOME / LOBBY === -->
-        <div id="homeSection" class="max-w-7xl mx-auto animate-fade-in">
-            <!-- Hero Banner -->
-            <div class="relative rounded-3xl overflow-hidden border border-white/10 p-8 md:p-16 mb-12">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 z-0"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-green-900/40 via-transparent to-blue-900/20 z-0"></div>
-                
-                <div class="relative z-10 max-w-2xl">
-                    <div class="inline-block bg-neon/10 text-neon border border-neon/30 px-4 py-1 rounded-full text-xs font-bold mb-6 animate-pulse">
-                        🚀 PRESALE PHASE 1
+        <!-- 2. MAIN AREA -->
+        <main class="flex flex-col h-full relative">
+            
+            <!-- Header (Fijo, siempre visible) -->
+            <header class="top-bar">
+                <div class="flex items-center gap-4">
+                    <div class="bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">
+                        <span class="text-sm font-bold text-gray-400 uppercase mr-2">Balance</span>
+                        <span id="globalBalance" class="text-lg font-bold text-[#00ff2a]">1,000.00</span>
                     </div>
-                    <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight brand-font">
-                        PLAY. EARN.<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">DOMINATE.</span>
-                    </h1>
-                    <p class="text-gray-400 text-lg mb-8 leading-relaxed">
-                        PepeBlackJack is the first community-driven decentralized casino on Base. 
-                        No KYC, instant withdrawals, and 40% revenue share for $PBJ holders.
-                    </p>
-                    <div class="flex gap-4">
-                        <button onclick="showSection('presale')" class="btn-gradient px-8 py-4 rounded-xl text-lg font-bold shadow-[0_0_20px_rgba(0,255,42,0.3)]">
-                            BUY $PBJ
-                        </button>
-                        <button onclick="showSection('tutorial')" class="bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-xl text-lg font-bold border border-white/10 transition">
-                            HOW TO PLAY
-                        </button>
-                    </div>
+                    <div class="w-10 h-10 rounded-full bg-green-900 border border-green-500"></div>
                 </div>
-                <!-- Decorative Pepe -->
-                <div class="absolute right-[-50px] bottom-[-50px] opacity-20 md:opacity-40 pointer-events-none">
-                    <i class="fas fa-frog text-[300px] text-green-500"></i>
-                </div>
-            </div>
+            </header>
 
-            <!-- Game Grid -->
-            <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Featured Games</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                
-                <a href="Games/plinko.html" class="game-card block rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <div class="h-56 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <i class="fas fa-caret-down text-8xl text-white group-hover:scale-110 transition duration-500 drop-shadow-2xl"></i>
-                        <span class="absolute top-3 right-3 bg-pink-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg">POPULAR</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white">PLINKO</h3>
-                        <p class="text-sm text-gray-400 mt-1">Drop the ball. Multipliers up to 1000x.</p>
-                    </div>
-                </a>
+            <!-- 3. VENTANA DEL JUEGO (IFRAME) -->
+            <!-- Aquí es donde se carga el archivo externo -->
+            <iframe id="gameFrame" class="game-viewport" src="welcome.html"></iframe>
 
-                <a href="Games/blackjack.html" class="game-card block rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <div class="h-56 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center relative">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <i class="fas fa-heart text-8xl text-white group-hover:scale-110 transition duration-500 drop-shadow-2xl"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white">BLACKJACK</h3>
-                        <p class="text-sm text-gray-400 mt-1">Beat the dealer. 99.5% RTP.</p>
-                    </div>
-                </a>
-
-                <a href="Games/crash.html" class="game-card block rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <div class="h-56 bg-gradient-to-br from-blue-900 to-indigo-900 flex items-center justify-center relative">
-                        <div class="absolute inset-0 bg-black/20"></div>
-                        <i class="fas fa-rocket text-8xl text-white group-hover:-translate-y-4 transition duration-500 drop-shadow-2xl"></i>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-2xl font-bold text-white">CRASH</h3>
-                        <p class="text-sm text-gray-400 mt-1">Bail out before it explodes. To the Moon!</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- === SECTION: PRESALE === -->
-        <div id="presaleSection" class="hidden max-w-5xl mx-auto animate-fade-in mt-10">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-4xl font-bold text-white mb-4 brand-font">Phase 1: <span class="text-neon">Early Access</span></h2>
-                    <p class="text-gray-400 mb-8 text-lg">
-                        The $PBJ token is the heart of our ecosystem. Holders receive 40% of casino profits through our Staking mechanism (Coming Soon).
-                    </p>
-                    <div class="space-y-6">
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xl"><i class="fas fa-dollar-sign"></i></div>
-                            <div>
-                                <h4 class="font-bold text-white">Current Price</h4>
-                                <p class="text-sm text-gray-400">1 ETH = 1,000,000 PBJ</p>
-                            </div>
-                        </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl"><i class="fas fa-lock"></i></div>
-                            <div>
-                                <h4 class="font-bold text-white">Security</h4>
-                                <p class="text-sm text-gray-400">Liquidity Locked for 2 Years</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-card p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 to-blue-500"></div>
-                    <h3 class="text-2xl font-bold text-white mb-6 text-center">Swap Tokens</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">You Pay (ETH)</label>
-                            <div class="relative">
-                                <input type="number" id="ethAmount" oninput="calculateTokens()" class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-white font-bold text-xl outline-none focus:border-green-500 transition" placeholder="0.0">
-                                <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-6 absolute right-4 top-4">
-                            </div>
-                        </div>
-                        <div class="flex justify-center text-gray-500"><i class="fas fa-arrow-down"></i></div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">You Receive (PBJ Credit)</label>
-                            <div class="relative">
-                                <input type="number" id="pbjAmount" readonly class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-neon font-bold text-xl outline-none" placeholder="0.0">
-                                <div class="absolute right-4 top-4 font-bold text-xs bg-green-500 text-black px-2 py-1 rounded">PBJ</div>
-                            </div>
-                        </div>
-                        <button onclick="buyTokens()" id="btnBuy" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg mt-4 flex justify-center items-center gap-2">
-                            <span>BUY CREDITS</span>
-                            <div id="buyLoader" class="loader-spin hidden"></div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: PROFILE & STATS === -->
-        <div id="profileSection" class="hidden max-w-5xl mx-auto animate-fade-in mt-10">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-white brand-font">Player Profile</h2>
-                <div class="text-gray-400 text-sm">Member since: <span class="text-white">Nov 2025</span></div>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Profile Card -->
-                <div class="bg-card p-6 rounded-2xl border border-white/10 text-center">
-                    <div class="relative inline-block mb-4 group">
-                        <img id="profileImageMain" src="" class="w-32 h-32 rounded-full border-4 border-[#1f2937] bg-black shadow-lg">
-                        <button onclick="editAvatar()" class="absolute bottom-0 right-0 bg-neon text-black w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition shadow-md border border-black"><i class="fas fa-pen text-xs"></i></button>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white" id="profileName">User</h3>
-                    <p class="text-neon font-bold text-sm mb-6 uppercase tracking-widest" id="profileRank">Noob</p>
-                    <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5 text-left mb-6">
-                        <div class="flex justify-between text-xs text-gray-400 mb-2">
-                            <span>Level <span id="profileLevelNum" class="text-white font-bold">1</span></span>
-                            <span id="xpText" class="text-white">0 / 100 XP</span>
-                        </div>
-                        <div class="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="profileXpBar" class="bg-neon h-full w-[0%] shadow-[0_0_10px_#00ff2a]"></div>
-                        </div>
-                    </div>
-                    <button onclick="logout()" class="w-full py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition text-sm font-bold">Logout</button>
-                </div>
-                <!-- Stats & History -->
-                <div class="md:col-span-2 space-y-6">
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                            <p class="text-xs text-gray-500 uppercase mb-1">Total Wagered</p>
-                            <h4 class="text-xl font-bold text-white" id="statWagered">0 PBJ</h4>
-                        </div>
-                        <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                            <p class="text-xs text-gray-500 uppercase mb-1">Total Wins</p>
-                            <h4 class="text-xl font-bold text-green-400" id="statWins">0</h4>
-                        </div>
-                        <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                            <p class="text-xs text-gray-500 uppercase mb-1">Total Bets</p>
-                            <h4 class="text-xl font-bold text-blue-400" id="statBets">0</h4>
-                        </div>
-                    </div>
-                    <div class="bg-card rounded-2xl border border-white/10 overflow-hidden min-h-[300px]">
-                        <div class="p-4 border-b border-white/5 flex justify-between items-center"><h4 class="font-bold text-white">Game History</h4></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full custom-table text-left">
-                                <thead>
-                                    <tr class="bg-black/20"><th>Game</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr>
-                                </thead>
-                                <tbody id="historyTableBody"><tr><td colspan="4" class="text-center py-8 text-gray-500">No games played yet.</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: PARTNERS & REFERRAL === -->
-        <div id="partnersSection" class="hidden max-w-5xl mx-auto animate-fade-in mt-10">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white brand-font mb-4">Affiliate Program</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">Invite your friends to PepeBlackJack and earn passive income forever.</p>
-            </div>
-            <div class="bg-[#0b1018] p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row items-center gap-8">
-                <div class="flex-1">
-                    <h3 class="text-2xl font-bold text-white mb-2">Your Referral Link</h3>
-                    <p class="text-gray-400 text-sm mb-4">Share this link. When users connect their wallet, they are bound to you forever.</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="referralLink" readonly class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-white font-mono text-sm" value="Connect wallet to generate link">
-                        <button onclick="copyReferral()" class="bg-neon text-black font-bold px-6 rounded-lg hover:bg-white transition">COPY</button>
-                    </div>
-                </div>
-                <div class="w-full md:w-1/3 bg-white/5 p-6 rounded-2xl border border-white/5">
-                    <div class="flex justify-between mb-2"><span class="text-gray-400 text-sm">Total Referred</span><span class="text-white font-bold">0</span></div>
-                    <div class="flex justify-between mb-2"><span class="text-gray-400 text-sm">Available Earnings</span><span class="text-neon font-bold">0.00 PBJ</span></div>
-                    <button class="w-full mt-4 bg-white/10 hover:bg-white/20 text-white py-2 rounded-lg text-sm font-bold transition">Claim Earnings</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: TOKENOMICS === -->
-        <div id="tokenomicsSection" class="hidden max-w-6xl mx-auto animate-fade-in mt-10">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white brand-font mb-4">$PBJ Economy</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">A model designed for sustainability and community rewards.</p>
-            </div>
-            <div class="bg-[#0b1018] p-8 rounded-3xl border border-white/5">
-                <h3 class="font-bold text-white mb-6">Token Distribution</h3>
-                <div class="space-y-4">
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Public Presale</span><span>40%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-green-500 rounded-full" style="width:40%"></div></div></div>
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Liquidity (DEX)</span><span>30%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-blue-500 rounded-full" style="width:30%"></div></div></div>
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Casino Bankroll</span><span>20%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-purple-500 rounded-full" style="width:20%"></div></div></div>
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Team & Marketing</span><span>10%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-yellow-500 rounded-full" style="width:10%"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: ROADMAP === -->
-        <div id="roadmapSection" class="hidden max-w-4xl mx-auto animate-fade-in mt-10">
-            <h2 class="text-4xl font-bold text-white brand-font text-center mb-12">Roadmap</h2>
-            <div class="relative pl-8 border-l-2 border-white/10 space-y-12">
-                <div class="relative">
-                    <span class="absolute -left-[41px] top-0 w-6 h-6 bg-green-500 rounded-full border-4 border-black shadow-[0_0_15px_#00ff2a]"></span>
-                    <h3 class="text-xl font-bold text-white mb-2">Phase 1: Launch (Q1 2025)</h3>
-                    <ul class="list-disc list-inside text-gray-400 space-y-1"><li>Smart Contract Development</li><li>Beta Website Launch</li><li>$PBJ Presale Start</li></ul>
-                </div>
-                <div class="relative opacity-50">
-                    <span class="absolute -left-[41px] top-0 w-6 h-6 bg-gray-700 rounded-full border-4 border-black"></span>
-                    <h3 class="text-xl font-bold text-white mb-2">Phase 2: Expansion (Q2 2025)</h3>
-                    <ul class="list-disc list-inside text-gray-400 space-y-1"><li>Uniswap Listing</li><li>New Games: Slots, Roulette</li></ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: TUTORIAL === -->
-        <div id="tutorialSection" class="hidden max-w-4xl mx-auto animate-fade-in mt-10">
-            <h2 class="text-3xl font-bold text-white mb-8 text-center">How to Start</h2>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-card p-6 rounded-2xl border border-white/5"><div class="text-3xl text-neon mb-4 font-bold">01</div><h3 class="font-bold text-white mb-2">Connect Wallet</h3><p class="text-gray-400 text-sm">Use the top right button. We support MetaMask, Coinbase, and WalletConnect.</p></div>
-                <div class="bg-card p-6 rounded-2xl border border-white/5"><div class="text-3xl text-neon mb-4 font-bold">02</div><h3 class="font-bold text-white mb-2">Buy Credits</h3><p class="text-gray-400 text-sm">Go to "Presale", enter ETH amount, and confirm the transaction to get PBJ credits.</p></div>
-            </div>
-        </div>
-
+        </main>
     </div>
-
-    <!-- MODALS -->
-    <div id="walletModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
-        <div class="bg-card w-full max-w-sm p-6 rounded-3xl border border-white/10 shadow-2xl relative">
-            <button onclick="closeWalletModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-bold mb-6 text-center text-white">Connect Wallet</h3>
-            <div class="space-y-3">
-                <button onclick="actualConnect('metamask')" class="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 text-white font-bold flex justify-between items-center">MetaMask <i class="fas fa-chevron-right text-xs"></i></button>
-                <button onclick="actualConnect('coinbase')" class="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 text-white font-bold flex justify-between items-center">Coinbase <i class="fas fa-chevron-right text-xs"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- LOGIN MODAL REFACTORED WITH IMAGE -->
-    <div id="loginModal" class="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[90] hidden">
-        <div class="bg-card w-full max-w-sm p-8 rounded-3xl border border-white/10 text-center shadow-[0_0_50px_rgba(0,255,42,0.1)]">
-            <!-- ADDED IMAGE HERE -->
-            <img src="assets/img/pepe-bienvenida.png" class="w-32 mx-auto mb-4 drop-shadow-2xl" alt="Pepe Welcome">
-            <h2 class="text-3xl font-black mb-2 text-white brand-font">PEPE BET</h2>
-            <p class="text-gray-400 text-sm mb-8">The Ultimate Web3 Casino</p>
-            <input type="text" id="usernameInput" placeholder="Choose a username" class="w-full p-4 rounded-xl bg-[#0b1018] border border-white/10 text-white mb-4 outline-none focus:border-green-500 text-center font-bold placeholder-gray-600 transition">
-            <button onclick="register()" class="btn-gradient w-full py-4 rounded-xl font-bold text-lg">ENTER CASINO</button>
-        </div>
-    </div>
-
-    <div id="avatarModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
-        <div class="bg-card w-full max-w-md p-6 rounded-3xl border border-white/10 relative">
-            <h3 class="text-xl font-bold text-white mb-4">Choose Avatar</h3>
-            <div class="grid grid-cols-4 gap-4 mb-6" id="avatarGrid"></div>
-            <button onclick="closeAvatarModal()" class="w-full py-3 bg-white/10 rounded-xl text-white hover:bg-white/20 transition">Close</button>
-        </div>
-    </div>
-
-    <!-- CHAT -->
-    <div id="chatWidget" class="fixed bottom-4 right-4 w-80 h-96 bg-card rounded-2xl border border-white/10 shadow-2xl z-40 hidden flex-col overflow-hidden transition-all duration-300">
-        <div class="bg-black/30 p-3 border-b border-white/5 flex justify-between items-center backdrop-blur-md">
-            <span class="font-bold text-xs uppercase tracking-wider text-gray-400"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1 animate-pulse"></span> Global Chat</span>
-            <button onclick="toggleChat()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs scrollbar-thin"></div>
-        <div class="p-3 bg-black/30 border-t border-white/5"><input type="text" placeholder="Solo holders..." class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-white outline-none" disabled></div>
-    </div>
-    <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-card p-4 rounded-full border border-white/10 shadow-lg hover:border-green-500/50 transition z-30 group hover:scale-110">
-        <i class="fas fa-comments text-xl group-hover:text-neon text-gray-400"></i>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg">1</span>
-    </button>
-
-    <!-- FOOTER -->
-    <footer class="mt-32 border-t border-white/5 pt-12 pb-8 bg-black/20">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
-            <div class="col-span-1 md:col-span-1">
-                <div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-white font-bold">P</div><span class="font-bold text-white text-xl brand-font">PepeBET</span></div>
-                <p class="text-gray-500 text-xs leading-relaxed">The most transparent decentralized gambling platform on Base Network.</p>
-            </div>
-            <div><h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Casino</h4><ul class="space-y-2 text-xs text-gray-400"><li><a href="#" class="hover:text-neon">Games</a></li><li><a href="#" class="hover:text-neon">VIP Club</a></li></ul></div>
-            <div><h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Community</h4><ul class="space-y-2 text-xs text-gray-400"><li><a href="#" class="hover:text-neon">Telegram</a></li><li><a href="#" class="hover:text-neon">Twitter / X</a></li></ul></div>
-            <div><h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Legal</h4><ul class="space-y-2 text-xs text-gray-400"><li><a href="#" class="hover:text-neon">Terms</a></li><li><a href="#" class="hover:text-neon">Privacy</a></li></ul></div>
-        </div>
-        <div class="text-center text-[10px] text-gray-600 border-t border-white/5 pt-8 mt-10">&copy; 2025 PepeBlackJack. All rights reserved.</div>
-    </footer>
 
     <script>
-        // --- CONFIG ---
-        const CONTRACT_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5"; 
-        const RATE = 1000000;
-        const STORAGE_KEY = 'pepeblackjack_v2'; 
+        // ESTADO GLOBAL
+        let userBalance = 1000.00;
 
-        // --- STATE ---
-        let state = { user: null, balance: 0, xp: 0, level: 1, avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe', wagered: 0, wins: 0, bets: 0 };
-        let provider, signer, contract;
+        // Función para cambiar de juego
+        function loadGame(url) {
+            const frame = document.getElementById('gameFrame');
+            frame.src = url;
+            
+            // Cuando el juego cargue, le enviamos el saldo actual
+            frame.onload = function() {
+                frame.contentWindow.postMessage({ type: 'INIT_BALANCE', balance: userBalance }, '*');
+            };
+        }
 
-        // --- INIT ---
-        window.onload = () => {
-            initFakeChat();
-            loadData();
-        };
-
-        function loadData() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if(stored) {
-                const loaded = JSON.parse(stored);
-                state = { ...state, ...loaded };
-                updateUI();
-                generateReferralLink();
-                renderHistory();
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('userInfo').classList.remove('hidden');
-                if(window.ethereum) actualConnect('metamask', true);
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
+        // ESCUCHAR MENSAJES DEL JUEGO (Hijo -> Padre)
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            
+            if (data.type === 'UPDATE_BALANCE') {
+                // El juego nos dice: "El usuario apostó" o "El usuario ganó"
+                // data.amount puede ser positivo (win) o negativo (bet)
+                userBalance += data.amount;
+                document.getElementById('globalBalance').innerText = userBalance.toLocaleString('en-US', {minimumFractionDigits: 2});
+                
+                // Le confirmamos el nuevo saldo al juego para que esté sincronizado
+                const frame = document.getElementById('gameFrame');
+                frame.contentWindow.postMessage({ type: 'SYNC_BALANCE', balance: userBalance }, '*');
             }
-        }
-
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            updateUI();
-        }
-
-        // --- BUG FIX (NULL CHECK) ---
-        function updateUI() {
-            const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
-            const fmt = state.balance.toLocaleString('en-US', {maximumFractionDigits: 0});
-            
-            setText('sidebarBalance', fmt);
-            setText('headerBalance', fmt);
-            setText('accCasinoBalance', fmt);
-            setText('profileBalance', fmt);
-            
-            setText('userNameDisplay', state.user);
-            setText('profileName', state.user);
-            
-            const avatarEls = ['headerAvatar', 'profileImageMain'];
-            avatarEls.forEach(id => { const el = document.getElementById(id); if(el) el.src = state.avatar; });
-            
-            setText('userLevel', state.level);
-            setText('profileLevelNum', state.level);
-            
-            const rank = state.level < 5 ? "Noob" : (state.level < 15 ? "Gambler" : "Whale");
-            setText('userRank', rank);
-            setText('profileRank', rank);
-            
-            setText('statWagered', state.wagered.toLocaleString() + " PBJ");
-            setText('statWins', state.wins);
-            setText('statBets', state.bets);
-            
-            const xpNext = state.level * 100;
-            const pct = (state.xp / xpNext) * 100;
-            const xpBar1 = document.getElementById('xpBar'); if(xpBar1) xpBar1.style.width = pct + "%";
-            const xpBar2 = document.getElementById('profileXpBar'); if(xpBar2) xpBar2.style.width = pct + "%";
-            setText('xpText', `${Math.floor(state.xp)} / ${xpNext} XP`);
-        }
-
-        function showSection(id) {
-            const el = document.getElementById('sfx-click'); if(el) el.play().catch(()=>{});
-            
-            const sections = ['home', 'presale', 'account', 'profile', 'partners', 'tokenomics', 'roadmap', 'tutorial'];
-            sections.forEach(s => { const el = document.getElementById(s+'Section'); if(el) el.classList.add('hidden'); });
-
-            const target = document.getElementById(id+'Section');
-            if(target) target.classList.remove('hidden');
-            
-            document.getElementById('sidebar').classList.remove('open');
-            const title = document.getElementById('pageTitle'); if(title) title.innerText = id.charAt(0).toUpperCase() + id.slice(1);
-            window.scrollTo(0,0);
-        }
-
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-
-        // --- AVATAR ---
-        function editAvatar() {
-            const grid = document.getElementById('avatarGrid');
-            grid.innerHTML = '';
-            const seeds = ['Pepe', 'Felix', 'Bubba', 'Leo', 'Molly', 'Jack', 'Cuddles', 'Simba'];
-            seeds.forEach(seed => {
-                const url = `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}`;
-                const img = document.createElement('img');
-                img.src = url;
-                img.className = `w-16 h-16 rounded-full bg-black p-1 avatar-option ${state.avatar === url ? 'selected' : ''}`;
-                img.onclick = () => {
-                    state.avatar = url; saveData(); closeAvatarModal();
-                };
-                grid.appendChild(img);
-            });
-            document.getElementById('avatarModal').classList.remove('hidden');
-        }
-        function closeAvatarModal() { document.getElementById('avatarModal').classList.add('hidden'); }
-
-        // --- HISTORY ---
-        function renderHistory() {
-            const tbody = document.getElementById('historyTableBody');
-            if(!tbody) return;
-            if(state.bets === 0) return;
-            let html = '';
-            const games = ['Plinko', 'Blackjack', 'Crash'];
-            for(let i=0; i<Math.min(5, state.bets); i++) {
-                const win = Math.random() > 0.5;
-                const amt = Math.floor(Math.random() * 500) + 100;
-                const mult = win ? (Math.random() * 2 + 1).toFixed(2) : '0.00';
-                const payout = win ? Math.floor(amt * mult) : 0;
-                html += `<tr class="border-b border-white/5"><td class="py-3 text-white font-bold">${games[Math.floor(Math.random()*3)]}</td><td class="py-3 text-gray-400">${amt}</td><td class="py-3 ${win ? 'text-green-400' : 'text-gray-500'}">${mult}x</td><td class="py-3 ${win ? 'text-neon' : 'text-red-400'}">${win ? '+' : ''}${payout}</td></tr>`;
-            }
-            tbody.innerHTML = html;
-        }
-
-        function generateReferralLink() {
-            const el = document.getElementById('referralLink');
-            if(el) el.value = `${window.location.origin}/?ref=${state.user}`;
-        }
-        
-        function copyReferral() {
-            const copyText = document.getElementById("referralLink");
-            copyText.select();
-            navigator.clipboard.writeText(copyText.value);
-            Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Link Copied!', showConfirmButton: false, timer: 1500, background: '#121924', color: '#fff'});
-        }
-
-        // --- AUTH ---
-        function register() {
-            const n = document.getElementById('usernameInput').value;
-            if(n) {
-                state.user = n; state.balance = 1000; state.level = 1; state.xp = 0;
-                saveData();
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('userInfo').classList.remove('hidden');
-                document.getElementById('sfx-win').play();
-                generateReferralLink();
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
-
-        function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
-        function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
-        
-        async function actualConnect(t, silent=false) {
-            closeWalletModal();
-            if(!window.ethereum) { if(!silent) Swal.fire("Error", "No wallet detected", "error"); return; }
-            try {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                if(!silent) await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                const a = await signer.getAddress();
-                document.getElementById('connectBtn').innerHTML = `<i class="fas fa-check-circle"></i> ${a.substring(0,6)}...`;
-                contract = new ethers.Contract(CONTRACT_ADDRESS, ["function buyTokens() public payable"], signer);
-                if(!silent) document.getElementById('sfx-click').play();
-            } catch(e) { console.error(e); }
-        }
-
-        function calculateTokens() { document.getElementById('pbjAmount').value = (document.getElementById('ethAmount').value * RATE).toLocaleString(); }
-
-        async function buyTokens() {
-            if(!signer) return Swal.fire("Error", "Connect Wallet First", "warning");
-            const val = document.getElementById('ethAmount').value;
-            if(val <= 0) return;
-            const btn = document.getElementById('btnBuy');
-            const loader = document.getElementById('buyLoader');
-            btn.innerText = "CONFIRMING...";
-            loader.classList.remove('hidden');
-            try {
-                try { await contract.buyTokens({value:ethers.utils.parseEther(val)}); } 
-                catch { await signer.sendTransaction({to:CONTRACT_ADDRESS, value:ethers.utils.parseEther(val)}); }
-                const tokens = val * RATE;
-                state.balance += tokens;
-                saveData();
-                Swal.fire("Success!", `Received ${tokens.toLocaleString()} PBJ`, "success");
-                document.getElementById('sfx-win').play();
-                document.getElementById('ethAmount').value = '';
-            } catch(e) { Swal.fire("Error", "Transaction Failed", "error"); } 
-            finally { btn.innerText = "BUY CREDITS"; loader.classList.add('hidden'); }
-        }
-
-        function withdraw() {
-            Swal.fire({title: 'Withdraw', text: 'Withdrawals paused during Presale.', icon: 'info', background: '#121924', color: '#fff', confirmButtonColor: '#00ff2a'});
-        }
-
-        function toggleChat(){
-            const c = document.getElementById('chatWidget'); c.classList.toggle('hidden');
-            if(!c.classList.contains('hidden')) { const m = document.getElementById('chatMessages'); m.scrollTop = m.scrollHeight; }
-        }
-        function initFakeChat(){
-            const c = document.getElementById('chatMessages');
-            const names = ["DegenKing", "PepeLover", "Whale0x", "Satoshi", "BaseGod"];
-            const texts = ["LFG! 🚀", "Big win on Plinko!", "Buying more PBJ", "Wen Lambo?", "This UI is sick"];
-            setInterval(()=>{
-                const d = document.createElement('div'); d.className="bg-white/5 p-2 rounded mb-1 text-xs animate-fade-in";
-                d.innerHTML=`<span class="font-bold text-gray-400">${names[Math.floor(Math.random()*names.length)]}:</span> <span class="text-gray-300">${texts[Math.floor(Math.random()*texts.length)]}</span>`;
-                c.appendChild(d); c.scrollTop=c.scrollHeight; if(c.children.length > 20) c.removeChild(c.firstChild);
-            }, 4000);
-        }
+        });
     </script>
 </body>
 </html>
