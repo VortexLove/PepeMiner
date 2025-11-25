@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
+        /* --- ESTÉTICA PREMIUM --- */
         :root {
             --primary: #00ff2a; --primary-glow: rgba(0, 255, 42, 0.4);
             --bg-dark: #070b10; --bg-panel: #0f1621; --bg-card: #162032;
@@ -103,7 +104,7 @@
                     <div>
                         <div class="inline-flex items-center gap-2 bg-white/5 text-neon px-3 py-1 rounded-full text-xs font-bold mb-6 border border-green-500/30">PREVENTA ACTIVA</div>
                         <h1 class="text-5xl font-black mb-6 leading-tight brand-font">EL CASINO <span class="text-neon">DEGEN</span></h1>
-                        <p class="text-gray-400 mb-8 text-lg">Compra $PBJ directamente con tu wallet. <br><span class="text-xs text-yellow-500">Nota: Si usas una red de prueba, envía ETH de prueba.</span></p>
+                        <p class="text-gray-400 mb-8 text-lg">Compra $PBJ directamente con tu wallet y accede a todos los juegos.</p>
                         
                         <div class="bg-card/80 p-6 rounded-2xl border border-white/10 shadow-2xl relative">
                             <input type="number" id="ethAmount" oninput="calculateTokens()" class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-white font-bold text-xl mb-2 outline-none" placeholder="ETH Amount">
@@ -187,66 +188,59 @@
     </footer>
 
     <script>
-        // REEMPLAZA ESTO CON TU CONTRATO REAL
+        // --- CONFIGURACIÓN ---
         const CONTRACT_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5"; 
         const RATE = 1000000;
+        const STORAGE_KEY = 'pepeblackjack_v1'; // Nueva llave de almacenamiento local
+
         let balance=0, user=null, provider, signer, contract;
 
         window.onload = () => {
             initTicker(); initLiveFeed(); initFakeChat();
-            const u = localStorage.getItem('pbj_username');
-            if(u) {
-                // Intentar login en servidor
-                loginUser(u);
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
-            }
+            loadData();
         };
 
-        // --- LOGICA DE USUARIO ---
-        async function loginUser(usernameInput) {
-            try {
-                // Llamar al Backend Real
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: usernameInput })
-                });
-                
-                if(!res.ok) throw new Error("Error conectando al servidor");
-                
-                const data = await res.json();
+        // --- SISTEMA DE DATOS LOCALES (NO SERVIDOR) ---
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if(data) {
                 user = data.username;
-                balance = data.balance;
-                
-                localStorage.setItem('pbj_username', user);
+                balance = parseFloat(data.balance);
                 updateUI();
-                
                 document.getElementById('loginModal').classList.add('hidden');
                 document.getElementById('userInfo').classList.remove('hidden');
                 document.getElementById('userNameDisplay').innerText = user;
-                
-                // Auto-conectar wallet si existe
                 if(window.ethereum) actualConnect('metamask', true);
-                
-            } catch (e) {
-                console.error(e);
-                // Si falla el servidor, mostrar alerta pero permitir ver la web (opcional)
-                Swal.fire("Error de Conexión", "No se pudo conectar con el servidor de juegos. Revisa tu conexión.", "error");
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
             }
+        }
+
+        function saveData() {
+            const data = { username: user, balance: balance };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            updateUI();
         }
 
         function register() {
             const n = document.getElementById('usernameInput').value;
-            if(n) loginUser(n);
+            if(n) {
+                user = n;
+                balance = 1000; // Bono Bienvenida
+                saveData();
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('userNameDisplay').innerText = user;
+                playSound('win');
+            }
         }
 
         function logout() {
-            localStorage.removeItem('pbj_username');
+            localStorage.removeItem(STORAGE_KEY);
             location.reload();
         }
 
-        // --- PREVENTA BLINDADA ---
+        // --- PREVENTA CONECTADA A LOCAL STORAGE ---
         function calculateTokens() { document.getElementById('pbjAmount').value = (document.getElementById('ethAmount').value * RATE).toLocaleString(); }
 
         async function buyTokens() {
@@ -262,15 +256,12 @@
             loader.classList.remove('hidden');
 
             try {
-                console.log("Iniciando transacción...");
-                
+                // 1. Enviar Tx a la Blockchain (Esto es real)
                 let tx;
-                // Intento 1: Contrato
                 try {
                     tx = await contract.buyTokens({ value: ethers.utils.parseEther(ethAmount) });
                 } catch(err) {
-                    console.warn("Contrato falló, usando envío directo:", err);
-                    // Intento 2: Envío directo (Fallback)
+                    console.warn("Contrato inaccesible, fallback envío directo:", err);
                     tx = await signer.sendTransaction({
                         to: CONTRACT_ADDRESS, 
                         value: ethers.utils.parseEther(ethAmount)
@@ -278,52 +269,35 @@
                 }
 
                 btnText.innerText = "ESPERANDO CONFIRMACIÓN...";
-                console.log("Tx enviada:", tx.hash);
-                
-                await tx.wait();
-                console.log("Tx confirmada en Blockchain");
+                await tx.wait(); // Esperar confirmación
 
-                // CRÍTICO: Actualizar Servidor
-                btnText.innerText = "SINCRONIZANDO SALDO...";
-                
+                // 2. Sumar Saldo Local (Sin servidor)
                 const tokens = ethAmount * RATE;
-                const res = await fetch('/api/update', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username: user, amount: tokens })
-                });
-
-                if(!res.ok) throw new Error("La blockchain confirmó, pero el servidor falló al sumar puntos.");
-
-                const data = await res.json();
-                balance = data.newBalance;
-                updateUI();
+                balance += tokens;
+                saveData(); // Guardar en navegador
 
                 Swal.fire({
                     title: "¡Compra Exitosa!",
-                    html: `Se añadieron <b>${tokens.toLocaleString()} PBJ</b> a tu cuenta.<br>Tx: ${tx.hash.substring(0,10)}...`,
+                    html: `Se añadieron <b>${tokens.toLocaleString()} PBJ</b> a tu cuenta local.<br>Tx: ${tx.hash.substring(0,10)}...`,
                     icon: "success",
                     background: '#162032', color: '#fff'
                 });
                 playSound('win');
+                
+                // Limpiar input
+                document.getElementById('ethAmount').value = "";
+                document.getElementById('pbjAmount').value = "";
 
             } catch(e) {
-                console.error("Error en buyTokens:", e);
-                
-                if(e.message.includes("user rejected")) {
-                    Swal.fire({title: "Cancelado", text: "Rechazaste la transacción.", icon: "info", background: '#162032', color: '#fff'});
-                } else if (e.message.includes("servidor falló")) {
-                    Swal.fire({title: "Error Crítico", text: "Tu pago fue enviado pero el saldo no se actualizó. Contacta a soporte con tu Hash.", icon: "error", background: '#162032', color: '#fff'});
-                } else {
-                    Swal.fire({title: "Error", text: "Error en la transacción. Revisa la consola.", icon: "error", background: '#162032', color: '#fff'});
-                }
+                console.error(e);
+                Swal.fire({title: "Error", text: "Transacción fallida o cancelada.", icon: "error", background: '#162032', color: '#fff'});
             } finally {
                 btnText.innerText = "COMPRAR Y JUGAR";
                 loader.classList.add('hidden');
             }
         }
 
-        // --- UTILS ---
+        // --- UTILS & NAVEGACIÓN ---
         function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
         function closeWalletModal() { document.getElementById('walletModal').classList.add('hidden'); }
         
@@ -339,8 +313,6 @@
                 signer = provider.getSigner();
                 const a = await signer.getAddress();
                 document.getElementById('connectBtn').innerHTML = `<span class="text-neon">●</span> ${a.substring(0,6)}...`;
-                
-                // Instanciar contrato
                 contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
                 if(!silent) playSound('click');
             } catch(e) { console.error(e); }
@@ -348,9 +320,8 @@
 
         function showSection(id) {
             ['presale','casino','account'].forEach(s => document.getElementById(s+'Section').classList.add('hidden'));
-            if(id.includes('Game')) { /* nada */ }
-            else if(id==='plinko') window.location.href='Games/plinko.html';
-            else if(id==='blackjack') window.location.href='Games/blackjack.html'; // Enlace externo si prefieres
+            if(id==='plinko') window.location.href='Games/plinko.html';
+            else if(id==='blackjack') window.location.href='Games/blackjack.html'; 
             else if(id==='crash') window.location.href='Games/crash.html';
             else document.getElementById(id+'Section').classList.remove('hidden');
             document.getElementById('sidebar').classList.remove('open');
@@ -358,6 +329,7 @@
         }
         
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        
         function updateUI() {
             const f = balance.toLocaleString('en-US');
             document.getElementById('sidebarBalance').innerText = f;
@@ -366,7 +338,7 @@
         function withdraw() { Swal.fire("Info", "Retiros manuales durante Beta.", "info"); }
         function playSound(id) { const s=document.getElementById('sfx-'+id); if(s){s.currentTime=0;s.play().catch(()=>{});}}
 
-        // Chat & Feed
+        // Chat & Feed Simulado
         function toggleChat(){document.getElementById('chatWidget').classList.toggle('hidden');}
         function initTicker(){ document.getElementById('whaleTicker').innerHTML = ["🚀 PREVENTA","🔥 JACKPOT 50k"].map(t=>`<span class="px-8 text-sm text-gray-400">${t}</span>`).join(''); }
         function initLiveFeed(){ setInterval(()=>{
