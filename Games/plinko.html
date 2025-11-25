@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,205 +8,333 @@
     <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
-        :root { --primary: #00ff2a; --bg-dark: #070b10; --border: rgba(255,255,255,0.1); }
-        body { background: var(--bg-dark); color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
-        
-        .glass-panel { background: rgba(15, 22, 33, 0.9); backdrop-filter: blur(10px); border-right: 1px solid var(--border); }
-        .input-slot { background: #0b1018; border: 1px solid var(--border); color: white; transition: 0.3s; }
-        .input-slot:focus { border-color: var(--primary); outline: none; }
-        
-        .btn-neon { background: linear-gradient(180deg, #00ff2a 0%, #00cc22 100%); color: #000; font-weight: 800; border: none; transition: 0.2s; }
-        .btn-neon:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0, 255, 42, 0.4); }
-        
-        .game-wrapper { display: flex; height: 100vh; }
-        .sidebar { width: 300px; flex-shrink: 0; padding: 20px; display: flex; flex-direction: column; gap: 15px; z-index: 20; background: #0f1621; border-right: 1px solid var(--border); }
-        
-        /* STAGE CENTRADO */
-        .game-stage { 
-            flex: 1; 
-            background: radial-gradient(circle at center, #1a2332 0%, #070b10 100%); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px;
-            position: relative;
+        /* --- TEMÁTICA GLOBAL --- */
+        :root {
+            --primary: #00ff2a;
+            --primary-glow: rgba(0, 255, 42, 0.5);
+            --bg-dark: #05080a;
+            --bg-panel: #0b1016;
+            --bg-card: #121924;
+            --border-color: #1f2937;
         }
 
-        .canvas-container {
-            width: 100%;
-            max-width: 800px;
-            aspect-ratio: 4/3;
-            background: #0b1018;
+        body { 
+            background-color: var(--bg-dark); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+        }
+
+        h1, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+
+        /* UI Elements */
+        .glass-panel {
+            background: rgba(18, 25, 36, 0.85);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .text-neon { color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
+            color: #000; font-weight: 800; letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--primary-glow); }
+
+        /* GAME SPECIFIC LAYOUT */
+        .game-container-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: calc(100vh - 140px); /* Ajuste para header */
+        }
+
+        .game-controls-panel {
+            background: var(--bg-panel);
             border-radius: 16px;
-            border: 1px solid var(--border);
-            position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            padding: 20px;
+            border: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            gap: 16px;
         }
+
+        .game-stage-panel {
+            background: radial-gradient(circle at center, #1a2332 0%, #070b10 100%);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .input-slot {
+            background: #05080a;
+            border: 1px solid var(--border-color);
+            color: white;
+            transition: 0.3s;
+        }
+        .input-slot:focus { border-color: var(--primary); outline: none; }
 
         /* Multiplicadores */
         .multipliers-row {
-            display: flex; 
-            gap: 4px; 
-            justify-content: center; 
-            padding: 10px 20px 20px 20px;
-            z-index: 10; 
-            margin-top: auto; /* Empuja al fondo */
+            display: flex; gap: 4px; justify-content: center; 
+            padding: 10px 20px 20px 20px; z-index: 10; 
+            width: 90%; max-width: 800px;
         }
         .mult-box {
-            flex: 1; 
-            height: 40px; 
-            border-radius: 6px; 
-            font-size: 10px; 
-            font-weight: 800; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            color: #000; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
-            cursor: help;
+            flex: 1; height: 35px; border-radius: 6px; font-size: 10px; font-weight: 800; 
+            display: flex; align-items: center; justify-content: center; color: #000; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: 0.1s; cursor: help;
             border-bottom: 3px solid rgba(0,0,0,0.2);
         }
-        .mult-box:hover { transform: translateY(-3px) scale(1.05); filter: brightness(1.2); z-index: 20; }
+        .mult-box:hover { transform: translateY(-3px) scale(1.1); filter: brightness(1.2); z-index: 20; }
 
         /* Tooltip Hover */
         #hoverInfo {
-            position: absolute;
-            background: rgba(0,0,0,0.95);
-            border: 1px solid var(--primary);
-            padding: 8px 12px;
-            border-radius: 8px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 100;
-            font-size: 11px;
-            box-shadow: 0 0 15px rgba(0,255,42,0.2);
-            transform: translate(-50%, -120%);
-            white-space: nowrap;
+            position: absolute; background: rgba(0,0,0,0.95); border: 1px solid var(--primary);
+            padding: 8px 12px; border-radius: 8px; pointer-events: none; opacity: 0;
+            z-index: 100; font-size: 11px; box-shadow: 0 0 15px rgba(0,255,42,0.2);
+            white-space: nowrap; transform: translate(-50%, -120%);
         }
 
-        /* Animaciones */
         @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); filter: brightness(2); } 100% { transform: scale(1); } }
         .pop-anim { animation: pop 0.2s ease-out; }
 
-        @media(max-width:1024px){ .game-wrapper{flex-direction:column-reverse;overflow-y:auto} .sidebar{width:100%;height:auto} .game-stage{height:600px} .canvas-container{height:100%} }
+        @media (min-width: 1024px) {
+            .sidebar { width: 260px; position: fixed; height: 100vh; top: 0; left: 0; z-index: 50; border-right: 1px solid var(--border-color); }
+            .main-content { margin-left: 260px; }
+        }
+        @media (max-width: 1023px) {
+            .sidebar { transform: translateX(-100%); transition: 0.3s; position: fixed; height: 100vh; z-index: 60; top: 0; left: 0; width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .game-container-grid { grid-template-columns: 1fr; height: auto; }
+            .game-stage-panel { height: 500px; }
+        }
+        
+        .level-progress { transition: width 1s ease-in-out; }
     </style>
 </head>
-<body>
+<body class="antialiased">
+
+    <!-- AUDIO -->
     <audio id="sfx-plink" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
+    <audio id="sfx-levelup" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 
-    <div class="game-wrapper">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="flex justify-between items-center mb-2">
-                <a href="../index.html" class="flex items-center gap-2 text-gray-400 hover:text-white transition"><i class="fas fa-chevron-left"></i> Volver</a>
-                <div class="bg-black/40 px-3 py-1 rounded-full border border-white/5 font-mono font-bold text-sm text-white"><span id="displayBalance">0.00</span> PBJ</div>
-            </div>
-
-            <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                <label class="text-[10px] font-bold text-gray-500 block mb-2">APUESTA</label>
-                <div class="relative">
-                    <input type="number" id="betAmount" value="100" class="w-full p-3 input-slot rounded-lg font-bold text-sm">
-                    <div class="absolute right-1 top-1 bottom-1 flex gap-1">
-                        <button onclick="changeBet(0.5)" class="bg-[#1a2c38] hover:bg-[#263549] text-gray-400 px-2 rounded text-[10px] font-bold">½</button>
-                        <button onclick="changeBet(2)" class="bg-[#1a2c38] hover:bg-[#263549] text-gray-400 px-2 rounded text-[10px] font-bold">2x</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 block mb-2">RIESGO</label>
-                    <select id="riskSelect" onchange="updateConfig()" class="w-full p-3 input-slot rounded-lg text-xs font-bold cursor-pointer">
-                        <option value="low">Bajo</option>
-                        <option value="medium" selected>Medio</option>
-                        <option value="high">Alto</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 block mb-2">FILAS: <span id="rowsDisplay">16</span></label>
-                    <input type="range" id="rowsInput" min="8" max="16" value="16" oninput="updateConfig()" class="w-full h-2 bg-[#0b1018] rounded-lg accent-[#00ff2a]">
-                </div>
-            </div>
-
-            <button onclick="dropBall()" class="btn-neon w-full py-4 rounded-xl mt-auto text-lg shadow-lg relative group overflow-hidden">
-                <span class="relative z-10">JUGAR</span>
-                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition"></div>
-            </button>
-            
-            <div class="text-[10px] text-center text-gray-600 mt-2">
-                <i class="fas fa-shield-alt"></i> Provably Fair
+    <!-- GLOBAL SIDEBAR (NAVIGATION) -->
+    <div id="sidebar" class="sidebar bg-panel glass-panel flex flex-col p-5 pt-16 lg:pt-6">
+        <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="window.location.href='../index.html'">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(0,255,42,0.3)]">🐸</div>
+            <div>
+                <h1 class="text-xl font-bold tracking-wider brand-font text-white leading-none">Pepe<span class="text-neon">BJ</span></h1>
+                <span class="text-[9px] text-gray-500 uppercase tracking-widest">Web3 Casino</span>
             </div>
         </div>
 
-        <!-- GAME STAGE -->
-        <div class="game-stage">
-            <!-- Tooltip -->
-            <div id="hoverInfo">
-                <div class="text-white font-bold text-sm" id="hoverMultiplier">100x</div>
-                <div class="text-[10px] text-gray-400">Ganancia: <span id="hoverProfit" class="text-green-400 font-bold">0.00</span></div>
-                <div class="text-[10px] text-gray-400">Probabilidad: <span id="hoverChance" class="text-yellow-400 font-bold">0.00%</span></div>
-            </div>
+        <nav class="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
+            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-4 mb-2">Platform</p>
+            <a href="../index.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-white font-medium transition"><i class="fas fa-home text-blue-400"></i> Home</a>
+            
+            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Games</p>
+            <a href="blackjack.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-heart text-red-500"></i> BlackJack</a>
+            <a href="#" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-white/5 text-neon font-bold transition border-l-4 border-neon"><i class="fas fa-caret-down"></i> Plinko</a>
+            <a href="crash.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition"><i class="fas fa-rocket text-purple-500"></i> Crash</a>
+        </nav>
 
-            <!-- Score Animado -->
-            <div id="floatScore" class="absolute top-10 text-6xl font-black text-white opacity-0 pointer-events-none z-50 drop-shadow-[0_0_20px_rgba(0,255,42,0.8)] transition-transform duration-100">0.00</div>
-
-            <div class="canvas-container">
-                <canvas id="gameCanvas" width="800" height="600" class="w-full flex-1"></canvas>
-                
-                <!-- Cubos Multiplicadores -->
-                <div id="multipliersContainer" class="multipliers-row"></div>
+        <div class="mt-4 bg-[#05080a] p-4 rounded-xl border border-white/5">
+            <div class="flex justify-between items-end mb-2"><span class="text-[10px] text-gray-400 uppercase font-bold">Casino Balance</span></div>
+            <div class="flex items-baseline gap-1">
+                <h3 class="text-2xl font-bold text-white tracking-tight brand-font" id="sidebarBalance">0.00</h3>
+                <span class="text-xs font-bold text-neon">PBJ</span>
             </div>
         </div>
     </div>
 
-    <!-- LÓGICA -->
+    <!-- MOBILE TOGGLE -->
+    <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 bg-panel p-3 rounded-xl border border-white/10 text-white shadow-lg"><i class="fas fa-bars"></i></button>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content pt-24 min-h-screen pb-10 px-4 md:px-8">
+        
+        <!-- HEADER (USER INFO) -->
+        <header class="fixed top-0 left-0 lg:left-[260px] right-0 h-20 bg-bg-dark/90 backdrop-blur-md z-40 flex justify-between items-center px-6 border-b border-white/5">
+            <div class="flex items-center gap-2">
+                <h2 class="text-xl font-bold text-white brand-font">PLINKO</h2>
+                <span class="bg-pink-500/20 text-pink-400 text-[10px] font-bold px-2 py-0.5 rounded border border-pink-500/30">HOT</span>
+            </div>
+            
+            <div class="flex gap-4 items-center ml-auto">
+                <div id="userInfo" class="hidden flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition">
+                    <div class="text-right hidden sm:block">
+                        <div class="flex items-center gap-2 justify-end">
+                            <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
+                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-2 py-0.5 rounded" id="userRank">Novato</span>
+                        </div>
+                        <div class="w-32 h-1.5 bg-gray-800 rounded-full mt-1.5 overflow-hidden relative">
+                            <div id="xpBar" class="bg-neon h-full w-[0%] level-progress shadow-[0_0_10px_#00ff2a]"></div>
+                        </div>
+                    </div>
+                    <img id="headerAvatar" src="" class="w-10 h-10 rounded-full border-2 border-white/10 bg-black">
+                </div>
+            </div>
+        </header>
+
+        <!-- GAME LAYOUT GRID -->
+        <div class="game-container-grid animate-fade-in">
+            
+            <!-- PANEL DE CONTROL (IZQUIERDA) -->
+            <div class="game-controls-panel">
+                <!-- Apuesta -->
+                <div class="bg-[#05080a] p-4 rounded-xl border border-white/5">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Bet Amount</label>
+                        <span class="text-[10px] text-gray-600">Max: 10000</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="betAmount" value="100" class="w-full p-3 input-slot rounded-lg font-bold text-sm pr-20">
+                        <div class="absolute right-1 top-1 bottom-1 flex gap-1">
+                            <button onclick="changeBet(0.5)" class="bg-[#1a2c38] hover:bg-[#263549] text-gray-400 text-[10px] font-bold px-2 rounded transition">½</button>
+                            <button onclick="changeBet(2)" class="bg-[#1a2c38] hover:bg-[#263549] text-gray-400 text-[10px] font-bold px-2 rounded transition">2x</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración -->
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-2">Risk</label>
+                    <select id="riskSelect" onchange="updateGameConfig()" class="w-full p-3 input-slot rounded-lg text-sm font-bold cursor-pointer">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase block mb-2">Rows: <span id="rowsDisplay" class="text-white">16</span></label>
+                    <input type="range" id="rowsInput" min="8" max="16" value="16" oninput="updateGameConfig()" class="w-full h-2 bg-[#05080a] rounded-lg appearance-none cursor-pointer accent-[#00ff2a]">
+                </div>
+
+                <!-- Stats Rápidas -->
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                    <div class="bg-white/5 rounded-lg p-2 text-center">
+                        <p class="text-[9px] text-gray-500">Max Profit</p>
+                        <p class="text-xs font-bold text-neon" id="maxProfitDisplay">1000x</p>
+                    </div>
+                    <div class="bg-white/5 rounded-lg p-2 text-center">
+                        <p class="text-[9px] text-gray-500">Win Chance</p>
+                        <p class="text-xs font-bold text-white" id="minChanceDisplay">0.0015%</p>
+                    </div>
+                </div>
+
+                <button onclick="dropBall()" class="btn-gradient w-full py-4 rounded-xl mt-auto text-lg font-bold shadow-lg relative group overflow-hidden">
+                    <span class="relative z-10">PLAY</span>
+                </button>
+            </div>
+
+            <!-- STAGE DE JUEGO (DERECHA) -->
+            <div class="game-stage-panel">
+                <!-- Tooltip Flotante -->
+                <div id="hoverInfo">
+                    <div class="text-white font-bold text-sm" id="hoverMultiplier">100x</div>
+                    <div class="text-[10px] text-gray-400">Profit: <span id="hoverProfit" class="text-green-400 font-bold">0.00</span></div>
+                    <div class="text-[10px] text-gray-400">Chance: <span id="hoverChance" class="text-yellow-400 font-bold">0.00%</span></div>
+                </div>
+
+                <!-- Score Animado -->
+                <div id="floatScore" class="absolute top-20 text-6xl font-black text-white opacity-0 pointer-events-none z-50 drop-shadow-[0_0_20px_rgba(0,255,42,0.8)] transition-transform duration-100">0.00</div>
+
+                <!-- Canvas -->
+                <canvas id="gameCanvas" width="800" height="600" class="w-full max-w-[800px] flex-1"></canvas>
+                
+                <!-- Multipliers -->
+                <div id="multipliersContainer" class="multipliers-row"></div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER INFO -->
+        <div class="max-w-[1200px] mx-auto mt-8 text-center">
+            <p class="text-[10px] text-gray-600 uppercase tracking-widest"><i class="fas fa-shield-alt"></i> Provably Fair & Decentralized</p>
+        </div>
+
+    </div>
+
+    <!-- LÓGICA COMPARTIDA -->
     <script>
-        const STORAGE_KEY = 'pepeblackjack_v1';
+        const STORAGE_KEY = 'pepeblackjack_v2'; // LLAVE COMPARTIDA
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        let userBalance=0, username=null, rows=16, risk='medium', balls=[], pegs=[], multipliers=[];
+        // STATE
+        let state = { user: null, balance: 0, xp: 0, level: 1, avatar: '' };
         
-        // Colores
+        // GAME VARS
+        let rows = 16, risk = 'medium', balls = [], pegs = [], multipliers = [];
+        
+        // COLORS
         const scheme = {
-            low: ['#f59e0b', '#fbbf24'], 
-            med: ['#10b981', '#34d399'], 
-            high: ['#ef4444', '#f87171'], 
-            loss: ['#374151', '#4b5563']
+            low: ['#f59e0b', '#fbbf24'], med: ['#10b981', '#34d399'], 
+            high: ['#ef4444', '#f87171'], loss: ['#374151', '#4b5563']
         };
 
         window.onload = () => {
-            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if(data) {
-                userBalance = parseFloat(data.balance);
-                username = data.username;
-                updateBalanceUI();
-            } else { window.location.href = '../index.html'; }
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if(stored) {
+                state = { ...state, ...JSON.parse(stored) };
+                updateUI();
+                document.getElementById('userInfo').classList.remove('hidden');
+            } else {
+                window.location.href = '../index.html'; // Redirigir si no hay login
+            }
             
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
-            updateConfig();
+            updateGameConfig();
             gameLoop();
         };
 
         function saveData() {
-            const data = { username: username, balance: userBalance };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            updateBalanceUI();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            updateUI();
         }
 
-        // --- MATHS ---
+        // --- UI UPDATE ---
+        function updateUI() {
+            const fmt = state.balance.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('sidebarBalance').innerText = fmt;
+            document.getElementById('userNameDisplay').innerText = state.user;
+            document.getElementById('headerAvatar').src = state.avatar;
+            document.getElementById('userLevel').innerText = state.level;
+            
+            const rank = state.level < 5 ? "Noob" : "Degen";
+            document.getElementById('userRank').innerText = rank;
+            
+            const xpNext = state.level * 100;
+            document.getElementById('xpBar').style.width = ((state.xp / xpNext) * 100) + "%";
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+        // --- PLINKO MATHS ---
         function getProbability(n, k) {
             function f(num){ return num<0?-1:(num==0?1:(num*f(num-1))); }
             return ( (f(n)/(f(k)*f(n-k))) * Math.pow(0.5, n) ) * 100;
@@ -216,29 +344,29 @@
             const count = rows + 1;
             const center = Math.floor(count / 2);
             let arr = [];
-            // Generación estilo Stake
             for(let i=0; i<count; i++) {
                 const dist = Math.abs(i - center);
                 let val = 1;
-                // Curvas de riesgo
                 if(risk==='high') val = dist===0?0.2 : (dist>=(rows/2)-1 ? (dist===(rows/2)?1000:20) : 1+Math.pow(dist,3)*0.05);
                 if(risk==='medium') val = dist===0?0.5 : 1+Math.pow(dist,2)*0.2;
                 if(risk==='low') val = dist===0?1 : 1+dist*0.5;
                 if(val<0.2) val=0.2;
-                // Hardcode 1000x
                 if(rows===16 && risk==='high' && (i===0 || i===count-1)) val=1000;
-                
                 arr.push({ val: parseFloat(val.toFixed(2)), prob: getProbability(rows, i).toFixed(4) });
             }
             return arr;
         }
 
-        function updateConfig() {
+        function updateGameConfig() {
             rows = parseInt(document.getElementById('rowsInput').value);
             document.getElementById('rowsDisplay').innerText = rows;
             risk = document.getElementById('riskSelect').value;
             initPegs();
             renderMultipliersHTML();
+            
+            const vals = multipliers.map(m => m.val);
+            document.getElementById('maxProfitDisplay').innerText = Math.max(...vals) + "x";
+            document.getElementById('minChanceDisplay').innerText = multipliers[0].prob + "%";
         }
 
         function initPegs() {
@@ -256,93 +384,68 @@
             const container = document.getElementById('multipliersContainer');
             container.innerHTML = '';
             multipliers = getMultipliers();
-            
             multipliers.forEach((m, i) => {
                 const div = document.createElement('div');
                 div.className = 'mult-box';
                 div.id = `bucket-${i}`;
                 div.innerText = m.val + 'x';
-                
                 let c = scheme.loss;
-                if(m.val>=1.5) c=scheme.low;
-                if(m.val>=5) c=scheme.med;
-                if(m.val>=20) c=scheme.high;
-                
+                if(m.val>=1.5) c=scheme.low; if(m.val>=5) c=scheme.med; if(m.val>=20) c=scheme.high;
                 div.style.background = `linear-gradient(180deg, ${c[0]}, ${c[1]})`;
                 if(m.val<1) div.style.opacity="0.7";
 
-                // Hover Logic
                 div.onmouseenter = (e) => {
                    const tip = document.getElementById('hoverInfo');
                    const bet = parseFloat(document.getElementById('betAmount').value);
                    document.getElementById('hoverMultiplier').innerText = m.val+"x";
                    document.getElementById('hoverProfit').innerText = (bet*m.val).toLocaleString()+" PBJ";
                    document.getElementById('hoverChance').innerText = m.prob+"%";
-                   
                    const r = div.getBoundingClientRect();
-                   const containerRect = document.querySelector('.game-stage').getBoundingClientRect();
-                   tip.style.left = (r.left - containerRect.left + r.width/2) + "px";
-                   tip.style.top = (r.top - containerRect.top - 10) + "px";
+                   const stage = document.querySelector('.game-stage-panel').getBoundingClientRect();
+                   tip.style.left = (r.left - stage.left + r.width/2) + "px";
+                   tip.style.top = (r.top - stage.top - 10) + "px";
                    tip.style.opacity=1; 
                 };
                 div.onmouseleave = () => document.getElementById('hoverInfo').style.opacity=0;
-                
                 container.appendChild(div);
             });
         }
 
+        // --- GAMEPLAY ---
         function dropBall() {
             const bet = parseFloat(document.getElementById('betAmount').value);
-            if(bet <= 0) return;
-            if(bet > userBalance) return Swal.fire({title:"Saldo Insuficiente", icon:"error", background:'#0f1621', color:'#fff'});
+            if(bet <= 0 || isNaN(bet)) return;
+            if(bet > state.balance) return Swal.fire({title:"Insufficent Balance", icon:"error", background:'#121924', color:'#fff'});
             
-            userBalance -= bet;
+            state.balance -= bet;
+            state.xp += (bet / 10); // XP per bet
             saveData();
 
-            // Decidir Path
-            let path = [];
-            let idx = 0;
-            for(let i=0; i<rows; i++){ 
-                const right = Math.random() < 0.5;
-                path.push(right?1:-1);
-                if(right) idx++;
-            }
-            
+            let path = [], idx = 0;
+            for(let i=0; i<rows; i++){ const r = Math.random() < 0.5; path.push(r?1:-1); if(r) idx++; }
             balls.push({ x:canvas.width/2, y:20, r:5, path, row:0, target:idx, bet, vx:0, vy:0, active:true });
         }
 
         function gameLoop() {
             ctx.clearRect(0,0,canvas.width,canvas.height);
-            
-            // Pegs
             ctx.fillStyle = "white";
             ctx.shadowBlur = 5; ctx.shadowColor = "rgba(255,255,255,0.5)";
             pegs.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); });
             ctx.shadowBlur = 0;
-            
             const gap = canvas.width / (rows + 4);
-            
             balls.forEach(b => {
                 if(!b.active) return;
-                const targetY = 50 + (b.row * 35); // Match peg Y calc
-                
-                if(b.y < targetY) {
-                    b.vy += 0.5; b.y += b.vy; b.x += b.vx;
-                } else {
+                const targetY = 50 + (b.row * 35);
+                if(b.y < targetY) { b.vy += 0.5; b.y += b.vy; b.x += b.vx; } 
+                else {
                     if(b.row < rows) {
-                        // Colisión
                         const a = document.getElementById('sfx-plink').cloneNode(); a.volume=0.2; a.play().catch(()=>{});
-                        b.vy = -3; // Rebote
-                        const dir = b.path[b.row];
-                        b.vx = (dir * (gap/11)) + (Math.random()*0.5-0.25); // Little noise
+                        b.vy = -3; const dir = b.path[b.row];
+                        b.vx = (dir * (gap/11)) + (Math.random()*0.5-0.25);
                         b.row++;
-                    } else {
-                        finishBall(b);
-                    }
+                    } else { finishBall(b); }
                 }
-                // Draw ball
-                ctx.beginPath(); ctx.fillStyle = "#00ff2a"; 
-                ctx.shadowBlur=10; ctx.shadowColor="#00ff2a";
+                ctx.beginPath(); ctx.fillStyle = "#00ff2a"; ctx.shadowBlur=10; ctx.shadowColor="#00ff2a";
                 ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur=0;
             });
             requestAnimationFrame(gameLoop);
@@ -352,8 +455,15 @@
             b.active = false;
             const m = multipliers[b.target];
             const win = b.bet * m.val;
+            state.balance += win;
             
-            userBalance += win;
+            // Check Level Up
+            const xpNext = state.level * 100;
+            if(state.xp >= xpNext) {
+                state.level++; state.xp -= xpNext;
+                document.getElementById('sfx-levelup').play();
+                Swal.fire({title: 'LEVEL UP!', text: `Level ${state.level}`, icon: 'success', background: '#121924', color: '#fff'});
+            }
             saveData();
             
             document.getElementById('sfx-win').play();
@@ -368,13 +478,11 @@
             }
         }
 
-        function updateBalanceUI() { document.getElementById('displayBalance').innerText = userBalance.toFixed(2); }
         function changeBet(m) { document.getElementById('betAmount').value *= m; }
-        
         function resizeCanvas() {
             const cont = document.querySelector('.canvas-container');
             canvas.width = cont.offsetWidth;
-            canvas.height = cont.offsetHeight - 70; // Dejar espacio para buckets
+            canvas.height = cont.offsetHeight - 60; // Espacio para buckets
             initPegs();
         }
     </script>
