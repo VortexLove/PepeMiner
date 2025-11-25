@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko | PepeBlackJack Casino</title>
+    
+    <!-- Librerías (Mismas que el index) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #00E701;
+            --dark-bg: #0f212e;
+            --card-bg: #1a2c38;
+            --input-bg: #0f212e;
+            --sidebar-width: 300px;
+        }
+
+        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        /* Estilos específicos Plinko Stake */
+        .game-container { display: flex; height: 100vh; }
+        
+        /* Panel de Control (Izquierda) */
+        .control-panel { 
+            width: var(--sidebar-width); 
+            background-color: var(--card-bg); 
+            padding: 20px; 
+            border-right: 1px solid #2f4553;
+            display: flex; flex-direction: column; gap: 20px;
+            z-index: 10;
+        }
+
+        /* Área de Juego (Derecha) */
+        .canvas-area { 
+            flex: 1; 
+            position: relative; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            background-color: #0f212e;
+        }
+
+        .btn-primary {
+            background: linear-gradient(180deg, #00E701 0%, #00b301 100%);
+            color: #000; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 0 #007f01; transition: all 0.1s;
+        }
+        .btn-primary:active { transform: translateY(2px); box-shadow: 0 0 0 #007f01; }
+
+        .input-dark {
+            background: #0f212e; border: 2px solid #2f4553; color: white; font-weight: bold;
+            border-radius: 6px; transition: 0.2s;
+        }
+        .input-dark:focus { border-color: var(--primary); outline: none; }
+
+        /* Multiplicadores */
+        .multipliers-row {
+            display: flex; gap: 4px; justify-content: center; margin-top: -20px; z-index: 5;
+            width: 80%; max-width: 800px;
+        }
+        .mult-box {
+            flex: 1; height: 35px; border-radius: 4px; 
+            font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center;
+            color: #000; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+        
+        /* Animaciones */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); filter: brightness(1.5); } 100% { transform: scale(1); } }
+        .pop-anim { animation: pop 0.2s ease-out; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-container { flex-direction: column-reverse; overflow-y: auto; }
+            .control-panel { width: 100%; height: auto; border-right: none; border-top: 1px solid #2f4553; }
+            .canvas-area { min-height: 500px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SONIDOS -->
+    <audio id="sfx-plink" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
+
+    <div class="game-container">
+        
+        <!-- PANEL DE CONTROL -->
+        <div class="control-panel">
+            <!-- Botón Salir -->
+            <a href="../index.html" class="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition">
+                <i class="fas fa-arrow-left"></i> Volver al Casino
+            </a>
+
+            <div class="bg-[#0b1820] p-4 rounded-lg border border-[#2f4553]">
+                <p class="text-xs text-gray-500 uppercase font-bold">Saldo Disponible</p>
+                <div class="flex items-end gap-2">
+                    <h2 class="text-2xl font-bold text-white" id="displayBalance">0.00</h2>
+                    <span class="text-xs text-[#00E701] font-bold mb-1">PBJ</span>
+                </div>
+            </div>
+
+            <!-- Inputs -->
+            <div>
+                <label class="text-xs text-gray-500 font-bold ml-1">MONTO APUESTA</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="number" id="betAmount" value="100" class="w-full p-2 input-dark">
+                    <button onclick="halfBet()" class="bg-[#2f4553] px-3 rounded font-bold hover:bg-[#3d5564]">½</button>
+                    <button onclick="doubleBet()" class="bg-[#2f4553] px-3 rounded font-bold hover:bg-[#3d5564]">2x</button>
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs text-gray-500 font-bold ml-1">RIESGO</label>
+                <select id="riskSelect" onchange="updateGameConfig()" class="w-full p-2 mt-1 input-dark">
+                    <option value="low">Bajo</option>
+                    <option value="medium" selected>Medio</option>
+                    <option value="high">Alto</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="text-xs text-gray-500 font-bold ml-1">FILAS: <span id="rowsDisplay">16</span></label>
+                <input type="range" id="rowsInput" min="8" max="16" value="16" oninput="updateGameConfig()" class="w-full mt-2 accent-[#00E701] cursor-pointer">
+            </div>
+
+            <button onclick="dropBall()" id="btnBet" class="btn-primary w-full py-4 rounded mt-auto text-xl shadow-lg relative top-0 hover:-top-1">
+                JUGAR
+            </button>
+        </div>
+
+        <!-- CANVAS JUEGO -->
+        <div class="canvas-area">
+            <!-- Score Flotante -->
+            <div id="floatScore" class="absolute top-20 text-5xl font-black text-white opacity-0 pointer-events-none z-50 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">0.00</div>
+
+            <canvas id="gameCanvas" width="800" height="650"></canvas>
+            
+            <!-- Contenedor HTML para los cubos de multiplicadores (Mejor renderizado que Canvas) -->
+            <div id="multipliersContainer" class="multipliers-row"></div>
+        </div>
+    </div>
+
+    <!-- LOGICA -->
+    <script>
+        // === CONFIGURACIÓN ===
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let userBalance = 0;
+        let username = "Invitado";
+        
+        // Estado del Juego
+        let rows = 16;
+        let risk = 'medium';
+        let balls = [];
+        let pegs = [];
+        let multipliers = [];
+
+        // Colores Stake
+        const colors = {
+            low: ['#5da000', '#74c500'], // Verde
+            medium: ['#f59e0b', '#fbbf24'], // Naranja
+            high: ['#be185d', '#f472b6'], // Rojo/Rosa
+            peg: 'white'
+        };
+
+        // === INICIALIZACIÓN ===
+        window.onload = () => {
+            // Cargar usuario desde el LocalStorage compartido con el Index
+            if(localStorage.getItem('pepebet_user')) { // USAR LA MISMA KEY QUE EL INDEX VIEJO
+                // Intento leer formato V1
+                const data = JSON.parse(localStorage.getItem('pepebet_user'));
+                userBalance = parseFloat(data.balance);
+                username = data.user;
+            } else if (localStorage.getItem('pbj_user_v2')) {
+                // Intento leer formato V2 (del index anterior más completo)
+                const data = JSON.parse(localStorage.getItem('pbj_user_v2'));
+                userBalance = parseFloat(data.balance);
+                username = data.username;
+            } else {
+                // Si no hay login, mandar al Home
+                Swal.fire({
+                    title: 'Inicia Sesión',
+                    text: 'Debes conectar tu wallet en el inicio.',
+                    icon: 'warning',
+                    confirmButtonText: 'Ir al Inicio'
+                }).then(() => {
+                    window.location.href = '../index.html';
+                });
+            }
+            updateBalanceUI();
+            updateGameConfig();
+            gameLoop();
+        };
+
+        // === LÓGICA DE JUEGO ===
+        
+        function updateGameConfig() {
+            rows = parseInt(document.getElementById('rowsInput').value);
+            document.getElementById('rowsDisplay').innerText = rows;
+            risk = document.getElementById('riskSelect').value;
+            
+            initPegs();
+            renderMultipliersHTML();
+        }
+
+        function initPegs() {
+            pegs = [];
+            const startY = 50;
+            // Ajustar el espaciado según la cantidad de filas para que quepa en el canvas
+            const gap = canvas.width / (rows + 5); 
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c <= r; c++) {
+                    const x = (canvas.width / 2) - (r * gap / 2) + (c * gap);
+                    const y = startY + (r * 35); // 35px altura vertical entre filas
+                    pegs.push({ x, y, r: 4 });
+                }
+            }
+        }
+
+        // Generar Multiplicadores (Lógica simplificada tipo Stake)
+        function getMultipliersValues() {
+            const count = rows + 1;
+            const center = Math.floor(count / 2);
+            let arr = [];
+            
+            for(let i=0; i<count; i++) {
+                const dist = Math.abs(i - center);
+                let val;
+                
+                if(risk === 'low') val = dist === 0 ? 0.5 : 1 + (dist * 0.3);
+                else if(risk === 'medium') val = dist < 2 ? 0.4 : 1.5 + Math.pow(dist, 1.8) * 0.4;
+                else val = dist === 0 ? 0.2 : 0.2 + Math.pow(dist, 2.7) * 0.3; // High Risk = High Reward
+
+                if(val < 1) val = Math.max(0.2, val); // Minimo 0.2x
+                arr.push(val.toFixed(1));
+            }
+            
+            // Hardcode para "High" para que se vea impresionante como Stake (1000x)
+            if(risk === 'high' && rows >= 14) {
+                arr[0] = 1000; arr[count-1] = 1000;
+                arr[1] = 130; arr[count-2] = 130;
+            }
+
+            return arr;
+        }
+
+        function renderMultipliersHTML() {
+            const container = document.getElementById('multipliersContainer');
+            container.innerHTML = '';
+            const vals = getMultipliersValues();
+            multipliers = vals; // Guardar referencia global
+
+            const center = Math.floor(vals.length / 2);
+            const palette = colors[risk];
+
+            vals.forEach((v, i) => {
+                const div = document.createElement('div');
+                div.className = 'mult-box';
+                div.id = `bucket-${i}`;
+                div.innerText = v + 'x';
+                
+                // Color Gradiante desde el centro hacia afuera
+                const dist = Math.abs(i - center);
+                const maxDist = Math.floor(vals.length/2);
+                const opacity = 0.4 + (dist/maxDist) * 0.6; // Más brillante en los extremos
+                
+                div.style.backgroundColor = palette[0];
+                div.style.opacity = opacity;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function dropBall() {
+            const betInput = document.getElementById('betAmount');
+            const bet = parseFloat(betInput.value);
+
+            if(bet <= 0 || isNaN(bet)) return;
+            if(bet > userBalance) return Swal.fire("Sin saldo", "Recarga en la preventa", "error");
+
+            // Deducir saldo
+            userBalance -= bet;
+            saveData();
+            updateBalanceUI();
+
+            // === RNG DETERMINISTA (DECISIÓN PREVIA) ===
+            // Decidimos dónde caerá la bola matemáticamente antes de animarla
+            // Esto evita errores de física del navegador
+            let path = [];
+            let currentIndex = 0; // Empieza en la cima (índice relativo)
+
+            for(let i=0; i<rows; i++) {
+                // 50/50 Chance izquierda (-0.5) o derecha (+0.5)
+                // En array logic: Derecha suma 1 al índice, Izquierda mantiene índice
+                const goRight = Math.random() < 0.5;
+                path.push(goRight ? 1 : -1);
+                if(goRight) currentIndex++;
+            }
+
+            // Crear bola con ruta predefinida
+            balls.push({
+                x: canvas.width / 2,
+                y: 20,
+                radius: 6,
+                active: true,
+                path: path, // Array de decisiones [1, -1, 1...]
+                currentRow: 0,
+                targetIndex: currentIndex, // Donde debe caer (0 a rows)
+                bet: bet,
+                vx: 0,
+                vy: 0
+            });
+        }
+
+        function gameLoop() {
+            // Limpiar Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar Clavos (Pegs)
+            ctx.fillStyle = "white";
+            pegs.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Procesar Bolas
+            const gap = canvas.width / (rows + 5);
+            const startY = 50;
+
+            balls.forEach((b, index) => {
+                if(!b.active) return;
+
+                // Mover bola
+                // Meta Y de la fila actual
+                const targetRowY = startY + (b.currentRow * 35);
+                
+                if(b.y < targetRowY) {
+                    // Caída libre
+                    b.vy += 0.5; // Gravedad
+                    b.y += b.vy;
+                    b.x += b.vx;
+                } else {
+                    // Chocó con un clavo (o cruzó la línea de la fila)
+                    if(b.currentRow < rows) {
+                        // Sonido Plink
+                        playAudio('sfx-plink', 0.1 + (Math.random()*0.1));
+                        
+                        // Rebotar visualmente un poco
+                        b.vy = -3; // Rebote hacia arriba leve
+                        
+                        // Aplicar decisión lateral del Path pre-calculado
+                        const direction = b.path[b.currentRow]; // 1 (der) o -1 (izq)
+                        
+                        // Ajustar velocidad X para llegar al siguiente hueco
+                        // Un poco de "ruido" aleatorio para que no se vea robótico
+                        b.vx = (direction * 1.5) + (Math.random() * 0.5 - 0.25); 
+                        
+                        b.currentRow++;
+                    } else {
+                        // LLEGÓ AL FINAL (Bucket)
+                        finishBall(b);
+                    }
+                }
+
+                // Dibujar Bola
+                ctx.beginPath();
+                ctx.fillStyle = "#ff0055";
+                ctx.shadowColor = "#ff0055";
+                ctx.shadowBlur = 10;
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function finishBall(b) {
+            b.active = false;
+            
+            // Obtener multiplicador final
+            const mult = parseFloat(multipliers[b.targetIndex]);
+            const win = b.bet * mult;
+            
+            userBalance += win;
+            saveData();
+            updateBalanceUI();
+
+            // Sonido Win
+            playAudio('sfx-win');
+
+            // Animación del Bucket
+            const bucket = document.getElementById(`bucket-${b.targetIndex}`);
+            if(bucket) {
+                bucket.classList.remove('pop-anim');
+                void bucket.offsetWidth; // Trigger reflow
+                bucket.classList.add('pop-anim');
+            }
+
+            // Animación Flotante si gana algo decente (>1x)
+            if(mult >= 1) {
+                const fs = document.getElementById('floatScore');
+                fs.innerText = mult + "x";
+                fs.style.left = (b.x + 200) + "px"; // Ajuste relativo approx
+                fs.style.opacity = 1;
+                fs.style.transform = "translateY(0) scale(1)";
+                
+                // Animación CSS manual rápida
+                let op = 1;
+                let up = 0;
+                const anim = setInterval(() => {
+                    op -= 0.05;
+                    up -= 2;
+                    fs.style.opacity = op;
+                    fs.style.transform = `translateY(${up}px) scale(${1 + (1-op)})`;
+                    if(op <= 0) clearInterval(anim);
+                }, 50);
+            }
+        }
+
+        // === UTILIDADES ===
+        function updateBalanceUI() {
+            document.getElementById('displayBalance').innerText = userBalance.toLocaleString('en-US', {maximumFractionDigits: 0});
+        }
+
+        function saveData() {
+            // Guardar en ambos formatos por compatibilidad
+            const data = { user: username, balance: userBalance, username: username }; // mix keys
+            localStorage.setItem('pepebet_user', JSON.stringify(data));
+            localStorage.setItem('pbj_user_v2', JSON.stringify(data));
+        }
+
+        function doubleBet() {
+            const el = document.getElementById('betAmount');
+            el.value = parseFloat(el.value) * 2;
+        }
+        
+        function halfBet() {
+            const el = document.getElementById('betAmount');
+            let val = parseFloat(el.value) / 2;
+            if(val < 1) val = 1;
+            el.value = val;
+        }
+
+        function playAudio(id, vol = 0.5) {
+            const el = document.getElementById(id);
+            if(el) {
+                const clone = el.cloneNode();
+                clone.volume = vol;
+                clone.play().catch(e => {});
+            }
+        }
+
+    </script>
+</body>
+</html>
