@@ -104,34 +104,55 @@
         </div>
 
         <!-- LOBBY JUEGOS -->
-        <div id="casinoSection" class="hidden max-w-7xl mx-auto mt-6">
-            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Lobby</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Link Plinko -->
-                <a href="Games/plinko.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <div class="h-48 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center"><i class="fas fa-caret-down text-7xl text-white group-hover:scale-110 transition"></i></div>
-                    <div class="p-5"><h3 class="text-xl font-bold text-white">PLINKO</h3><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">JUGAR</button></div>
-                </a>
-                <!-- Link Blackjack (AHORA EXTERNO) -->
-                <a href="Games/blackjack.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-                    <div class="h-48 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center"><i class="fas fa-heart text-7xl text-white group-hover:scale-110 transition"></i></div>
-                    <div class="p-5"><h3 class="text-xl font-bold text-white">BLACKJACK</h3><button class="mt-4 w-full py-2 rounded bg-white/5 text-xs font-bold">JUGAR</button></div>
-                </a>
-               <!-- Enlace Crash Activo -->
-<a href="Games/crash.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
-    <div class="h-48 bg-gradient-to-br from-blue-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
-        <!-- Fondo animado sutil -->
-        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-        <i class="fas fa-rocket text-7xl text-white drop-shadow-2xl group-hover:-translate-y-2 group-hover:scale-110 transition duration-500"></i>
-        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div id="casinoSection" class="hidden max-w-7xl mx-auto mt-6">
+    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Lobby</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Link Plinko -->
+        <a href="Games/plinko.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+            <div class="h-48 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
+                <i class="fas fa-caret-down text-7xl text-white group-hover:scale-110 transition duration-500"></i>
+                <!-- Badge -->
+                <span class="absolute top-2 right-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">HOT</span>
+            </div>
+            <div class="p-5 relative">
+                <h3 class="text-xl font-bold text-white">PLINKO</h3>
+                <p class="text-xs text-gray-400 mt-1">Multiplicadores hasta 1000x</p>
+                <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-pink-500/50 group-hover:text-pink-400">JUGAR</button>
+            </div>
+        </a>
+
+        <!-- Link Blackjack -->
+        <a href="Games/blackjack.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+            <div class="h-48 bg-gradient-to-br from-green-700 to-emerald-900 flex items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
+                <i class="fas fa-heart text-7xl text-white group-hover:scale-110 transition duration-500"></i>
+            </div>
+            <div class="p-5 relative">
+                <h3 class="text-xl font-bold text-white">BLACKJACK</h3>
+                <p class="text-xs text-gray-400 mt-1">RTP 99.5% • Live Dealer</p>
+                <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-green-500/50 group-hover:text-green-400">JUGAR</button>
+            </div>
+        </a>
+
+        <!-- Link Crash (ACTIVADO) -->
+        <a href="Games/crash.html" class="game-card block bg-card rounded-2xl overflow-hidden relative group cursor-pointer">
+            <div class="h-48 bg-gradient-to-br from-blue-900 to-slate-900 flex items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+                <i class="fas fa-rocket text-7xl text-white group-hover:-translate-y-2 group-hover:scale-110 transition duration-500"></i>
+                <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent"></div>
+            </div>
+            <div class="p-5 relative">
+                <h3 class="text-xl font-bold text-white">CRASH</h3>
+                <p class="text-xs text-gray-400 mt-1">To the Moon! 🚀</p>
+                <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-blue-500/50 group-hover:text-blue-400">DESPEGAR</button>
+            </div>
+        </a>
+
     </div>
-    <div class="p-5 relative">
-        <h3 class="text-xl font-bold text-white mb-1">CRASH</h3>
-        <p class="text-xs text-gray-400">Multiplicador Infinito</p>
-        <button class="mt-4 w-full py-2 rounded bg-white/5 hover:bg-white/10 text-xs font-bold transition border border-white/5 group-hover:border-blue-500/50 group-hover:text-blue-400">DESPEGAR</button>
-    </div>
-</a>
-        </div>
+</div>
 
         <!-- CUENTA -->
         <div id="accountSection" class="hidden max-w-lg mx-auto mt-10">
@@ -259,6 +280,12 @@
                 c.appendChild(d); c.scrollTop=c.scrollHeight;
             }, 5000);
         }
+        // Agrega esto al final de tu <script>
+function logout() {
+    localStorage.removeItem('pepebet_user'); // Borra datos locales
+    localStorage.removeItem('pbj_username');
+    location.reload(); // Recarga la página para volver al login
+}
     </script>
 </body>
 </html>
