@@ -2,751 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Plinko | PepeBlackJack Casino</title>
-    
-    <!-- Libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CYBER-PEPE THEME --- */
-        :root {
-            --primary: #00ff2a;
-            --primary-dim: #00cc22;
-            --primary-glow: rgba(0, 255, 42, 0.5);
-            --bg-dark: #05080a;
-            --bg-panel: #0b1016;
-            --bg-card: #121924;
-            --border-color: #1f2937;
-            --text-muted: #9ca3af;
-        }
-
+        /* Estilos SOLO para el juego */
         body { 
-            background-color: var(--bg-dark); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(0, 255, 42, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 90%, rgba(0, 89, 255, 0.05) 0%, transparent 20%);
+            background: transparent; /* Transparente para que se funda con el fondo del padre */
+            color: white; font-family: 'Inter', sans-serif; 
+            overflow: hidden; user-select: none;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0;
         }
-
-        h1, h2, h3, h4, .brand-font { font-family: 'Space Grotesk', sans-serif; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-        /* Utilities & Effects */
-        .glass-panel {
-            background: rgba(18, 25, 36, 0.85);
-            backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .text-neon { 
-            color: var(--primary); 
-            text-shadow: 0 0 10px var(--primary-glow); 
-        }
-
-        .btn-gradient {
-            background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
-            color: #000;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-gradient::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-        .btn-gradient:hover::after { left: 100%; }
-        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--primary-glow); }
 
         .game-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            transition: all 0.4s ease;
-        }
-        .game-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--primary);
-            box-shadow: 0 10px 40px -10px rgba(0, 255, 42, 0.15);
+            background: #121924; border: 1px solid #1f2937;
+            border-radius: 20px; display: grid; grid-template-columns: 280px 1fr;
+            width: 100%; max-width: 1100px; height: 650px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
         }
 
-        /* Avatar Selection */
-        .avatar-option { border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
-        .avatar-option:hover { transform: scale(1.1); }
-        .avatar-option.selected { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
-
-        /* Sidebar Responsive */
-        @media (min-width: 1024px) {
-            .sidebar { width: 260px; position: fixed; height: 100vh; top: 0; left: 0; z-index: 50; border-right: 1px solid var(--border-color); }
-            .main-content { margin-left: 260px; }
-        }
-        @media (max-width: 1023px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; position: fixed; height: 100vh; z-index: 60; top: 0; left: 0; width: 260px; }
-            .sidebar.open { transform: translateX(0); }
-        }
-
-        .loader-spin { border: 3px solid rgba(255,255,255,0.1); border-left-color: #000; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+        .controls { background: #0b1016; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #1f2937; }
+        .stage { position: relative; background: radial-gradient(circle at 50% 100%, #1a2430 0%, #05080a 100%); flex: 1; display: flex; flex-direction: column; align-items: center; }
         
-        .level-progress { transition: width 1s ease-in-out; }
+        canvas { display: block; width: 100%; height: 100%; }
         
-        /* Table Styles */
-        .custom-table th { text-align: left; padding: 12px; color: #6b7280; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        .custom-table td { padding: 16px 12px; border-top: 1px solid #1f2937; font-size: 0.875rem; }
-        .custom-table tr:hover td { background-color: rgba(255,255,255,0.02); }
+        .btn-action {
+            background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
+            color: black; font-weight: 900; padding: 15px; border-radius: 10px;
+            transition: 0.2s; text-transform: uppercase;
+        }
+        .btn-action:hover { transform: scale(1.02); box-shadow: 0 0 15px #00ff2a; }
+
+        @media (max-width: 800px) {
+            .game-card { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: 100vh; border-radius: 0; border: none; }
+            .stage { height: 60%; }
+        }
     </style>
 </head>
-<body class="antialiased selection:bg-green-500 selection:text-black">
+<body>
 
-    <!-- AUDIO SYSTEM -->
-    <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
-    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
-    <audio id="sfx-levelup" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-
-    <!-- SIDEBAR -->
-    <div id="sidebar" class="sidebar bg-panel glass-panel flex flex-col p-5 pt-16 lg:pt-6">
-        <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="showSection('home')">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(0,255,42,0.3)] group-hover:rotate-12 transition duration-300">🐸</div>
+    <div class="game-card">
+        <!-- CONTROLES -->
+        <div class="controls">
+            <h2 class="text-xl font-bold text-white mb-4">PLINKO</h2>
+            
             <div>
-                <h1 class="text-xl font-bold tracking-wider brand-font text-white leading-none">Pepe<span class="text-neon">BJ</span></h1>
-                <span class="text-[9px] text-gray-500 uppercase tracking-widest">Web3 Casino</span>
+                <label class="text-[10px] uppercase font-bold text-gray-500">Bet Amount</label>
+                <div class="flex gap-2">
+                    <input type="number" id="betInput" value="10" class="w-full bg-[#05080a] border border-gray-700 rounded p-2 text-white font-bold">
+                    <button onclick="adjBet(2)" class="bg-gray-800 px-3 rounded text-xs font-bold hover:bg-gray-700">2x</button>
+                </div>
             </div>
+
+            <div>
+                <label class="text-[10px] uppercase font-bold text-gray-500">Rows</label>
+                <select id="rowsSelect" onchange="resize()" class="w-full bg-[#05080a] border border-gray-700 rounded p-2 text-white font-bold">
+                    <option value="16">16 Rows</option>
+                    <option value="12">12 Rows</option>
+                    <option value="8">8 Rows</option>
+                </select>
+            </div>
+
+            <div class="mt-auto p-3 bg-white/5 rounded text-center">
+                <p class="text-[10px] text-gray-500 uppercase">Available Balance</p>
+                <p class="text-xl font-bold text-[#00ff2a]" id="gameBalance">Loading...</p>
+            </div>
+
+            <button onclick="play()" class="btn-action">BET</button>
         </div>
 
-        <nav class="flex-1 space-y-1 overflow-y-auto pr-2 custom-scrollbar">
-            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-4 mb-2">Platform</p>
-            <button onclick="showSection('home')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-white font-medium transition group border border-transparent hover:border-white/5">
-                <i class="fas fa-home text-blue-400 group-hover:text-blue-300"></i> Home
-            </button>
-            <button onclick="showSection('presale')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-green-900/10 border border-green-500/20 text-white font-bold transition group hover:bg-green-900/20">
-                <i class="fas fa-rocket text-neon animate-pulse"></i> PRESALE
-            </button>
-            
-            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Games</p>
-            <a href="Games/blackjack.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-heart text-red-500"></i> BlackJack</a>
-            <a href="Games/plinko.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-caret-down text-pink-500"></i> Plinko</a>
-            <a href="Games/crash.html" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-rocket text-purple-500"></i> Crash</a>
-            
-            <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Account & Info</p>
-            <button onclick="showSection('profile')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-user text-indigo-400"></i> Profile</button>
-            <button onclick="showSection('partners')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-handshake text-orange-400"></i> Partners</button>
-            <button onclick="showSection('tokenomics')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-chart-pie text-yellow-400"></i> Tokenomics</button>
-            <button onclick="showSection('roadmap')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-map-signs text-cyan-400"></i> Roadmap</button>
-            <button onclick="showSection('tutorial')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group"><i class="fas fa-book text-white"></i> Tutorials</button>
-        </nav>
-    </div>
-
-    <!-- MOBILE TOGGLE -->
-    <button onclick="toggleSidebar()" class="lg:hidden fixed top-4 left-4 z-50 bg-panel p-3 rounded-xl border border-white/10 text-white shadow-lg">
-        <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- MAIN CONTENT -->
-    <div class="main-content pt-24 min-h-screen pb-20 px-4 md:px-8">
-        
-        <!-- HEADER SUPERIOR (BALANCE CENTRADO) -->
-        <header class="fixed top-0 left-0 lg:left-[260px] right-0 h-20 bg-bg-dark/80 backdrop-blur-md z-40 flex items-center px-6 border-b border-white/5 justify-between">
-            
-            <!-- Placeholder izquierdo para balance visual -->
-            <div class="hidden md:block w-1/3"></div>
-
-            <!-- BALANCE CENTRADO (ESTILO STAKE) -->
-            <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center bg-black/40 border border-white/10 rounded-lg px-4 py-2 shadow-inner cursor-pointer hover:border-neon/50 transition group" onclick="showSection('presale')">
-                <span class="text-sm font-bold text-white mr-2" id="headerBalance">0.00</span>
-                <span class="text-xs text-neon font-bold mr-3">PBJ</span>
-                <button class="bg-primary text-black text-xs font-bold px-2 py-0.5 rounded hover:scale-110 transition">+</button>
-            </div>
-            
-            <div class="flex gap-4 items-center ml-auto w-1/3 justify-end">
-                <!-- User Info -->
-                <div id="userInfo" class="hidden flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition relative group" onclick="showSection('profile')">
-                    <div class="text-right hidden sm:block">
-                        <div class="flex items-center gap-2 justify-end">
-                            <span class="text-sm font-bold text-white" id="userNameDisplay">Degen</span>
-                            <span class="text-[9px] bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 font-bold px-2 py-0.5 rounded" id="userRank">Noob</span>
-                        </div>
-                        <div class="w-28 h-1.5 bg-gray-800 rounded-full mt-1.5 overflow-hidden relative">
-                            <div id="xpBar" class="bg-neon h-full w-[0%] level-progress shadow-[0_0_10px_#00ff2a]"></div>
-                        </div>
-                    </div>
-                    <img id="headerAvatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-9 h-9 rounded-full border-2 border-white/10 bg-black">
-                </div>
-
-                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-5 py-2 rounded-xl text-sm transition flex items-center gap-2 shadow-lg hover:scale-105">
-                    <i class="fas fa-wallet"></i> <span class="hidden sm:inline">Wallet</span>
-                </button>
-            </div>
-        </header>
-
-    
-
-        <!-- === SECTION: PRESALE === -->
-        <div id="presaleSection" class="hidden max-w-5xl mx-auto animate-fade-in mt-10">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-4xl font-bold text-white mb-4 brand-font">Phase 1: <span class="text-neon">Early Access</span></h2>
-                    <p class="text-gray-400 mb-8 text-lg">
-                        The $PBJ token is the heart of our ecosystem. Holders receive 40% of casino profits through our Staking mechanism (Coming Soon).
-                    </p>
-                    <div class="space-y-6">
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 text-xl"><i class="fas fa-dollar-sign"></i></div>
-                            <div>
-                                <h4 class="font-bold text-white">Current Price</h4>
-                                <p class="text-sm text-gray-400">1 ETH = 1,000,000 PBJ</p>
-                            </div>
-                        </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl"><i class="fas fa-lock"></i></div>
-                            <div>
-                                <h4 class="font-bold text-white">Security</h4>
-                                <p class="text-sm text-gray-400">Liquidity Locked for 2 Years</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-card p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 to-blue-500"></div>
-                    <h3 class="text-2xl font-bold text-white mb-6 text-center">Swap Tokens</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">You Pay (ETH)</label>
-                            <div class="relative">
-                                <input type="number" id="ethAmount" oninput="calculateTokens()" class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-white font-bold text-xl outline-none focus:border-green-500 transition" placeholder="0.0">
-                                <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-6 absolute right-4 top-4">
-                            </div>
-                        </div>
-                        <div class="flex justify-center text-gray-500"><i class="fas fa-arrow-down"></i></div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">You Receive (PBJ Credit)</label>
-                            <div class="relative">
-                                <input type="number" id="pbjAmount" readonly class="w-full bg-[#0b1018] border border-white/10 rounded-xl p-4 text-neon font-bold text-xl outline-none" placeholder="0.0">
-                                <div class="absolute right-4 top-4 font-bold text-xs bg-green-500 text-black px-2 py-1 rounded">PBJ</div>
-                            </div>
-                        </div>
-                        <button onclick="buyTokens()" id="btnBuy" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg mt-4 flex justify-center items-center gap-2">
-                            <span>BUY CREDITS</span>
-                            <div id="buyLoader" class="loader-spin hidden"></div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: PROFILE & STATS === -->
-        <div id="profileSection" class="hidden max-w-5xl mx-auto animate-fade-in mt-10">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-white brand-font">Player Profile</h2>
-                <div class="text-gray-400 text-sm">Member since: <span class="text-white">Nov 2025</span></div>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Profile Card -->
-                <div class="bg-card p-6 rounded-2xl border border-white/10 text-center">
-                    <div class="relative inline-block mb-4 group">
-                        <img id="profileImageMain" src="" class="w-32 h-32 rounded-full border-4 border-[#1f2937] bg-black shadow-lg">
-                        <button onclick="editAvatar()" class="absolute bottom-0 right-0 bg-neon text-black w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition shadow-md border border-black"><i class="fas fa-pen text-xs"></i></button>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white" id="profileName">User</h3>
-                    <p class="text-neon font-bold text-sm mb-6 uppercase tracking-widest" id="profileRank">Noob</p>
-                    <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5 text-left mb-6">
-                        <div class="flex justify-between text-xs text-gray-400 mb-2">
-                            <span>Level <span id="profileLevelNum" class="text-white font-bold">1</span></span>
-                            <span id="xpText" class="text-white">0 / 100 XP</span>
-                        </div>
-                        <div class="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div id="profileXpBar" class="bg-neon h-full w-[0%] shadow-[0_0_10px_#00ff2a]"></div>
-                        </div>
-                    </div>
-                    <button onclick="logout()" class="w-full py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition text-sm font-bold">Logout</button>
-                </div>
-                <!-- Stats & History -->
-                <div class="md:col-span-2 space-y-6">
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                            <p class="text-xs text-gray-500 uppercase mb-1">Total Wagered</p>
-                            <h4 class="text-xl font-bold text-white" id="statWagered">0 PBJ</h4>
-                        </div>
-                        <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                            <p class="text-xs text-gray-500 uppercase mb-1">Total Wins</p>
-                            <h4 class="text-xl font-bold text-green-400" id="statWins">0</h4>
-                        </div>
-                        <div class="bg-[#0b1018] p-4 rounded-xl border border-white/5">
-                            <p class="text-xs text-gray-500 uppercase mb-1">Total Bets</p>
-                            <h4 class="text-xl font-bold text-blue-400" id="statBets">0</h4>
-                        </div>
-                    </div>
-                    <div class="bg-card rounded-2xl border border-white/10 overflow-hidden min-h-[300px]">
-                        <div class="p-4 border-b border-white/5 flex justify-between items-center"><h4 class="font-bold text-white">Game History</h4></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full custom-table text-left">
-                                <thead>
-                                    <tr class="bg-black/20"><th>Game</th><th>Bet</th><th>Multiplier</th><th>Payout</th></tr>
-                                </thead>
-                                <tbody id="historyTableBody"><tr><td colspan="4" class="text-center py-8 text-gray-500">No games played yet.</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: PARTNERS & REFERRAL === -->
-        <div id="partnersSection" class="hidden max-w-5xl mx-auto animate-fade-in mt-10">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white brand-font mb-4">Affiliate Program</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">Invite your friends to PepeBlackJack and earn passive income forever.</p>
-            </div>
-            <div class="bg-[#0b1018] p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row items-center gap-8">
-                <div class="flex-1">
-                    <h3 class="text-2xl font-bold text-white mb-2">Your Referral Link</h3>
-                    <p class="text-gray-400 text-sm mb-4">Share this link. When users connect their wallet, they are bound to you forever.</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="referralLink" readonly class="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-white font-mono text-sm" value="Connect wallet to generate link">
-                        <button onclick="copyReferral()" class="bg-neon text-black font-bold px-6 rounded-lg hover:bg-white transition">COPY</button>
-                    </div>
-                </div>
-                <div class="w-full md:w-1/3 bg-white/5 p-6 rounded-2xl border border-white/5">
-                    <div class="flex justify-between mb-2"><span class="text-gray-400 text-sm">Total Referred</span><span class="text-white font-bold">0</span></div>
-                    <div class="flex justify-between mb-2"><span class="text-gray-400 text-sm">Available Earnings</span><span class="text-neon font-bold">0.00 PBJ</span></div>
-                    <button class="w-full mt-4 bg-white/10 hover:bg-white/20 text-white py-2 rounded-lg text-sm font-bold transition">Claim Earnings</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: TOKENOMICS === -->
-        <div id="tokenomicsSection" class="hidden max-w-6xl mx-auto animate-fade-in mt-10">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white brand-font mb-4">$PBJ Economy</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto">A model designed for sustainability and community rewards.</p>
-            </div>
-            <div class="bg-[#0b1018] p-8 rounded-3xl border border-white/5">
-                <h3 class="font-bold text-white mb-6">Token Distribution</h3>
-                <div class="space-y-4">
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Public Presale</span><span>40%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-green-500 rounded-full" style="width:40%"></div></div></div>
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Liquidity (DEX)</span><span>30%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-blue-500 rounded-full" style="width:30%"></div></div></div>
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Casino Bankroll</span><span>20%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-purple-500 rounded-full" style="width:20%"></div></div></div>
-                    <div><div class="flex justify-between text-sm text-gray-300 mb-1"><span>Team & Marketing</span><span>10%</span></div><div class="w-full h-3 bg-gray-800 rounded-full"><div class="h-full bg-yellow-500 rounded-full" style="width:10%"></div></div></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: ROADMAP === -->
-        <div id="roadmapSection" class="hidden max-w-4xl mx-auto animate-fade-in mt-10">
-            <h2 class="text-4xl font-bold text-white brand-font text-center mb-12">Roadmap</h2>
-            <div class="relative pl-8 border-l-2 border-white/10 space-y-12">
-                <div class="relative">
-                    <span class="absolute -left-[41px] top-0 w-6 h-6 bg-green-500 rounded-full border-4 border-black shadow-[0_0_15px_#00ff2a]"></span>
-                    <h3 class="text-xl font-bold text-white mb-2">Phase 1: Launch (Q1 2025)</h3>
-                    <ul class="list-disc list-inside text-gray-400 space-y-1"><li>Smart Contract Development</li><li>Beta Website Launch</li><li>$PBJ Presale Start</li></ul>
-                </div>
-                <div class="relative opacity-50">
-                    <span class="absolute -left-[41px] top-0 w-6 h-6 bg-gray-700 rounded-full border-4 border-black"></span>
-                    <h3 class="text-xl font-bold text-white mb-2">Phase 2: Expansion (Q2 2025)</h3>
-                    <ul class="list-disc list-inside text-gray-400 space-y-1"><li>Uniswap Listing</li><li>New Games: Slots, Roulette</li></ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- === SECTION: TUTORIAL === -->
-        <div id="tutorialSection" class="hidden max-w-4xl mx-auto animate-fade-in mt-10">
-            <h2 class="text-3xl font-bold text-white mb-8 text-center">How to Start</h2>
-            <div class="grid md:grid-cols-2 gap-6">
-                <div class="bg-card p-6 rounded-2xl border border-white/5"><div class="text-3xl text-neon mb-4 font-bold">01</div><h3 class="font-bold text-white mb-2">Connect Wallet</h3><p class="text-gray-400 text-sm">Use the top right button. We support MetaMask, Coinbase, and WalletConnect.</p></div>
-                <div class="bg-card p-6 rounded-2xl border border-white/5"><div class="text-3xl text-neon mb-4 font-bold">02</div><h3 class="font-bold text-white mb-2">Buy Credits</h3><p class="text-gray-400 text-sm">Go to "Presale", enter ETH amount, and confirm the transaction to get PBJ credits.</p></div>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- MODALS -->
-    <div id="walletModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
-        <div class="bg-card w-full max-w-sm p-6 rounded-3xl border border-white/10 shadow-2xl relative">
-            <button onclick="closeWalletModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class="text-xl font-bold mb-6 text-center text-white">Connect Wallet</h3>
-            <div class="space-y-3">
-                <button onclick="actualConnect('metamask')" class="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 text-white font-bold flex justify-between items-center">MetaMask <i class="fas fa-chevron-right text-xs"></i></button>
-                <button onclick="actualConnect('coinbase')" class="w-full p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 text-white font-bold flex justify-between items-center">Coinbase <i class="fas fa-chevron-right text-xs"></i></button>
-            </div>
+        <!-- CANVAS -->
+        <div class="stage" id="stage">
+            <canvas id="gameCanvas"></canvas>
         </div>
     </div>
 
-    <!-- LOGIN MODAL REFACTORED WITH IMAGE -->
-    <div id="loginModal" class="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[90] hidden">
-        <div class="bg-card w-full max-w-sm p-8 rounded-3xl border border-white/10 text-center shadow-[0_0_50px_rgba(0,255,42,0.1)]">
-            <!-- ADDED IMAGE HERE -->
-            <img src="assets/img/pepe-bienvenida.png" class="w-32 mx-auto mb-4 drop-shadow-2xl" alt="Pepe Welcome">
-            <h2 class="text-3xl font-black mb-2 text-white brand-font">PEPE BET</h2>
-            <p class="text-gray-400 text-sm mb-8">The Ultimate Web3 Casino</p>
-            <input type="text" id="usernameInput" placeholder="Choose a username" class="w-full p-4 rounded-xl bg-[#0b1018] border border-white/10 text-white mb-4 outline-none focus:border-green-500 text-center font-bold placeholder-gray-600 transition">
-            <button onclick="register()" class="btn-gradient w-full py-4 rounded-xl font-bold text-lg">ENTER CASINO</button>
-        </div>
-    </div>
-
-    <div id="avatarModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
-        <div class="bg-card w-full max-w-md p-6 rounded-3xl border border-white/10 relative">
-            <h3 class="text-xl font-bold text-white mb-4">Choose Avatar</h3>
-            <div class="grid grid-cols-4 gap-4 mb-6" id="avatarGrid"></div>
-            <button onclick="closeAvatarModal()" class="w-full py-3 bg-white/10 rounded-xl text-white hover:bg-white/20 transition">Close</button>
-        </div>
-    </div>
-
-    <!-- CHAT -->
-    <div id="chatWidget" class="fixed bottom-4 right-4 w-80 h-96 bg-card rounded-2xl border border-white/10 shadow-2xl z-40 hidden flex-col overflow-hidden transition-all duration-300">
-        <div class="bg-black/30 p-3 border-b border-white/5 flex justify-between items-center backdrop-blur-md">
-            <span class="font-bold text-xs uppercase tracking-wider text-gray-400"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1 animate-pulse"></span> Global Chat</span>
-            <button onclick="toggleChat()" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs scrollbar-thin"></div>
-        <div class="p-3 bg-black/30 border-t border-white/5"><input type="text" placeholder="Solo holders..." class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-white outline-none" disabled></div>
-    </div>
-    <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-card p-4 rounded-full border border-white/10 shadow-lg hover:border-green-500/50 transition z-30 group hover:scale-110">
-        <i class="fas fa-comments text-xl group-hover:text-neon text-gray-400"></i>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg">1</span>
-    </button>
-
-    <!-- FOOTER -->
-    <footer class="mt-32 border-t border-white/5 pt-12 pb-8 bg-black/20">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
-            <div class="col-span-1 md:col-span-1">
-                <div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-800 flex items-center justify-center text-white font-bold">P</div><span class="font-bold text-white text-xl brand-font">PepeBET</span></div>
-                <p class="text-gray-500 text-xs leading-relaxed">The most transparent decentralized gambling platform on Base Network.</p>
-            </div>
-            <div><h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Casino</h4><ul class="space-y-2 text-xs text-gray-400"><li><a href="#" class="hover:text-neon">Games</a></li><li><a href="#" class="hover:text-neon">VIP Club</a></li></ul></div>
-            <div><h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Community</h4><ul class="space-y-2 text-xs text-gray-400"><li><a href="#" class="hover:text-neon">Telegram</a></li><li><a href="#" class="hover:text-neon">Twitter / X</a></li></ul></div>
-            <div><h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Legal</h4><ul class="space-y-2 text-xs text-gray-400"><li><a href="#" class="hover:text-neon">Terms</a></li><li><a href="#" class="hover:text-neon">Privacy</a></li></ul></div>
-        </div>
-        <div class="text-center text-[10px] text-gray-600 border-t border-white/5 pt-8 mt-10">&copy; 2025 PepeBlackJack. All rights reserved.</div>
-    </footer>
-
-
-    <!-- SCRIPT DEL JUEGO -->
     <script>
-        // CONFIGURACIÓN Y ESTADO
-        const STORAGE_KEY = 'pepeblackjack_v2';
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const container = document.getElementById('stageContainer');
-        
-        let state = { balance: 1000, user: 'Guest', avatar: '' };
-        let config = { rows: 16, risk: 'medium' };
-        let balls = [], pegs = [], particles = [];
-        let autoInterval = null;
+        // --- LÓGICA DE COMUNICACIÓN CON EL PADRE (INDEX) ---
+        let currentBalance = 0;
 
-        // TABLAS DE PAGOS (House Edge integrado)
-        const PAYOUTS = {
-            low: { 16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16], 12: [10, 3, 1.6, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.6, 3, 10], 8: [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6] },
-            medium: { 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110], 12: [33, 11, 4, 2, 1.1, 0.6, 0.3, 0.6, 1.1, 2, 4, 11, 33], 8: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13] },
-            high: { 16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000], 12: [170, 51, 14, 5, 2, 0.3, 0.2, 0.3, 2, 5, 14, 51, 170], 8: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29] }
-        };
-
-        // INICIALIZACIÓN
-        window.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            updateGame();
-            resizeCanvas();
-            animate();
-            window.addEventListener('resize', resizeCanvas);
+        // 1. Escuchar cuando el padre nos da el saldo inicial
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'INIT_BALANCE' || event.data.type === 'SYNC_BALANCE') {
+                currentBalance = event.data.balance;
+                updateUI();
+            }
         });
 
-        function loadState() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if(stored) {
-                const data = JSON.parse(stored);
-                state.balance = data.balance || 1000;
-                state.user = data.user || 'Guest';
-                state.avatar = data.avatar || '';
-                
-                if(data.user) {
-                    document.getElementById('userDisplay').classList.remove('hidden');
-                    document.getElementById('username').innerText = state.user;
-                    document.getElementById('avatar').src = state.avatar;
-                }
-            }
-            updateBalanceUI();
+        // 2. Función para pedirle al padre que descuente/sume dinero
+        function updateParentBalance(amount) {
+            // amount negativo = apuesta, positivo = ganancia
+            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
         }
 
-        function saveState() {
-            // Solo actualizamos el balance en el storage local para sincronizar con el index
-            const stored = localStorage.getItem(STORAGE_KEY);
-            let data = stored ? JSON.parse(stored) : {};
-            data.balance = state.balance;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            updateBalanceUI();
+        function updateUI() {
+            document.getElementById('gameBalance').innerText = currentBalance.toFixed(2);
         }
 
-        function updateBalanceUI() {
-            const fmt = state.balance.toLocaleString('en-US', {maximumFractionDigits: 0});
-            document.getElementById('sidebarBalance').innerText = fmt;
-            document.getElementById('headerBalance').innerText = fmt;
-        }
+        // --- LÓGICA MÍNIMA DEL JUEGO (Simplificada para el ejemplo) ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let balls = [];
 
-        // LÓGICA DEL JUEGO
-        function updateGame() {
-            config.rows = parseInt(document.getElementById('rowsSelect').value);
-            config.risk = document.getElementById('riskSelect').value;
-            document.getElementById('rowsVal').innerText = config.rows;
-            
-            renderMultipliers();
-            resizeCanvas(); // Recalcular pegs
-        }
-
-        function renderMultipliers() {
-            const container = document.getElementById('multipliersContainer');
-            container.innerHTML = '';
-            const arr = PAYOUTS[config.risk][config.rows];
-            
-            arr.forEach((val, i) => {
-                const el = document.createElement('div');
-                el.className = 'mult-box';
-                el.id = `mult-${i}`;
-                el.innerText = val + 'x';
-                
-                // Colores
-                let bg1='#374151', bg2='#1f2937';
-                if(val >= 1) { bg1='#22c55e'; bg2='#15803d'; } // Verde
-                if(val >= 10) { bg1='#eab308'; bg2='#a16207'; } // Oro
-                if(val >= 100) { bg1='#ef4444'; bg2='#b91c1c'; } // Rojo
-                if(val < 1) el.style.opacity = '0.7';
-
-                el.style.background = `linear-gradient(180deg, ${bg1}, ${bg2})`;
-                el.style.color = val >= 10 || val < 1 ? 'white' : 'black';
-                
-                container.appendChild(el);
-            });
-        }
-
-        function resizeCanvas() {
-            // Ajustar canvas al tamaño real del contenedor
-            const rect = container.getBoundingClientRect();
+        function resize() {
+            const rect = document.getElementById('stage').getBoundingClientRect();
             canvas.width = rect.width;
-            canvas.height = rect.height; // Usamos todo el alto, los multiplicadores flotan encima via CSS
-            initPegs();
+            canvas.height = rect.height;
         }
+        window.addEventListener('resize', resize);
+        setTimeout(resize, 100); // Init
 
-        function initPegs() {
-            pegs = [];
-            const rows = config.rows;
-            // Calcular geometría
-            const startY = 40;
-            // Espacio disponible vertical menos espacio para multiplicadores (aprox 60px)
-            const availableH = canvas.height - startY - 60; 
-            const gap = availableH / rows;
-            
-            config.gap = gap;
-            config.finishY = startY + (rows * gap) + (gap/2);
-
-            for(let r=0; r < rows; r++) {
-                for(let c=0; c <= r; c++) {
-                    pegs.push({
-                        x: (canvas.width/2) - (r * gap / 2) + (c * gap),
-                        y: startY + (r * gap),
-                        r: 3,
-                        glow: 0
-                    });
-                }
-            }
-        }
-
-        // GAMEPLAY
         function play() {
             const bet = parseFloat(document.getElementById('betInput').value);
-            if(isNaN(bet) || bet <= 0) return;
-            if(state.balance < bet) {
-                Swal.fire({toast:true, position:'top', icon:'error', title:'Insufficient Balance', background:'#121924', color:'#fff'});
-                if(autoInterval) clearInterval(autoInterval);
-                return;
-            }
+            if(bet > currentBalance) return alert("Saldo insuficiente");
 
-            state.balance -= bet;
-            saveState();
+            // 1. Restar visualmente (y avisar al padre)
+            updateParentBalance(-bet);
+            
+            // Simular Juego (Aquí iría toda tu lógica física anterior)
+            balls.push({x: canvas.width/2, y: 0, vy: 0});
+            
+            // Simular Ganancia tras 2 segundos (Ejemplo)
+            setTimeout(() => {
+                const multiplier = 2; // Ganó x2
+                const win = bet * multiplier;
+                if(win > 0) updateParentBalance(win);
+                // Visual feedback would go here
+            }, 2000);
 
-            // Lógica Determinista (Bell Curve)
-            const path = [];
-            for(let i=0; i<config.rows; i++) {
-                path.push(Math.random() < 0.5 ? -0.5 : 0.5); // Izq o Der
-            }
+            loop();
+        }
 
-            balls.push({
-                x: canvas.width / 2,
-                y: 20,
-                vx: 0, vy: 0,
-                path: path,
-                row: 0,
-                bet: bet,
-                color: '#00ff2a'
+        function loop() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ff2a";
+            balls.forEach(b => {
+                b.vy += 0.5; b.y += b.vy;
+                ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI*2); ctx.fill();
             });
+            requestAnimationFrame(loop);
         }
 
-        // ANIMATION LOOP
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar Pegs
-            pegs.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                if(p.glow > 0) {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${p.glow})`;
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = 'white';
-                    p.glow -= 0.05;
-                } else {
-                    ctx.fillStyle = '#4b5563';
-                    ctx.shadowBlur = 0;
-                }
-                ctx.fill();
-            });
-            ctx.shadowBlur = 0;
-
-            // Dibujar Bolas
-            for(let i = balls.length - 1; i >= 0; i--) {
-                const b = balls[i];
-                
-                b.vy += 0.25; // Gravedad
-                b.y += b.vy;
-                b.x += b.vx;
-
-                // Colisión (Simplificada por filas)
-                const targetY = 40 + (b.row * config.gap);
-                
-                if(b.y > targetY - 5 && b.row < config.rows) {
-                    // Chocó con "fila invisible" de clavos
-                    const dir = b.path[b.row];
-                    
-                    // Impulso lateral + Ruido
-                    b.vx = (dir * 2) + (Math.random() - 0.5); 
-                    b.vy *= 0.5; // Rebote amortiguado
-                    b.row++;
-
-                    // Iluminar clavo cercano (Efecto visual)
-                    // Buscar clavo más cercano a b.x en esta fila
-                    // Optimización: sabemos la Y, buscamos X
-                    const pegIndex = Math.floor(pegs.length * (b.y / canvas.height)); // Aprox
-                    // Búsqueda simple por distancia
-                    const peg = pegs.find(p => Math.abs(p.y - b.y) < 15 && Math.abs(p.x - b.x) < 15);
-                    if(peg) {
-                        peg.glow = 1;
-                        // Play sound clonado para permitir overlap
-                        const sfx = document.getElementById('sfx-hit').cloneNode();
-                        sfx.volume = 0.1;
-                        sfx.play().catch(()=>{});
-                    }
-                }
-
-                // Finalizar bola
-                if(b.y > config.finishY) {
-                    resolveBall(b, i);
-                    continue;
-                }
-
-                // Render bola
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
-                ctx.fillStyle = b.color;
-                ctx.shadowColor = b.color;
-                ctx.shadowBlur = 10;
-                ctx.fill();
-            }
-
-            requestAnimationFrame(animate);
-        }
-
-        function resolveBall(b, idx) {
-            balls.splice(idx, 1);
-            
-            // Calcular donde cayó
-            // Sumamos los movimientos a la derecha (0.5)
-            const rightMoves = b.path.filter(m => m === 0.5).length;
-            const multiplier = PAYOUTS[config.risk][config.rows][rightMoves];
-            
-            const win = b.bet * multiplier;
-            state.balance += win;
-            saveState();
-
-            // Visuals
-            const el = document.getElementById(`mult-${rightMoves}`);
-            if(el) {
-                el.classList.remove('pop-anim');
-                void el.offsetWidth; // Trigger reflow
-                el.classList.add('pop-anim');
-            }
-
-            // Historial
-            const hist = document.getElementById('historyBar');
-            const pill = document.createElement('div');
-            pill.className = "w-8 h-6 rounded flex items-center justify-center text-[9px] font-bold shadow animate-bounce";
-            pill.innerText = multiplier + "x";
-            pill.style.background = multiplier >= 1 ? (multiplier >= 10 ? '#eab308' : '#22c55e') : '#374151';
-            pill.style.color = multiplier >= 1 ? 'black' : 'white';
-            hist.prepend(pill);
-            if(hist.children.length > 5) hist.removeChild(hist.lastChild);
-
-            if(multiplier >= 10) document.getElementById('sfx-win').play();
-        }
-
-        // UTILIDADES
-        function changeBet(m) {
-            const input = document.getElementById('betInput');
-            let val = parseFloat(input.value) * m;
-            if(val < 1) val = 1;
-            input.value = val.toFixed(0);
-        }
-
-        function setMode(m) {
-            const btnA = document.getElementById('btnAuto');
-            const btnM = document.getElementById('btnManual');
-            const playBtn = document.getElementById('playBtn');
-            
-            if(m === 'auto') {
-                btnA.className = "flex-1 py-2 text-xs font-bold rounded bg-green-500 text-black shadow transition";
-                btnM.className = "flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white transition";
-                playBtn.innerText = "START AUTO";
-                playBtn.onclick = toggleAuto;
-            } else {
-                btnM.className = "flex-1 py-2 text-xs font-bold rounded bg-gray-700 text-white shadow transition";
-                btnA.className = "flex-1 py-2 text-xs font-bold rounded text-gray-500 hover:text-white transition";
-                playBtn.innerText = "BET";
-                playBtn.onclick = play;
-                if(autoInterval) clearInterval(autoInterval);
-                playBtn.classList.remove('bg-red-600');
-            }
-        }
-
-        function toggleAuto() {
-            const btn = document.getElementById('playBtn');
-            if(autoInterval) {
-                clearInterval(autoInterval);
-                autoInterval = null;
-                btn.innerText = "START AUTO";
-                btn.classList.remove('bg-red-600');
-            } else {
-                autoInterval = setInterval(play, 200);
-                btn.innerText = "STOP AUTO";
-                btn.classList.add('bg-red-600');
-            }
-        }
-
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            sb.classList.toggle('hidden');
-            sb.classList.toggle('active');
-        }
+        function adjBet(m) { document.getElementById('betInput').value *= m; }
     </script>
 </body>
 </html>
