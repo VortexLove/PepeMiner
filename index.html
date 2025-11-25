@@ -19,12 +19,22 @@
             --primary-dim: #00b301;
             --dark-bg: #0f212e;
             --card-bg: #1a2c38;
-            --sidebar-bg: #1a2c38;
             --text-gray: #b1bad3;
         }
 
-        body { background-color: var(--dark-bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { 
+            background-color: var(--dark-bg); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden; 
+        }
         
+        /* SCROLLBAR PERSONALIZADO (Estilo Stake) */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f212e; }
+        ::-webkit-scrollbar-thumb { background: #2f4553; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #557086; }
+
         /* Utilidades */
         .text-neon { color: var(--primary); text-shadow: 0 0 10px rgba(0, 231, 1, 0.5); }
         .btn-primary { 
@@ -33,10 +43,8 @@
             transition: all 0.2s; box-shadow: 0 4px 0 #008f01;
         }
         .btn-primary:active { transform: translateY(2px); box-shadow: 0 0 0 #008f01; }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
         
-        .input-stake { background-color: #0f212e; border: 1px solid #2f4553; color: white; outline: none; transition: 0.3s; }
-        .input-stake:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(0, 231, 1, 0.2); }
-
         /* Animaciones */
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .slide-up { animation: slideInUp 0.4s ease-out forwards; }
@@ -45,18 +53,6 @@
         .ticker-wrap { width: 100%; overflow: hidden; background: #0b1820; padding: 6px 0; border-bottom: 1px solid #2f4553; white-space: nowrap; }
         .ticker-move { display: inline-block; animation: ticker 35s linear infinite; }
         .ticker-item { display: inline-block; padding: 0 2rem; color: var(--text-gray); font-size: 0.85rem; }
-
-        /* PLINKO ESPECÍFICO */
-        #plinkoCanvas { background-color: #0f212e; border-radius: 12px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .multiplier-box { 
-            transition: transform 0.1s; 
-            font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center;
-            border-radius: 4px; box-shadow: 0 2px 0 rgba(0,0,0,0.3);
-        }
-        .plinko-control-btn {
-            background: #2f4553; color: #b1bad3; font-weight: bold; padding: 8px; border-radius: 4px; transition: 0.2s;
-        }
-        .plinko-control-btn.active { background: #0f212e; color: var(--primary); border: 1px solid var(--primary); }
 
         /* Responsive Sidebar */
         @media (min-width: 1024px) {
@@ -75,8 +71,6 @@
     <!-- SONIDOS -->
     <audio id="sfx-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
-    <audio id="sfx-plink" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio> <!-- Sonido rebote -->
-    <audio id="sfx-bucket" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio> <!-- Sonido meta -->
 
     <!-- TICKER -->
     <div class="ticker-wrap fixed top-0 z-30">
@@ -128,32 +122,34 @@
     </button>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <div class="main-content pt-12 min-h-screen">
+    <div class="main-content pt-12 min-h-screen pb-20">
         
         <!-- HEADER -->
         <header class="flex justify-between items-center px-6 py-4 mb-2">
             <h2 id="pageTitle" class="text-xl font-bold text-white hidden md:block">Inicio</h2>
             <div class="flex gap-4 items-center ml-auto">
+                <!-- User Info VIP -->
                 <div id="userInfo" class="hidden flex items-center gap-3 bg-[#0b1820] px-3 py-1 rounded-lg border border-[#2f4553] cursor-pointer group relative">
-    <div>
-        <div class="flex items-center gap-2">
-            <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
-            <span class="text-[10px] bg-yellow-600 text-black font-bold px-1 rounded">BRONZE</span>
-        </div>
-        <!-- Barra VIP -->
-        <div class="w-24 h-1.5 bg-gray-700 rounded-full mt-1 overflow-hidden">
-            <div class="bg-neon h-full w-[45%]"></div>
-        </div>
-    </div>
-    <i class="fas fa-chevron-down text-xs text-gray-500"></i>
-    
-    <!-- Dropdown (Opcional) -->
-    <div class="absolute top-full right-0 mt-2 w-48 bg-[#1a2c38] border border-[#2f4553] rounded shadow-xl hidden group-hover:block z-50">
-        <div class="p-2 text-xs text-gray-400 hover:text-white hover:bg-[#0f212e] cursor-pointer">Perfil</div>
-        <div class="p-2 text-xs text-gray-400 hover:text-white hover:bg-[#0f212e] cursor-pointer">VIP Progress</div>
-        <div class="p-2 text-xs text-red-400 hover:bg-[#0f212e] cursor-pointer">Logout</div>
-    </div>
-</div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-white" id="userNameDisplay">User</span>
+                            <span class="text-[10px] bg-yellow-600 text-black font-bold px-1 rounded">BRONZE</span>
+                        </div>
+                        <!-- Barra VIP -->
+                        <div class="w-24 h-1.5 bg-gray-700 rounded-full mt-1 overflow-hidden">
+                            <div class="bg-neon h-full w-[45%]"></div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                    
+                    <!-- Dropdown -->
+                    <div class="absolute top-full right-0 mt-2 w-48 bg-[#1a2c38] border border-[#2f4553] rounded shadow-xl hidden group-hover:block z-50">
+                        <div class="p-2 text-xs text-gray-400 hover:text-white hover:bg-[#0f212e] cursor-pointer">Perfil</div>
+                        <div class="p-2 text-xs text-gray-400 hover:text-white hover:bg-[#0f212e] cursor-pointer">VIP Progress</div>
+                        <div class="p-2 text-xs text-red-400 hover:bg-[#0f212e] cursor-pointer">Logout</div>
+                    </div>
+                </div>
+
                 <button id="connectBtn" onclick="connectWallet()" class="bg-[#2f4553] hover:bg-[#3d5564] text-white font-bold px-4 py-1.5 rounded-full border border-[#2f4553] text-sm transition flex items-center gap-2">
                     <i class="fas fa-wallet"></i> <span>Conectar</span>
                 </button>
@@ -217,130 +213,124 @@
         </div>
 
         <!-- === SECCIÓN DE JUEGOS (CATÁLOGO) === -->
-<div id="casinoSection" class="hidden px-4 pb-10 max-w-7xl mx-auto">
-    
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-white mb-4"><i class="fas fa-gamepad text-neon mr-2"></i>Juegos Disponibles</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="casinoSection" class="hidden px-4 pb-10 max-w-7xl mx-auto">
             
-            <!-- TARJETA PLINKO (Enlace al nuevo archivo) -->
-            <a href="Games/Plinko.html" class="group relative bg-[#1a2c38] rounded-xl overflow-hidden border border-[#2f4553] hover:border-[#00E701] transition-all hover:-translate-y-2 shadow-xl cursor-pointer">
-                <!-- Imagen Cover (Usamos un degradado CSS o imagen placeholder) -->
-                <div class="h-40 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
-                    <i class="fas fa-caret-down text-6xl text-white drop-shadow-lg group-hover:scale-110 transition duration-300"></i>
-                    <!-- Badge -->
-                    <span class="absolute top-2 right-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">POPULAR</span>
-                </div>
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-white mb-4"><i class="fas fa-gamepad text-neon mr-2"></i>Juegos Disponibles</h2>
                 
-                <div class="p-4">
-                    <h3 class="text-xl font-bold text-white group-hover:text-neon transition">PLINKO</h3>
-                    <p class="text-gray-400 text-xs mt-1">Multiplicadores hasta 1000x. El clásico juego de la bola cayendo.</p>
-                    <div class="mt-4 flex justify-between items-center">
-                        <span class="text-xs text-gray-500">RTP: 99%</span>
-                        <button class="bg-[#00E701] text-black text-xs font-bold px-4 py-2 rounded-full hover:bg-white transition">JUGAR AHORA</button>
-                    </div>
-                </div>
-            </a>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- TARJETA PLINKO -->
+                    <a href="Games/plinko.html" class="group relative bg-[#1a2c38] rounded-xl overflow-hidden border border-[#2f4553] hover:border-[#00E701] transition-all hover:-translate-y-2 shadow-xl cursor-pointer">
+                        <div class="h-40 bg-gradient-to-br from-pink-600 to-purple-900 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+                            <i class="fas fa-caret-down text-6xl text-white drop-shadow-lg group-hover:scale-110 transition duration-300"></i>
+                            <span class="absolute top-2 right-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">POPULAR</span>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-white group-hover:text-neon transition">PLINKO</h3>
+                            <p class="text-gray-400 text-xs mt-1">Multiplicadores hasta 1000x. El clásico juego de la bola cayendo.</p>
+                            <div class="mt-4 flex justify-between items-center">
+                                <span class="text-xs text-gray-500">RTP: 99%</span>
+                                <button class="bg-[#00E701] text-black text-xs font-bold px-4 py-2 rounded-full hover:bg-white transition">JUGAR AHORA</button>
+                            </div>
+                        </div>
+                    </a>
 
-            <!-- TARJETA BLACKJACK (Este se queda en el index o puedes moverlo luego) -->
-            <div onclick="showGameInline('blackjack')" class="group relative bg-[#1a2c38] rounded-xl overflow-hidden border border-[#2f4553] hover:border-[#00E701] transition-all hover:-translate-y-2 shadow-xl cursor-pointer">
-                <div class="h-40 bg-gradient-to-br from-green-800 to-green-900 flex items-center justify-center relative">
-                    <i class="fas fa-heart text-6xl text-red-500 drop-shadow-lg group-hover:scale-110 transition duration-300"></i>
-                </div>
-                <div class="p-4">
-                    <h3 class="text-xl font-bold text-white group-hover:text-neon transition">BLACKJACK</h3>
-                    <p class="text-gray-400 text-xs mt-1">Vence al dealer y consigue 21. El juego de cartas definitivo.</p>
-                    <div class="mt-4 flex justify-between items-center">
-                        <span class="text-xs text-gray-500">RTP: 99.5%</span>
-                        <button class="bg-[#2f4553] text-white text-xs font-bold px-4 py-2 rounded-full group-hover:bg-[#00E701] group-hover:text-black transition">JUGAR AQUÍ</button>
+                    <!-- TARJETA BLACKJACK -->
+                    <div onclick="showGameInline('blackjack')" class="group relative bg-[#1a2c38] rounded-xl overflow-hidden border border-[#2f4553] hover:border-[#00E701] transition-all hover:-translate-y-2 shadow-xl cursor-pointer">
+                        <div class="h-40 bg-gradient-to-br from-green-800 to-green-900 flex items-center justify-center relative">
+                            <i class="fas fa-heart text-6xl text-red-500 drop-shadow-lg group-hover:scale-110 transition duration-300"></i>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-white group-hover:text-neon transition">BLACKJACK</h3>
+                            <p class="text-gray-400 text-xs mt-1">Vence al dealer y consigue 21. El juego de cartas definitivo.</p>
+                            <div class="mt-4 flex justify-between items-center">
+                                <span class="text-xs text-gray-500">RTP: 99.5%</span>
+                                <button class="bg-[#2f4553] text-white text-xs font-bold px-4 py-2 rounded-full group-hover:bg-[#00E701] group-hover:text-black transition">JUGAR AQUÍ</button>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- TARJETA PRÓXIMAMENTE -->
+                    <div class="opacity-50 grayscale cursor-not-allowed bg-[#1a2c38] rounded-xl border border-[#2f4553] p-4 flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-rocket text-4xl mb-2 text-gray-500"></i>
+                        <h3 class="font-bold">CRASH</h3>
+                        <p class="text-xs">Próximamente</p>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- TARJETA PRÓXIMAMENTE -->
-            <div class="opacity-50 grayscale cursor-not-allowed bg-[#1a2c38] rounded-xl border border-[#2f4553] p-4 flex flex-col items-center justify-center text-center">
-                <i class="fas fa-rocket text-4xl mb-2 text-gray-500"></i>
-                <h3 class="font-bold">CRASH</h3>
-                <p class="text-xs">Próximamente</p>
-            </div>
+            <!-- CONTENEDOR DE BLACKJACK INLINE -->
+            <div id="inlineBlackjackGame" class="hidden mt-8 border-t border-[#2f4553] pt-10 relative animate-[slideInUp_0.5s]">
+                
+                <button onclick="hideGameInline()" class="absolute top-0 right-0 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded text-xs font-bold transition">
+                    <i class="fas fa-times mr-1"></i> CERRAR JUEGO
+                </button>
 
+                <!-- Botón de Justicia -->
+                <div class="absolute top-0 left-0">
+                    <button onclick="showFairness()" class="text-[10px] bg-black/30 hover:bg-black/50 text-gray-400 px-2 py-1 rounded border border-white/10">
+                        <i class="fas fa-balance-scale"></i> FAIRNESS
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                    <!-- Mesa de Juego -->
+                    <div class="lg:col-span-2 bg-[#0f3c28] rounded-3xl border-[8px] border-[#1a2c38] shadow-2xl relative min-h-[500px] flex flex-col justify-between overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,theme('colors.green.400')_1px,transparent_1px)] [background-size:20px_20px]"></div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
+                            <i class="fas fa-frog text-9xl text-green-900"></i>
+                        </div>
+
+                        <!-- Dealer Area -->
+                        <div class="relative z-10 text-center pt-8">
+                            <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs mb-2 border border-white/10">Dealer: <span id="dealerScore">?</span></div>
+                            <div id="dealerCards" class="flex justify-center h-28 items-center gap-1"></div>
+                        </div>
+
+                        <!-- Overlay Resultados -->
+                        <div id="bjOverlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/80 hidden backdrop-blur-sm transition-all">
+                            <div class="text-center transform scale-110">
+                                <h1 id="bjResult" class="text-6xl font-black text-white mb-2 drop-shadow-lg">GANASTE</h1>
+                                <p id="bjAmount" class="text-neon text-2xl font-bold">+200 PBJ</p>
+                                <button onclick="resetBJ()" class="mt-6 bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.4)]">Jugar de Nuevo</button>
+                            </div>
+                        </div>
+
+                        <!-- Player Area -->
+                        <div class="relative z-10 text-center pb-20">
+                            <div id="playerCards" class="flex justify-center h-28 mb-2 items-center gap-1"></div>
+                            <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs border border-white/10">Tú: <span id="playerScore" class="text-neon">0</span></div>
+                        </div>
+
+                        <!-- Controles -->
+                        <div class="absolute bottom-0 w-full bg-[#1a2c38] p-4 border-t border-[#2f4553] z-30 flex flex-col md:flex-row justify-between items-center gap-3">
+                            <div class="flex items-center gap-2 bg-[#0f212e] p-2 rounded border border-[#2f4553]">
+                                <span class="text-xs text-gray-500 font-bold ml-1">APUESTA</span>
+                                <input type="number" id="bjBet" value="100" class="bg-transparent w-20 text-center font-bold text-white outline-none">
+                                <span class="text-neon text-xs font-bold">PBJ</span>
+                            </div>
+                            <div class="flex gap-3">
+                                <button id="btnDeal" onclick="startBJ()" class="btn-primary px-8 py-2 rounded text-sm shadow-lg font-bold hover:brightness-110">REPARTIR</button>
+                                <button id="btnHit" onclick="hitBJ()" class="hidden bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-500 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">PEDIR</button>
+                                <button id="btnStand" onclick="standBJ()" class="hidden bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-500 border-b-4 border-red-800 active:border-b-0 active:translate-y-1">PLANTARSE</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feed Lateral -->
+                    <div class="bg-[#1a2c38] rounded-xl border border-[#2f4553] flex flex-col h-[500px]">
+                        <div class="p-3 border-b border-[#2f4553] flex justify-between items-center bg-[#0b1820] rounded-t-xl">
+                            <span class="text-sm font-bold text-gray-300">Apuestas en Vivo</span>
+                            <span class="text-[10px] text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online</span>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700" id="liveFeed"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <!-- CONTENEDOR DE BLACKJACK INLINE (Corregido y Limpio) -->
-    <div id="inlineBlackjackGame" class="hidden mt-8 border-t border-[#2f4553] pt-10 relative animate-[slideInUp_0.5s]">
-        
-        <!-- Botón para cerrar el juego -->
-        <button onclick="hideGameInline()" class="absolute top-0 right-0 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white px-3 py-1 rounded text-xs font-bold transition">
-            <i class="fas fa-times mr-1"></i> CERRAR JUEGO
-        </button>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Mesa de Juego -->
-            <div class="lg:col-span-2 bg-[#0f3c28] rounded-3xl border-[8px] border-[#1a2c38] shadow-2xl relative min-h-[500px] flex flex-col justify-between overflow-hidden">
-                <!-- Textura Paño -->
-                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,theme('colors.green.400')_1px,transparent_1px)] [background-size:20px_20px]"></div>
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-                    <i class="fas fa-frog text-9xl text-green-900"></i>
-                </div>
-
-                <!-- Dealer Area -->
-                <div class="relative z-10 text-center pt-8">
-                    <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs mb-2 border border-white/10">Dealer: <span id="dealerScore">?</span></div>
-                    <div id="dealerCards" class="flex justify-center h-28 items-center gap-1">
-                        <!-- Las cartas se generan aquí -->
-                    </div>
-                </div>
-
-                <!-- Overlay Resultados -->
-                <div id="bjOverlay" class="absolute inset-0 z-20 flex items-center justify-center bg-black/80 hidden backdrop-blur-sm transition-all">
-                    <div class="text-center transform scale-110">
-                        <h1 id="bjResult" class="text-6xl font-black text-white mb-2 drop-shadow-lg">GANASTE</h1>
-                        <p id="bjAmount" class="text-neon text-2xl font-bold">+200 PBJ</p>
-                        <button onclick="resetBJ()" class="mt-6 bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.4)]">Jugar de Nuevo</button>
-                    </div>
-                </div>
-
-                <!-- Player Area -->
-                <div class="relative z-10 text-center pb-20">
-                    <div id="playerCards" class="flex justify-center h-28 mb-2 items-center gap-1"></div>
-                    <div class="inline-block bg-black/40 px-3 py-1 rounded-full text-gray-300 text-xs border border-white/10">Tú: <span id="playerScore" class="text-neon">0</span></div>
-                </div>
-
-                <!-- Controles -->
-                <div class="absolute bottom-0 w-full bg-[#1a2c38] p-4 border-t border-[#2f4553] z-30 flex flex-col md:flex-row justify-between items-center gap-3">
-                    <div class="flex items-center gap-2 bg-[#0f212e] p-2 rounded border border-[#2f4553]">
-                        <span class="text-xs text-gray-500 font-bold ml-1">APUESTA</span>
-                        <input type="number" id="bjBet" value="100" class="bg-transparent w-20 text-center font-bold text-white outline-none">
-                        <span class="text-neon text-xs font-bold">PBJ</span>
-                    </div>
-                    <div class="flex gap-3">
-                        <button id="btnDeal" onclick="startBJ()" class="btn-primary px-8 py-2 rounded text-sm shadow-lg font-bold hover:brightness-110">REPARTIR</button>
-                        <button id="btnHit" onclick="hitBJ()" class="hidden bg-gray-600 text-white px-6 py-2 rounded font-bold hover:bg-gray-500 border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">PEDIR</button>
-                        <button id="btnStand" onclick="standBJ()" class="hidden bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-500 border-b-4 border-red-800 active:border-b-0 active:translate-y-1">PLANTARSE</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Feed Lateral -->
-            <div class="bg-[#1a2c38] rounded-xl border border-[#2f4553] flex flex-col h-[500px]">
-                <div class="p-3 border-b border-[#2f4553] flex justify-between items-center bg-[#0b1820] rounded-t-xl">
-                    <span class="text-sm font-bold text-gray-300">Apuestas en Vivo</span>
-                    <span class="text-[10px] text-green-500 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Online</span>
-                </div>
-                <div class="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-700" id="liveFeed"></div>
-            </div>
-        </div>
-
-        <div class="absolute top-4 right-4 z-20">
-    <button onclick="showFairness()" class="text-[10px] bg-black/30 hover:bg-black/50 text-gray-400 px-2 py-1 rounded border border-white/10">
-        <i class="fas fa-balance-scale"></i> FAIRNESS
-    </button>
-</div>
-        
-    </div>
         
         <!-- === CUENTA === -->
         <div id="accountSection" class="hidden px-4">
@@ -373,70 +363,66 @@
             </div>
         </div>
 
-    </div>
-
-        <!-- CHAT FLOTANTE -->
-<div id="chatWidget" class="fixed bottom-4 right-4 w-72 h-96 bg-[#1a2c38] rounded-xl border border-[#2f4553] shadow-2xl z-40 hidden flex-col overflow-hidden transition-all duration-300">
-    <!-- Header Chat -->
-    <div class="bg-[#0f212e] p-3 border-b border-[#2f4553] flex justify-between items-center">
-        <span class="font-bold text-sm"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span> Global Chat</span>
-        <button onclick="toggleChat()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
-    </div>
-    <!-- Mensajes -->
-    <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs scrollbar-thin scrollbar-thumb-gray-600">
-        <!-- JS llenará esto -->
-    </div>
-    <!-- Input -->
-    <div class="p-2 bg-[#0f212e]">
-        <input type="text" placeholder="Di algo..." class="w-full bg-[#1a2c38] rounded border border-[#2f4553] px-2 py-1 text-xs text-white focus:border-neon outline-none" disabled>
-        <p class="text-[9px] text-gray-500 mt-1">Chat solo para holders de $PBJ (Nivel VIP 1)</p>
-    </div>
-</div>
-
-<!-- Botón Abrir Chat -->
-<button onclick="toggleChat()" class="fixed bottom-4 right-4 bg-[#1a2c38] p-4 rounded-full border border-[#2f4553] shadow-lg hover:border-neon transition z-30 group">
-    <i class="fas fa-comments text-xl group-hover:text-neon text-gray-400"></i>
-    <span class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>
-</button>
-
+        <!-- FOOTER -->
         <footer class="mt-20 border-t border-[#2f4553] pt-10 pb-6 px-8 text-gray-500 text-sm">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-        <div>
-            <h4 class="text-white font-bold mb-4">Plataforma</h4>
-            <ul class="space-y-2 text-xs">
-                <li><a href="#" class="hover:text-neon">Juegos</a></li>
-                <li><a href="#" class="hover:text-neon">VIP Club</a></li>
-                <li><a href="#" class="hover:text-neon">Promociones</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="text-white font-bold mb-4">Legal</h4>
-            <ul class="space-y-2 text-xs">
-                <li><a href="#" class="hover:text-neon">Términos de Servicio</a></li>
-                <li><a href="#" class="hover:text-neon">Política de Privacidad</a></li>
-                <li><a href="#" class="hover:text-neon">Juego Responsable</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="text-white font-bold mb-4">Comunidad</h4>
-            <div class="flex gap-4 text-xl">
-                <a href="#" class="hover:text-neon"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="hover:text-neon"><i class="fab fa-telegram"></i></a>
-                <a href="#" class="hover:text-neon"><i class="fab fa-discord"></i></a>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h4 class="text-white font-bold mb-4">Plataforma</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#" class="hover:text-neon">Juegos</a></li>
+                        <li><a href="#" class="hover:text-neon">VIP Club</a></li>
+                        <li><a href="#" class="hover:text-neon">Promociones</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#" class="hover:text-neon">Términos de Servicio</a></li>
+                        <li><a href="#" class="hover:text-neon">Política de Privacidad</a></li>
+                        <li><a href="#" class="hover:text-neon">Juego Responsable</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4">Comunidad</h4>
+                    <div class="flex gap-4 text-xl">
+                        <a href="#" class="hover:text-neon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-neon"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="hover:text-neon"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-black font-bold">P</div>
+                        <span class="font-bold text-white">PepeBET</span>
+                    </div>
+                    <p class="text-[10px]">El primer casino descentralizado en Base Network. 100% On-Chain transparency simulated via Web3.</p>
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="flex items-center gap-2 mb-2">
-                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-black font-bold">P</div>
-                <span class="font-bold text-white">PepeBET</span>
+            <div class="text-center text-[10px] border-t border-[#2f4553] pt-4">
+                &copy; 2025 PepeBlackJack. Todos los derechos reservados. 18+ Juega responsablemente.
             </div>
-            <p class="text-[10px]">El primer casino descentralizado en Base Network. 100% On-Chain transparency simulated via Web3.</p>
+        </footer>
+
+    </div>
+
+    <!-- CHAT FLOTANTE -->
+    <div id="chatWidget" class="fixed bottom-4 right-4 w-72 h-96 bg-[#1a2c38] rounded-xl border border-[#2f4553] shadow-2xl z-40 hidden flex-col overflow-hidden transition-all duration-300">
+        <div class="bg-[#0f212e] p-3 border-b border-[#2f4553] flex justify-between items-center">
+            <span class="font-bold text-sm"><span class="w-2 h-2 bg-green-500 rounded-full inline-block mr-1"></span> Global Chat</span>
+            <button onclick="toggleChat()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2 text-xs scrollbar-thin scrollbar-thumb-gray-600"></div>
+        <div class="p-2 bg-[#0f212e]">
+            <input type="text" placeholder="Di algo..." class="w-full bg-[#1a2c38] rounded border border-[#2f4553] px-2 py-1 text-xs text-white focus:border-neon outline-none" disabled>
+            <p class="text-[9px] text-gray-500 mt-1">Chat solo para holders de $PBJ (Nivel VIP 1)</p>
         </div>
     </div>
-    <div class="text-center text-[10px] border-t border-[#2f4553] pt-4">
-        &copy; 2025 PepeBlackJack. Todos los derechos reservados. 18+ Juega responsablemente.
-    </div>
-</footer>
+
+    <!-- Botón Abrir Chat -->
+    <button onclick="toggleChat()" class="fixed bottom-4 right-4 bg-[#1a2c38] p-4 rounded-full border border-[#2f4553] shadow-lg hover:border-neon transition z-30 group">
+        <i class="fas fa-comments text-xl group-hover:text-neon text-gray-400"></i>
+        <span class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>
+    </button>
 
     <script>
         // CONFIGURACIÓN
@@ -452,13 +438,12 @@
         window.onload = () => {
             initTicker();
             initLiveFeed();
+            initFakeChat(); // <--- CRUCIAL: AHORA EL CHAT SE INICIA
             
-            // Chequear si hay usuario (soporta formato V1 y V2 por compatibilidad)
             let storedData = localStorage.getItem('pepebet_user') || localStorage.getItem('pbj_user_v2');
             
             if(storedData) {
                 const data = JSON.parse(storedData);
-                // Normalizar nombres de variables
                 user = data.user || data.username;
                 balance = parseFloat(data.balance);
                 updateUI();
@@ -474,15 +459,13 @@
         // UI & NAVEGACIÓN
         function showSection(id) {
             playSound('click');
-            // Ocultar todas las secciones
             ['presale','casino','account'].forEach(s => {
                 const el = document.getElementById(s+'Section');
                 if(el) el.classList.add('hidden');
             });
 
-            // Plinko es un archivo externo, si hacen click en el menú lateral, redirigir
             if(id === 'plinko') {
-                window.location.href = 'Games/Plinko.html';
+                window.location.href = 'Games/plinko.html';
                 return;
             }
 
@@ -498,13 +481,12 @@
             document.getElementById('sidebarBalance').innerText = fmt;
             document.getElementById('accCasinoBalance').innerText = fmt + " PBJ";
             
-            // Guardar estado actualizado
             const dataToSave = { user: user, username: user, balance: balance };
             localStorage.setItem('pepebet_user', JSON.stringify(dataToSave));
             localStorage.setItem('pbj_user_v2', JSON.stringify(dataToSave));
         }
 
-        // FUNCIONES DE JUEGOS INLINE
+        // FUNCIONES JUEGOS INLINE
         function showGameInline(game) {
             if(game === 'blackjack') {
                 document.getElementById('inlineBlackjackGame').classList.remove('hidden');
@@ -516,9 +498,7 @@
 
         function hideGameInline() {
             document.getElementById('inlineBlackjackGame').classList.add('hidden');
-            // Resetear juego al cerrar si estaba activo
             if(bjActive) {
-                // Penalización por abandonar (opcional) o simplemente reset
                 bjActive = false;
                 resetBJ();
             }
@@ -540,8 +520,8 @@
             const name = document.getElementById('usernameInput').value;
             if(!name) return;
             user = name;
-            balance = 1000; // Welcome bonus
-            updateUI(); // Esto guarda en localStorage
+            balance = 1000; 
+            updateUI(); 
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
             document.getElementById('userNameDisplay').innerText = user;
@@ -559,8 +539,6 @@
             if(amt <= 0) return;
             
             Swal.fire({title:'Procesando...', didOpen:()=>Swal.showLoading(), background: '#1a2c38', color: '#fff'});
-            
-            // Simulación de espera de blockchain
             setTimeout(() => {
                 const bought = amt * RATE;
                 balance += bought;
@@ -595,7 +573,6 @@
             document.getElementById('btnStand').classList.remove('hidden');
             playSound('click');
             
-            // Crear baraja
             const vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             const suits = ['♠','♥','♦','♣'];
             bjDeck = [];
@@ -619,10 +596,9 @@
         function standBJ() {
             if(!bjActive) return;
             while(getBJScore(bjDealer) < 17) bjDealer.push(bjDeck.pop());
-            renderBJ(); // Mostrar cartas dealer
+            renderBJ(); 
             const p = getBJScore(bjPlayer);
             const d = getBJScore(bjDealer);
-            
             if(d > 21 || p > d) endBJ(true);
             else if(p === d) endBJ('tie');
             else endBJ(false);
@@ -644,12 +620,9 @@
                 <div class="bg-white w-14 h-20 rounded border border-gray-400 flex items-center justify-center text-xl font-bold ${['♥','♦'].includes(c.s)?'text-red-600':'text-black'} shadow-lg animate-[slideInUp_0.3s] select-none">
                     ${c.v}${c.s}
                 </div>`;
-            
             document.getElementById('playerCards').innerHTML = bjPlayer.map(cardHTML).join('');
             document.getElementById('playerScore').innerText = getBJScore(bjPlayer);
-            
             if(bjActive) {
-                // Dealer oculta la segunda carta
                 document.getElementById('dealerCards').innerHTML = cardHTML(bjDealer[0]) + 
                     `<div class="bg-gradient-to-br from-green-800 to-green-950 w-14 h-20 rounded border-2 border-white/20 flex items-center justify-center shadow-lg"><i class="fas fa-frog text-green-600 opacity-50"></i></div>`;
                 document.getElementById('dealerScore').innerText = "?";
@@ -682,7 +655,6 @@
                 title.innerText = "PERDISTE"; 
                 title.className="text-6xl font-black text-red-500";
                 amt.innerText = `-${bet} PBJ`;
-                // playSound('lose'); // Opcional si agregas sonido de perder
             }
             updateUI();
         }
@@ -701,10 +673,7 @@
         // UTILS
         function playSound(id) {
             const audio = document.getElementById('sfx-'+id);
-            if(audio) {
-                audio.currentTime = 0;
-                audio.play().catch(e=>{});
-            }
+            if(audio) { audio.currentTime = 0; audio.play().catch(e=>{}); }
         }
 
         function initTicker() {
@@ -716,7 +685,6 @@
         function initLiveFeed() {
             setInterval(()=>{
                 const users = ["Degen","Anon","BaseGod","Pepe","Whale0x"];
-                const games = ["BlackJack","Plinko","Swap"];
                 const win = Math.random() > 0.4;
                 const div = document.createElement('div');
                 div.className = "flex justify-between text-xs p-2 bg-[#0f212e] rounded animate-[slideInUp_0.3s] border-l-2 " + (win ? "border-neon" : "border-red-500");
@@ -730,62 +698,45 @@
         function withdraw() { Swal.fire("Info", "Retiro disponible al finalizar la preventa.", "info"); }
 
         function showFairness() {
-    Swal.fire({
-        title: 'Provably Fair',
-        html: `
-            <div class="text-left text-sm text-gray-300">
-                <p class="mb-2">Este juego utiliza un sistema de aleatoriedad híbrida:</p>
-                <ul class="list-disc ml-4 mb-2 text-xs">
-                    <li>Semilla de Cliente: Tu dirección de wallet.</li>
-                    <li>Semilla de Servidor: Generada localmente.</li>
-                    <li>Nonce: Incrementa con cada apuesta.</li>
-                </ul>
-                <p class="text-xs text-gray-500">En la versión final, cada mano se verifica en la blockchain de Base.</p>
-            </div>
-        `,
-        background: '#1a2c38',
-        color: '#fff',
-        confirmButtonColor: '#2f4553'
-    });
-}
+            Swal.fire({
+                title: 'Provably Fair',
+                html: `<div class="text-left text-sm text-gray-300">
+                        <p class="mb-2">Aleatoriedad verificada:</p>
+                        <ul class="list-disc ml-4 mb-2 text-xs">
+                            <li>Semilla Cliente: Wallet</li>
+                            <li>Semilla Servidor: Hash Local</li>
+                        </ul>
+                    </div>`,
+                background: '#1a2c38', color: '#fff', confirmButtonColor: '#2f4553'
+            });
+        }
 
-        // CHAT LOGIC
-function toggleChat() {
-    const chat = document.getElementById('chatWidget');
-    chat.classList.toggle('hidden');
-    // Scroll al fondo al abrir
-    const msgBox = document.getElementById('chatMessages');
-    msgBox.scrollTop = msgBox.scrollHeight;
-}
+        function toggleChat() {
+            const chat = document.getElementById('chatWidget');
+            chat.classList.toggle('hidden');
+            const msgBox = document.getElementById('chatMessages');
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
 
-function initFakeChat() {
-    const msgs = document.getElementById('chatMessages');
-    const names = ["PepeLord", "CryptoKing", "WAGMI_Bro", "Degen123", "ElonFan", "BaseChad"];
-    const texts = ["LFG!!! 🚀", "Just bought more PBJ", "Plinko is paying out rn", "Who wants a tip?", "Wen Binance?", "Big win on BJ!"];
-    
-    // Función para añadir mensaje
-    const addMsg = () => {
-        const name = names[Math.floor(Math.random() * names.length)];
-        const text = texts[Math.floor(Math.random() * texts.length)];
-        const div = document.createElement('div');
-        div.className = "bg-[#0b1820] p-2 rounded mb-1 animate-[slideInUp_0.2s]";
-        div.innerHTML = `<span class="font-bold text-gray-400">${name}:</span> <span class="text-gray-300">${text}</span>`;
-        msgs.appendChild(div);
-        msgs.scrollTop = msgs.scrollHeight;
-        
-        if(msgs.children.length > 50) msgs.removeChild(msgs.firstChild);
-    };
+        function initFakeChat() {
+            const msgs = document.getElementById('chatMessages');
+            const names = ["PepeLord", "CryptoKing", "WAGMI", "Degen123", "ElonFan"];
+            const texts = ["LFG!!! 🚀", "Bought more PBJ", "Plinko payout??", "Wen Binance?", "Big win on BJ!"];
+            
+            const addMsg = () => {
+                const name = names[Math.floor(Math.random() * names.length)];
+                const text = texts[Math.floor(Math.random() * texts.length)];
+                const div = document.createElement('div');
+                div.className = "bg-[#0b1820] p-2 rounded mb-1 animate-[slideInUp_0.2s]";
+                div.innerHTML = `<span class="font-bold text-gray-400">${name}:</span> <span class="text-gray-300">${text}</span>`;
+                msgs.appendChild(div);
+                msgs.scrollTop = msgs.scrollHeight;
+                if(msgs.children.length > 50) msgs.removeChild(msgs.firstChild);
+            };
 
-    // Mensajes iniciales
-    for(let i=0; i<5; i++) addMsg();
-    
-    // Bucle
-    setInterval(() => {
-        if(Math.random() > 0.3) addMsg();
-    }, 3500);
-}
-
-// Agregar initFakeChat() al window.onload
+            for(let i=0; i<5; i++) addMsg();
+            setInterval(() => { if(Math.random() > 0.3) addMsg(); }, 3500);
+        }
     </script>
 </body>
 </html>
