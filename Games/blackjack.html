@@ -114,32 +114,40 @@
         </div>
     </div>
 
-    <!-- LÓGICA JAVASCRIPT -->
+    <!-- LÓGICA JAVASCRIPT (MODIFICADO PARA LOCALSTORAGE) -->
     <script>
+        const STORAGE_KEY = 'pepeblackjack_v1'; // Llave compartida
         let userBalance = 0, username = null;
         let deck=[], player=[], dealer=[], gameActive=false;
 
         // Inicialización
         window.onload = () => {
-            const u = localStorage.getItem('pbj_username');
-            if(u) {
-                fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u}) })
-                .then(r=>r.json()).then(d => { userBalance=d.balance; username=d.username; updateBalanceUI(); });
-            } else { window.location.href = '../index.html'; }
+            const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            if(data) {
+                userBalance = parseFloat(data.balance);
+                username = data.username;
+                updateBalanceUI();
+            } else {
+                window.location.href = '../index.html'; // Si no hay login, volver
+            }
         };
 
+        // Guardar datos
+        function saveData() {
+            const data = { username: username, balance: userBalance };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            updateBalanceUI();
+        }
+
         // Funciones Core
-        async function startBJ() {
+        function startBJ() {
             const bet = parseFloat(document.getElementById('betAmount').value);
             if(bet > userBalance) return Swal.fire({title:"Saldo Insuficiente", icon:"error", background:'#0f1621', color:'#fff'});
             if(bet <= 0) return;
 
-            // Descontar apuesta
-            const res = await fetch('/api/update', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username, amount: -bet})});
-            const d = await res.json();
-            if(!d.success) return;
-            userBalance = d.newBalance;
-            updateBalanceUI();
+            // Descontar apuesta localmente
+            userBalance -= bet;
+            saveData();
 
             playSound('click');
             gameActive = true;
@@ -220,25 +228,27 @@
             }
         }
 
-        async function endBJ(result) {
+        function endBJ(result) {
             gameActive = false;
             const bet = parseFloat(document.getElementById('betAmount').value);
             const title = document.getElementById('bjResult');
             const amt = document.getElementById('bjAmount');
             
             if(result === true) {
-                // Win (2x)
-                await updateServerBalance(bet * 2);
+                // Win (2x) - Pagar ganancia + apuesta
+                userBalance += (bet * 2);
+                saveData();
                 title.innerText = "VICTORIA"; title.className = "text-7xl font-black text-neon drop-shadow-lg";
                 amt.innerText = `+${bet * 2} PBJ`;
                 playSound('win');
             } else if(result === 'tie') {
-                // Push (1x)
-                await updateServerBalance(bet);
+                // Push (1x) - Devolver apuesta
+                userBalance += bet;
+                saveData();
                 title.innerText = "EMPATE"; title.className = "text-7xl font-black text-gray-400";
                 amt.innerText = `+${bet} PBJ`;
             } else {
-                // Lose (0x)
+                // Lose (0x) - Ya se descontó al inicio
                 title.innerText = "DERROTA"; title.className = "text-7xl font-black text-red-500";
                 amt.innerText = `-${bet} PBJ`;
             }
@@ -259,16 +269,11 @@
             document.getElementById('dealerScore').innerText = '?';
         }
 
-        // Utils Servidor
-        async function updateServerBalance(amount) {
-            const res = await fetch('/api/update', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username, amount})});
-            const d = await res.json();
-            if(d.success) { userBalance = d.newBalance; updateBalanceUI(); }
-        }
+        // Utils
         function updateBalanceUI() { document.getElementById('displayBalance').innerText = userBalance.toFixed(2); }
         function changeBet(m) { document.getElementById('betAmount').value *= m; }
         function playSound(id) { const el=document.getElementById('sfx-'+id); if(el){ el.currentTime=0; el.play().catch(()=>{}); } }
-        function showFairness() { Swal.fire({title:'Provably Fair', text:'Cada mano se genera usando una semilla criptográfica local.', background:'#0f1621', color:'#fff'}); }
+        function showFairness() { Swal.fire({title:'Provably Fair', text:'Generado con semilla local (Cliente).', background:'#0f1621', color:'#fff'}); }
     </script>
 </body>
 </html>
