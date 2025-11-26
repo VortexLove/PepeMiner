@@ -98,7 +98,7 @@
         <!-- 1. SIDEBAR -->
         <nav id="sidebar" class="sidebar bg-panel glass-panel p-5 pt-16 lg:pt-6">
             <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="showSection('home')">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-900 flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(0,255,42,0.3)] group-hover:rotate-12 transition">🐸</div>
+                <div class="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(0,255,42,0.3)] group-hover:rotate-12 transition">🐸</div>
                 <div>
                     <h1 class="text-xl font-bold text-white leading-none">Pepe<span class="text-neon">BJ</span></h1>
                     <span class="text-[9px] text-gray-500 uppercase tracking-widest">DeFi Casino</span>
@@ -171,7 +171,7 @@
                     </div>
                     <img id="headerAvatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-9 h-9 rounded-full bg-black border-2 border-white/10">
                 </div>
-                <button onclick="openWalletModal()" class="btn-gradient px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2">
+                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2">
                     <i class="fas fa-wallet"></i> Connect
                 </button>
             </div>
@@ -319,7 +319,7 @@
                             <div class="swap-input-container mb-2">
                                 <div class="flex justify-between text-xs text-gray-500 mb-2">
                                     <span>You pay</span>
-                                    <span>Balance: 0.00</span>
+                                    <span>Balance: <span id="walletEthBal">0.00</span> ETH</span>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <input type="number" id="ethAmount" placeholder="0" class="swap-input" oninput="calcTokens()">
@@ -358,7 +358,7 @@
                                 <span class="text-green-400"><i class="fas fa-gas-pump"></i> $2.40</span>
                             </div>
 
-                            <button onclick="buyTokens()" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg">
+                            <button onclick="handleBuyAction()" id="swapBtn" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg">
                                 CONNECT WALLET
                             </button>
                         </div>
@@ -423,19 +423,19 @@
             <h3 class="text-xl font-bold text-white mb-6 text-center">Connect Wallet</h3>
             
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <button onclick="connectWalletMock('MetaMask')" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
+                <button onclick="connectWalletReal()" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-10 h-10 group-hover:scale-110 transition">
                     <span class="text-sm font-bold text-gray-300">MetaMask</span>
                 </button>
-                <button onclick="connectWalletMock('WalletConnect')" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
+                <button onclick="connectWalletReal()" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
                     <img src="https://seeklogo.com/images/W/walletconnect-logo-EE83B50C97-seeklogo.com.png" class="w-10 h-10 group-hover:scale-110 transition">
                     <span class="text-sm font-bold text-gray-300">WalletConnect</span>
                 </button>
-                <button onclick="connectWalletMock('TrustWallet')" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
+                <button onclick="connectWalletReal()" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
                     <img src="https://seeklogo.com/images/T/trust-wallet-token-twt-logo-53A27DF998-seeklogo.com.png" class="w-10 h-10 group-hover:scale-110 transition">
                     <span class="text-sm font-bold text-gray-300">Trust</span>
                 </button>
-                <button onclick="connectWalletMock('Coinbase')" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
+                <button onclick="connectWalletReal()" class="bg-[#0b1016] hover:bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center gap-2 transition group">
                     <img src="https://seeklogo.com/images/C/coinbase-coin-logo-C86F46D7B8-seeklogo.com.png" class="w-10 h-10 group-hover:scale-110 transition">
                     <span class="text-sm font-bold text-gray-300">Coinbase</span>
                 </button>
@@ -447,18 +447,32 @@
 
     <script>
         // --- ESTADO ---
-        const STORAGE_KEY = 'pepeblackjack_v2';
-        let state = { balance: 1000.00, user: 'Guest', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe' };
+        const STORAGE_KEY = 'pepeblackjack_v3_real'; // Key nueva para resetear estados corruptos
+        let state = { 
+            balance: 0, 
+            user: 'Guest', 
+            address: null,
+            hasClaimedBonus: false,
+            avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe' 
+        };
 
         // --- INIT ---
         window.onload = () => {
             loadState();
+            // Verificar si hay cuenta ya conectada en Metamask
+            if(window.ethereum && window.ethereum.selectedAddress) {
+               connectWalletReal(true); // Silent connect
+            }
             updateUI();
         };
 
         function loadState() {
             const stored = localStorage.getItem(STORAGE_KEY);
-            if(stored) state = {...state, ...JSON.parse(stored)};
+            if(stored) {
+                try {
+                    state = {...state, ...JSON.parse(stored)};
+                } catch(e) { console.error("Error loading state", e); }
+            }
         }
         
         function saveState() {
@@ -467,18 +481,32 @@
         }
 
         function updateUI() {
-            const fmt = state.balance.toLocaleString('en-US', {minimumFractionDigits: 2});
-            
-            // Helper seguro para evitar errores si un elemento no existe en el DOM
-            const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            // Helper para evitar errores de null
+            const setText = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
             const setSrc = (id, val) => { const el = document.getElementById(id); if(el) el.src = val; };
 
-            setTxt('sidebarBalance', fmt);
-            setTxt('headerBalance', fmt);
-            setTxt('userNameDisplay', state.user);
-            setTxt('profileName', state.user);
+            const fmt = state.balance.toLocaleString('en-US', {minimumFractionDigits: 2});
+            
+            setText('sidebarBalance', fmt);
+            setText('headerBalance', fmt);
+            setText('userNameDisplay', state.user);
+            setText('profileName', state.user);
             setSrc('headerAvatar', state.avatar);
             setSrc('profileImageMain', state.avatar);
+
+            // Actualizar Botón de Swap/Connect
+            const swapBtn = document.getElementById('swapBtn');
+            const connectBtn = document.getElementById('connectBtn');
+            
+            if(state.address) {
+                if(swapBtn) swapBtn.innerText = "SWAP TOKENS";
+                if(connectBtn) {
+                    connectBtn.innerHTML = `<i class="fas fa-check-circle text-green-500"></i> ${state.address.substring(0,6)}...`;
+                    connectBtn.onclick = null; // Desactivar click si ya está conectado
+                }
+            } else {
+                if(swapBtn) swapBtn.innerText = "CONNECT WALLET";
+            }
         }
 
         // --- NAVEGACIÓN ---
@@ -498,7 +526,7 @@
         }
 
         function loadGame(url, title) {
-            showSection('none'); // Ocultar todo
+            showSection('none'); 
             const c = document.getElementById('gameContainer');
             c.style.display = 'flex';
             document.getElementById('activeGameTitle').innerText = `| ${title}`;
@@ -518,55 +546,87 @@
             }
         });
 
-        // --- FUNCIONES DE PREVENTA ---
+        // --- PRESALE & WALLET LOGIC (REAL) ---
+        
         function calcTokens() {
             const eth = parseFloat(document.getElementById('ethAmount').value || 0);
             document.getElementById('pbjAmount').value = (eth * 1000000).toLocaleString();
         }
 
-        function buyTokens() {
-            openWalletModal(); // En demo, primero pide conectar
+        function handleBuyAction() {
+            if(!state.address) openWalletModal();
+            else performFakeSwap();
         }
 
-        // --- WALLET ---
         function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
         
-        function connectWalletMock(provider) {
+        async function connectWalletReal(silent = false) {
             document.getElementById('walletModal').classList.add('hidden');
-            
-            // Simulación de conexión exitosa
-            const loadingSwal = Swal.fire({
-                title: 'Connecting...',
-                text: `Waiting for ${provider}...`,
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading(),
-                background: '#121924', color: '#fff'
-            });
 
-            setTimeout(() => {
-                state.user = "0xDeGe...888";
-                state.balance += 1000; // Bono de bienvenida
-                saveState();
-                loadingSwal.close();
+            if (!window.ethereum) {
+                if(!silent) Swal.fire("Error", "MetaMask or Web3 Wallet not found!", "error");
+                return;
+            }
+
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                const address = await signer.getAddress();
                 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Wallet Connected!',
-                    text: 'Welcome Bonus: +1,000 PBJ Credits',
-                    background: '#121924', color: '#fff', confirmButtonColor: '#00ff2a'
-                });
-                
-                // Si estábamos en presale, simular compra
-                const ethInput = document.getElementById('ethAmount');
-                if(ethInput && ethInput.value > 0) {
-                    state.balance += parseFloat(ethInput.value) * 1000000;
-                    saveState();
-                    ethInput.value = "";
-                    document.getElementById('pbjAmount').value = "";
-                    Swal.fire("Purchase Successful", "Tokens added to your balance.", "success");
+                state.address = address;
+                state.user = address.substring(0,6) + "..." + address.substring(38);
+                state.avatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${address}`;
+
+                // BONUS SOLO UNA VEZ
+                if(!state.hasClaimedBonus) {
+                    state.balance = 1000; // Reset o Add
+                    state.hasClaimedBonus = true;
+                    if(!silent) Swal.fire({
+                        icon: 'success',
+                        title: 'Wallet Connected!',
+                        text: 'Welcome Bonus: +1,000 PBJ Credits',
+                        background: '#121924', color: '#fff', confirmButtonColor: '#00ff2a'
+                    });
+                } else {
+                    if(!silent) Swal.fire({toast:true, position:'top-end', icon:'success', title:'Welcome back!', background:'#121924', color:'#fff'});
                 }
 
-            }, 1500);
+                saveState();
+
+            } catch (error) {
+                console.error(error);
+                if(!silent) Swal.fire("Error", "Connection refused", "error");
+            }
+        }
+
+        function performFakeSwap() {
+            const ethInput = document.getElementById('ethAmount');
+            const val = parseFloat(ethInput.value);
+            
+            if(isNaN(val) || val <= 0) return Swal.fire("Invalid Amount", "Enter ETH amount", "warning");
+
+            // Simulación de transacción
+            Swal.fire({
+                title: 'Confirm Transaction',
+                text: `Swap ${val} ETH for ${(val*1000000).toLocaleString()} PBJ?`,
+                showCancelButton: true,
+                confirmButtonText: 'Confirm',
+                background: '#121924', color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Simular espera de red
+                    Swal.fire({title: 'Processing...', didOpen: () => Swal.showLoading(), background: '#121924', color:'#fff'});
+                    
+                    setTimeout(() => {
+                        state.balance += val * 1000000;
+                        saveState();
+                        ethInput.value = "";
+                        document.getElementById('pbjAmount').value = "";
+                        Swal.fire("Success", "Tokens added to your balance!", "success");
+                    }, 2000);
+                }
+            });
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
