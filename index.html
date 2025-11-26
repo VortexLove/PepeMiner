@@ -204,27 +204,43 @@
                     <i class="fas fa-frog absolute -bottom-10 -right-10 text-[300px] text-green-500 opacity-10 rotate-12"></i>
                 </div>
 
+                <!-- GAME GRID WITH IMAGES -->
                 <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Featured Games</h3>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <div onclick="loadGame('games/plinko.html', 'Plinko')" class="group relative overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
-                        <div class="aspect-square bg-gradient-to-br from-pink-900 to-black flex items-center justify-center"><i class="fas fa-caret-down text-6xl text-pink-500 group-hover:translate-y-2 transition"></i></div>
-                        <div class="p-3 absolute bottom-0 w-full bg-black/80 backdrop-blur-sm"><h4 class="font-bold text-sm">Plinko</h4></div>
+                    
+                    <!-- Plinko -->
+                    <div onclick="loadGame('games/plinko.html', 'Plinko')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
+                        <img src="assets/img/game-plinko.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="Plinko">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                        <div class="p-3 absolute bottom-0 w-full"><h4 class="font-bold text-sm text-white drop-shadow-md">Plinko</h4></div>
                     </div>
-                    <div onclick="loadGame('games/crash.html', 'Crash')" class="group relative overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
-                        <div class="aspect-square bg-gradient-to-br from-indigo-900 to-black flex items-center justify-center"><i class="fas fa-rocket text-6xl text-indigo-500 group-hover:-translate-y-2 transition"></i></div>
-                        <div class="p-3 absolute bottom-0 w-full bg-black/80 backdrop-blur-sm"><h4 class="font-bold text-sm">Crash</h4></div>
+
+                    <!-- Crash -->
+                    <div onclick="loadGame('games/crash.html', 'Crash')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
+                        <img src="assets/img/game-crash.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="Crash">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                        <div class="p-3 absolute bottom-0 w-full"><h4 class="font-bold text-sm text-white drop-shadow-md">Crash</h4></div>
                     </div>
-                    <div onclick="loadGame('games/blackjack.html', 'Blackjack')" class="group relative overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
-                        <div class="aspect-square bg-gradient-to-br from-red-900 to-black flex items-center justify-center"><i class="fas fa-heart text-6xl text-red-500 group-hover:scale-110 transition"></i></div>
-                        <div class="p-3 absolute bottom-0 w-full bg-black/80 backdrop-blur-sm"><h4 class="font-bold text-sm">Blackjack</h4></div>
+
+                    <!-- Blackjack -->
+                    <div onclick="loadGame('games/blackjack.html', 'Blackjack')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
+                        <img src="assets/img/game-blackjack.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="Blackjack">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                        <div class="p-3 absolute bottom-0 w-full"><h4 class="font-bold text-sm text-white drop-shadow-md">Blackjack</h4></div>
                     </div>
-                    <div onclick="loadGame('games/mines.html', 'Minesk')" class="group relative overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
-                        <div class="aspect-square bg-gradient-to-br from-red-900 to-black flex items-center justify-center"><i class="fas fa-heart text-6xl text-red-500 group-hover:scale-110 transition"></i></div>
-                        <div class="p-3 absolute bottom-0 w-full bg-black/80 backdrop-blur-sm"><h4 class="font-bold text-sm">Mines</h4></div>
+
+                    <!-- Mines -->
+                    <div onclick="loadGame('games/mines.html', 'Mines')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
+                        <img src="assets/img/game-mines.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="Mines">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                        <div class="p-3 absolute bottom-0 w-full"><h4 class="font-bold text-sm text-white drop-shadow-md">Mines</h4></div>
                     </div>
-                    <div onclick="loadGame('games/dice.html', 'Dice')" class="group relative overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
-                        <div class="aspect-square bg-gradient-to-br from-red-900 to-black flex items-center justify-center"><i class="fas fa-heart text-6xl text-red-500 group-hover:scale-110 transition"></i></div>
-                        <div class="p-3 absolute bottom-0 w-full bg-black/80 backdrop-blur-sm"><h4 class="font-bold text-sm">Dice</h4></div>
+
+                    <!-- Dice -->
+                    <div onclick="loadGame('games/dice.html', 'Dice')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50">
+                        <img src="assets/img/game-dice.jpg" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="Dice">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
+                        <div class="p-3 absolute bottom-0 w-full"><h4 class="font-bold text-sm text-white drop-shadow-md">Dice</h4></div>
                     </div>
                 </div>
             </div>
@@ -384,46 +400,16 @@
             </div>
 
             <!-- FOOTER -->
-<footer class="bg-[#020304] border-t border-white/5 py-10 mt-auto shrink-0">
-                <div class="max-w-7xl mx-auto px-6">
-                    <div class="grid md:grid-cols-4 gap-8 mb-8">
-                        <div>
-                            <h4 class="text-xl font-bold text-white brand-font mb-4">Pepe<span class="text-neon">BJ</span></h4>
-                            <p class="text-gray-500 text-xs leading-relaxed">The #1 Web3 Degen Casino. Fair games, instant withdrawals, and NFT integration. Operated by DAO.</p>
-                        </div>
-                        <div>
-                            <h5 class="text-white font-bold mb-3 text-sm">Platform</h5>
-                            <ul class="space-y-2 text-xs text-gray-500">
-                                <li><a href="#" class="hover:text-neon">Games</a></li>
-                                <li><a href="#" class="hover:text-neon">NFT Staking</a></li>
-                                <li><a href="#" class="hover:text-neon">Token Presale</a></li>
-                                <li><a href="#" class="hover:text-neon">VIP Club</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h5 class="text-white font-bold mb-3 text-sm">Support</h5>
-                            <ul class="space-y-2 text-xs text-gray-500">
-                                <li><a href="#" class="hover:text-neon">Help Center</a></li>
-                                <li><a href="#" class="hover:text-neon">Terms of Service</a></li>
-                                <li><a href="#" class="hover:text-neon">Provably Fair</a></li>
-                                <li><a href="#" class="hover:text-neon">Gamble Responsibly</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h5 class="text-white font-bold mb-3 text-sm">Community</h5>
-                            <div class="flex gap-4">
-                                <a href="#" class="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-gray-400 hover:bg-neon hover:text-black transition"><i class="fab fa-twitter"></i></a>
-                                <a href="#" class="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-gray-400 hover:bg-neon hover:text-black transition"><i class="fab fa-telegram"></i></a>
-                                <a href="#" class="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-gray-400 hover:bg-neon hover:text-black transition"><i class="fab fa-discord"></i></a>
-                            </div>
-                        </div>
-                        <div class="border-t border-white/5 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p class="text-[10px] text-gray-600">© 2025 PepeBlackJack. All rights reserved. 18+</p>
-                        <div class="flex gap-2 opacity-30 grayscale hover:grayscale-0 transition">
-                            <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=026" class="h-4">
-                            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png?v=026" class="h-4">
-                            <img src="https://cryptologos.cc/logos/chainlink-link-logo.png?v=026" class="h-4">
-                        </div>
+            <footer class="bg-[#020304] border-t border-white/5 py-10 mt-auto shrink-0">
+                <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h4 class="text-xl font-bold text-white brand-font">Pepe<span class="text-neon">BJ</span></h4>
+                        <p class="text-xs text-gray-500">Decentralized Casino on Base.</p>
+                    </div>
+                    <div class="flex gap-4 text-gray-500 text-sm">
+                        <a href="#" class="hover:text-neon">Terms</a>
+                        <a href="#" class="hover:text-neon">Contracts</a>
+                        <a href="#" class="hover:text-neon">Support</a>
                     </div>
                 </div>
             </footer>
@@ -435,19 +421,19 @@
         // --- CONSTANTES ---
         const PBJ_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5";
         const NFT_ADDRESS = "0xDE05dAf2cbF59ce9094979d639393ADED494e920";
+        const TREASURY_ADDRESS = ""; // Wallet que recibe el deposito
         const CHAIN_ID = 8453; // Base Mainnet
         const CHAIN_HEX = "0x2105";
 
         // ABIs Mínimos requeridos
         const PBJ_ABI = [
             "function balanceOf(address) view returns (uint256)",
+            "function transfer(address recipient, uint256 amount) returns (bool)",
             "function approve(address, uint256) returns (bool)",
             "function allowance(address, address) view returns (uint256)",
             "function decimals() view returns (uint8)"
         ];
         
-        // El contrato del Token tiene receive() para la preventa, usaremos sendTransaction
-
         const NFT_ABI = [
             "function tierInfo(uint256) view returns (uint256 price, uint256 rewardPerSec, bool active)",
             "function mint(uint256 _id, uint256 _amount)",
@@ -580,28 +566,10 @@
             }
         }
 
-        // --- GAMES ---
-        function loadGame(url, title) {
-            showSection('none'); // Oculta secciones principales
-            document.querySelector('footer').style.display = 'none'; // Oculta footer para más espacio
-            const container = document.getElementById('gameContainer');
-            container.style.display = 'flex';
-            container.classList.remove('hidden'); // Asegura que se quite la clase hidden
-            
-            setText('activeGameTitle', '| ' + title);
-            
-            const frame = document.getElementById('gameFrame');
-            frame.src = url;
-            
-            // Simular paso de balance al juego
-            setTimeout(() => {
-                frame.contentWindow.postMessage({type: 'INIT_BALANCE', balance: state.gameBalance}, '*');
-            }, 1000);
-        }
-
         // --- NFT SYSTEM ---
         const TIER_NAMES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
-        const TIER_IMGS = ["frog", "user-ninja", "crown", "bolt", "dragon"];
+        // Aquí actualizamos las referencias a imágenes locales
+        const TIER_IMGS = ["common", "uncommon", "rare", "epic", "legendary"];
         const TIER_COLORS = ["gray", "green", "blue", "purple", "yellow"];
 
         async function renderNftMintOptions() {
@@ -609,21 +577,19 @@
             let html = "";
             
             for(let i=0; i<5; i++) {
-                // Leer datos del contrato (precio)
                 let price = "Loading...";
-                let yieldRate = "Loading...";
-                
                 try {
                     const info = await nftContract.tierInfo(i);
                     price = ethers.utils.formatEther(info.price);
-                    // Reward per sec to per day calculation could go here
                 } catch(e) { console.log("Contract read error", e); }
 
+                // Usamos la imagen local con object-cover
                 html += `
                 <div class="nft-card group">
-                    <div class="h-40 bg-gradient-to-b from-${TIER_COLORS[i]}-900/40 to-black flex items-center justify-center relative">
-                        <i class="fas fa-${TIER_IMGS[i]} text-5xl text-${TIER_COLORS[i]}-400 group-hover:scale-110 transition"></i>
-                        <span class="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded border border-white/10 uppercase font-bold">${TIER_NAMES[i]}</span>
+                    <div class="h-48 relative overflow-hidden bg-black">
+                        <img src="assets/img/nft-${TIER_IMGS[i]}.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="${TIER_NAMES[i]}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+                        <span class="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded border border-white/10 uppercase font-bold z-10">${TIER_NAMES[i]}</span>
                     </div>
                     <div class="p-4">
                         <div class="flex justify-between text-xs mb-2 text-gray-400"><span>Price</span><span class="text-white font-bold">${parseFloat(price).toLocaleString()} PBJ</span></div>
@@ -666,7 +632,6 @@
             grid.innerHTML = '<div class="col-span-full text-center text-neon animate-pulse">Scanning Blockchain...</div>';
             
             let html = "";
-            let totalPending = ethers.BigNumber.from(0);
 
             try {
                 // Get pending rewards global
@@ -683,8 +648,8 @@
                     if(balNum > 0 || stakedNum > 0) {
                         html += `
                         <div class="nft-card border border-${TIER_COLORS[i]}-500/30">
-                            <div class="h-24 bg-black/50 flex items-center justify-center">
-                                <i class="fas fa-${TIER_IMGS[i]} text-3xl text-${TIER_COLORS[i]}-400"></i>
+                            <div class="h-32 bg-black relative overflow-hidden">
+                                <img src="assets/img/nft-${TIER_IMGS[i]}.png" class="w-full h-full object-cover opacity-80" alt="${TIER_NAMES[i]}">
                             </div>
                             <div class="p-3 text-center">
                                 <h4 class="font-bold text-xs text-white mb-2">${TIER_NAMES[i]}</h4>
@@ -713,19 +678,15 @@
 
         async function stakeNft(id) {
             try {
-                // 1. Check setApprovalForAll
                 const isApproved = await nftContract.isApprovedForAll(userAddress, NFT_ADDRESS);
                 if(!isApproved) {
                     Swal.fire({title: 'Approve Staking', text: 'Allow contract to move your NFTs', didOpen:()=>Swal.showLoading()});
                     const txApp = await nftContract.setApprovalForAll(NFT_ADDRESS, true);
                     await txApp.wait();
                 }
-
-                // 2. Stake
                 Swal.fire({title: 'Staking...', didOpen:()=>Swal.showLoading()});
-                const tx = await nftContract.stake(id, 1); // Stake 1 at a time for simplicity UI
+                const tx = await nftContract.stake(id, 1);
                 await tx.wait();
-                
                 Swal.fire("Staked!", "Earning rewards now.", "success");
                 loadInventory();
             } catch(e) { Swal.fire("Error", e.message, "error"); }
@@ -752,42 +713,55 @@
             } catch(e) { Swal.fire("Error", e.message, "error"); }
         }
 
-        // --- CAJERO (OFF-CHAIN GAME CHIPS) ---
-        // Simulación: El contrato real debería tener deposito/retiro, pero según instruccion
-        // "solo los juegos con fichas", simulamos el intercambio Wallet <-> Juego localmente
-        // pero validando saldo real.
-        
+        // --- CAJERO (CASHIER) ---
         async function depositChips() {
             if(!userAddress) return connectWallet();
-            const amount = parseFloat(document.getElementById('depositInput').value);
+            const amountVal = document.getElementById('depositInput').value;
+            const amount = parseFloat(amountVal);
             
+            if(amount <= 0 || isNaN(amount)) return Swal.fire("Error", "Enter a valid amount", "warning");
             if(amount > walletBalance) return Swal.fire("Error", "Insufficient PBJ in Wallet", "error");
-            if(amount <= 0) return;
 
-            // En un app real, aquí se llamaría a un contrato "Cashier" para depositar los PBJ.
-            // Para este demo frontend, simulamos que los "bloqueas" visualmente.
-            Swal.fire({
-                title: "Confirm Deposit",
-                text: "This simulates depositing PBJ into the game. (In production this requires a tx)",
-                showCancelButton: true,
-                confirmButtonText: "Simulate Deposit"
-            }).then((res) => {
-                if(res.isConfirmed) {
-                    walletBalance -= amount; // Visual update only
-                    gameBalance += amount;
-                    saveChips();
-                    updateUI();
-                    Swal.fire("Deposited", `${amount} Chips added.`, "success");
-                }
-            });
+            try {
+                const amountWei = ethers.utils.parseUnits(amountVal, 18);
+
+                Swal.fire({
+                    title: "Deposit PBJ",
+                    text: `Send ${amount} PBJ to Casino Treasury to get Chips?`,
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Confirm Deposit",
+                    confirmButtonColor: "#00ff2a"
+                }).then(async (res) => {
+                    if(res.isConfirmed) {
+                        Swal.fire({title: 'Processing Deposit...', didOpen: () => Swal.showLoading()});
+                        
+                        const tx = await pbjContract.transfer(TREASURY_ADDRESS, amountWei);
+                        
+                        Swal.fire({title: 'Waiting for confirmation...', text: 'Please wait...'});
+                        await tx.wait(); 
+
+                        gameBalance += amount;
+                        saveChips();
+                        
+                        await updateWalletData(); 
+                        Swal.fire("Success", `${amount} Chips added to your balance!`, "success");
+                    }
+                });
+            } catch(e) {
+                console.error(e);
+                Swal.fire("Error", "Transaction failed or rejected.", "error");
+            }
         }
 
         function withdrawChips() {
             const amount = parseFloat(document.getElementById('withdrawInput').value);
             if(amount > gameBalance) return Swal.fire("Error", "Insufficient Chips", "error");
             
+            // Aquí en una app real, debería llamar a un backend para firmar una tx de retiro de la tesorería
+            // Para este ejemplo, simulamos el retiro
             gameBalance -= amount;
-            walletBalance += amount; // Visual
+            walletBalance += amount; 
             saveChips();
             updateUI();
             Swal.fire("Withdrawn", `${amount} Chips converted to PBJ (Simulated).`, "success");
