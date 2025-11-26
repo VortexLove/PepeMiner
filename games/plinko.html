@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plinko Pro</title>
+    <title>Plinko | PepeBJ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
+        /* --- ESTILOS GENERALES --- */
         body { 
             background: transparent; color: white; font-family: 'Inter', sans-serif; 
             overflow: hidden; user-select: none;
@@ -23,10 +24,9 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
         }
 
-        /* PANEL IZQUIERDO */
+        /* PANEL IZQUIERDO (CONTROLES) */
         .controls { background: #0b1016; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #1f2937; z-index: 20; }
         
-        /* INPUTS */
         .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 4px; display: flex; align-items: center; }
         .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 8px; font-weight: bold; outline: none; }
         .select-clean { background: #05080a; border: 1px solid #1f2937; color: white; padding: 10px; border-radius: 8px; width: 100%; outline: none; font-weight: bold; cursor: pointer; }
@@ -36,10 +36,11 @@
             background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
             color: black; font-weight: 900; padding: 15px; border-radius: 10px;
             transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; cursor: pointer;
         }
         .btn-action:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 255, 42, 0.4); }
         .btn-action:active { transform: scale(0.98); }
+        .btn-action:disabled { background: #1f2937; color: #4b5563; cursor: not-allowed; box-shadow: none; transform: none; }
 
         /* STAGE & CANVAS */
         .stage { 
@@ -93,17 +94,17 @@
 </head>
 <body>
 
-    <!-- TOOLTIP FLOTANTE -->
+    <!-- AUDIO -->
+    <audio id="sfx-hit" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
+    <audio id="sfx-bigwin" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+
+    <!-- TOOLTIP -->
     <div id="hoverInfo">
         <div class="text-white font-bold text-sm" id="tipMult">100x</div>
         <div class="text-[10px] text-gray-400">Profit: <span id="tipProfit" class="text-green-400 font-bold">0.00</span></div>
         <div class="text-[10px] text-gray-400">Chance: <span id="tipChance" class="text-yellow-400 font-bold">0.00%</span></div>
     </div>
-
-    <!-- AUDIO -->
-    <audio id="sfx-hit" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
-    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
-    <audio id="sfx-bigwin" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 
     <div class="game-card" id="mainCard">
         <!-- CONTROLES -->
@@ -115,8 +116,8 @@
             <!-- Bet Amount -->
             <div>
                 <label class="text-[10px] uppercase font-bold text-gray-500">Bet Amount</label>
-                <div class="input-group">
-                    <input type="number" id="betInput" value="10" class="input-clean">
+                <div class="input-group focus-within:border-[#00ff2a] transition">
+                    <input type="number" id="betInput" value="10" min="1" class="input-clean">
                     <button onclick="adjBet(0.5)" class="text-gray-500 hover:text-white text-xs font-bold px-2">½</button>
                     <button onclick="adjBet(2)" class="text-gray-500 hover:text-white text-xs font-bold px-2">2x</button>
                 </div>
@@ -144,20 +145,20 @@
                 </select>
             </div>
 
-            <!-- Stats -->
-            <div class="mt-auto grid grid-cols-2 gap-2">
-                <div class="bg-white/5 p-2 rounded text-center">
+            <!-- Stats & Balance -->
+            <div class="mt-auto space-y-2">
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Balance</p>
+                    <p class="text-sm font-bold text-white font-mono" id="gameBalance">---</p>
+                </div>
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
                     <p class="text-[9px] text-gray-500 uppercase">Max Profit</p>
                     <p class="text-sm font-bold text-[#00ff2a]" id="uiMaxProfit">0.00</p>
-                </div>
-                <div class="bg-white/5 p-2 rounded text-center">
-                    <p class="text-[9px] text-gray-500 uppercase">Balance</p>
-                    <p class="text-sm font-bold text-white" id="gameBalance">Loading...</p>
                 </div>
             </div>
 
             <button onclick="play()" id="playBtn" class="btn-action">
-                <span id="btnText">PLAY</span>
+                PLAY
             </button>
         </div>
 
@@ -169,38 +170,64 @@
     </div>
 
     <script>
-        // --- INFRAESTRUCTURA PADRE ---
+        // ==================================================================
+        // 1. COMUNICACIÓN CON EL CASINO (PADRE)
+        // ==================================================================
         let currentBalance = 0;
+
+        // Escuchar mensajes del Index principal
         window.addEventListener('message', (e) => {
-            if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
-                currentBalance = e.data.balance;
-                document.getElementById('gameBalance').innerText = currentBalance.toFixed(2);
+            if (e.data.type === 'INIT_BALANCE') {
+                updateBalance(e.data.balance);
+                console.log("Plinko initialized with: " + e.data.balance);
+            } 
+            else if (e.data.type === 'SYNC_BALANCE') {
+                updateBalance(e.data.balance);
             }
         });
-        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // --- MOTOR PLINKO ---
+        // Actualizar UI interna
+        function updateBalance(newBal) {
+            currentBalance = parseFloat(newBal);
+            document.getElementById('gameBalance').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        // Enviar actualización de saldo al Padre
+        function updateParent(amount) {
+            // amount es negativo para apuestas, positivo para ganancias
+            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
+        }
+
+        // ==================================================================
+        // 2. LÓGICA DEL JUEGO PLINKO
+        // ==================================================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('stageContainer');
 
-        // Configuración
         let config = { rows: 16, risk: 'medium' };
         
-        // Tablas de Multiplicadores (Stake Clone)
+        // Tablas de Pagos (Multiplicadores)
         const PAYOUTS = {
-            low: { 16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16], 8: [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6] },
-            medium: { 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110], 8: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13] },
-            high: { 16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000], 8: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29] }
+            low: { 16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16] },
+            medium: { 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110] },
+            high: { 16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000] }
         };
 
-        // Estado del Juego
+        // Generador de Arrays Simples para filas menores (Fallback para evitar errores si faltan datos)
+        function getPayouts(rows, risk) {
+            if(PAYOUTS[risk] && PAYOUTS[risk][rows]) return PAYOUTS[risk][rows];
+            // Generar dummy si no existe la config exacta
+            const arr = [];
+            for(let i=0; i<=rows; i++) arr.push(i === 0 || i === rows ? (rows*2) : 0.5);
+            return arr;
+        }
+
         let pegs = [];
         let balls = [];
         let particles = [];
-        let bucketEls = []; // Elementos HTML
+        let bucketEls = []; 
 
-        // INIT
         window.onload = () => {
             updateConfig();
             animate();
@@ -216,32 +243,24 @@
         function updateConfig() {
             config.rows = parseInt(document.getElementById('rowsSelect').value);
             config.risk = document.getElementById('riskSelect').value;
-            
-            // Fallback para filas intermedias (10, 12, 14) usando interpolación simple o defaulting a 16
-            // Para este ejemplo usaremos las tablas de 16 y 8, y si no existe, simulamos
-            if(!PAYOUTS[config.risk][config.rows]) {
-                // Generar tabla dummy si no está hardcodeada
-                let arr = [];
-                for(let i=0; i<=config.rows; i++) arr.push(1.5); 
-                PAYOUTS[config.risk][config.rows] = arr;
-            }
+            document.getElementById('rowsVal').innerText = config.rows;
 
             renderBuckets();
             resize();
             
-            // UI Update
+            // Update Max Profit Text
             const bet = parseFloat(document.getElementById('betInput').value || 0);
-            const maxM = Math.max(...PAYOUTS[config.risk][config.rows]);
+            const mults = getPayouts(config.rows, config.risk);
+            const maxM = Math.max(...mults);
             document.getElementById('uiMaxProfit').innerText = (bet * maxM).toLocaleString();
         }
 
-        // --- GEOMETRÍA & FÍSICA ---
         function initGeometry() {
             pegs = [];
             const rows = config.rows;
             const startY = 40;
-            const availableH = canvas.height - startY - 50; // 50px para buckets
-            const gap = Math.min(availableH / rows, 40); // Limitar tamaño max
+            const availableH = canvas.height - startY - 50; 
+            const gap = Math.min(availableH / rows, 40); 
             config.gap = gap;
             config.startY = startY;
             config.finishY = startY + (rows * gap) + gap/2;
@@ -261,7 +280,7 @@
         function renderBuckets() {
             const container = document.getElementById('bucketsContainer');
             container.innerHTML = '';
-            const mults = PAYOUTS[config.risk][config.rows];
+            const mults = getPayouts(config.rows, config.risk);
             bucketEls = [];
 
             mults.forEach((val, i) => {
@@ -269,7 +288,6 @@
                 el.className = 'bucket';
                 el.innerText = val + 'x';
                 
-                // Colores
                 let bg1='#374151', bg2='#1f2937';
                 if(val >= 1) { bg1='#10b981'; bg2='#047857'; }
                 if(val >= 10) { bg1='#eab308'; bg2='#a16207'; }
@@ -279,7 +297,6 @@
                 el.style.background = `linear-gradient(180deg, ${bg1}, ${bg2})`;
                 el.style.color = val >= 10 || val < 1 ? 'white' : 'black';
                 
-                // HOVER LOGIC
                 el.onmouseenter = (e) => showTooltip(e, val, i, config.rows);
                 el.onmouseleave = () => document.getElementById('hoverInfo').style.opacity = 0;
 
@@ -288,26 +305,26 @@
             });
         }
 
-        // --- LÓGICA DE JUEGO ---
         function play() {
-            const bet = parseFloat(document.getElementById('betInput').value);
-            if(bet > currentBalance) return alert("Saldo insuficiente");
-            if(bet <= 0) return;
+            const betInput = document.getElementById('betInput');
+            const bet = parseFloat(betInput.value);
 
-            updateParent(-bet);
-            
-            // DETERMINAR RESULTADO (PRE-CÁLCULO PARA HOUSE EDGE)
-            // Usamos distribución normal para determinar dónde cae
-            // 0 = Izquierda, 1 = Derecha. Sumamos pasos a la derecha.
-            // Para house edge, simplemente usamos la probabilidad matemática real.
-            // El array de multiplicadores es simétrico.
-            
-            const path = [];
-            for(let i=0; i<config.rows; i++) {
-                // 50/50 puro es lo justo en Plinko físico.
-                // La ventaja de la casa viene de que los premios centrales pagan < 1.0
-                path.push(Math.random() < 0.5 ? -0.5 : 0.5); 
+            // 1. VALIDACIONES
+            if(isNaN(bet) || bet <= 0) return;
+            if(bet > currentBalance) {
+                // Efecto visual de error
+                betInput.style.borderColor = 'red';
+                setTimeout(() => betInput.style.borderColor = '#1f2937', 500);
+                return;
             }
+
+            // 2. DEDUCIR SALDO (Local y Remoto)
+            updateBalance(currentBalance - bet);
+            updateParent(-bet); // Enviar número negativo para restar
+
+            // 3. LOGICA DE LA BOLA
+            const path = [];
+            for(let i=0; i<config.rows; i++) path.push(Math.random() < 0.5 ? -0.5 : 0.5); 
 
             balls.push({
                 x: canvas.width / 2, y: 10,
@@ -319,7 +336,6 @@
                 trail: []
             });
 
-            // Animación botón
             const btn = document.getElementById('playBtn');
             btn.style.transform = "scale(0.95)";
             setTimeout(() => btn.style.transform = "scale(1)", 100);
@@ -328,7 +344,7 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // DIBUJAR CLAVOS
+            // Pegs
             pegs.forEach(p => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
@@ -343,45 +359,33 @@
             });
             ctx.shadowBlur = 0;
 
-            // DIBUJAR BOLAS
+            // Balls
             for(let i=balls.length-1; i>=0; i--) {
                 const b = balls[i];
-                
-                // Física Simulada
-                b.vy += 0.25; // Gravedad
-                b.y += b.vy;
-                b.x += b.vx;
+                b.vy += 0.25; b.y += b.vy; b.x += b.vx;
 
-                // Colisión con Fila Virtual
                 const targetY = config.startY + (b.row * config.gap);
                 
                 if(b.y > targetY - 5 && b.row < config.rows) {
-                    // Impacto
-                    const dir = b.path[b.row]; // -0.5 (Izq) o 0.5 (Der)
-                    const noise = (Math.random() - 0.5) * 0.3; // Variación natural
-                    
+                    const dir = b.path[b.row]; 
+                    const noise = (Math.random() - 0.5) * 0.3;
                     b.vx = (dir * 2) + noise; 
-                    b.vy *= 0.55; // Pérdida de energía
+                    b.vy *= 0.55; 
                     b.row++;
 
-                    // Iluminar clavo cercano
-                    const peg = findNearestPeg(b.x, b.y);
-                    if(peg) {
-                        peg.glow = 1;
-                        playAudio('sfx-hit', 0.1);
-                    }
+                    // Find Peg
+                    const peg = pegs.find(p => Math.abs(p.y - b.y) < 20 && Math.abs(p.x - b.x) < 20);
+                    if(peg) { peg.glow = 1; playAudio('sfx-hit', 0.1); }
                 }
 
-                // Finalizar Bola
                 if(b.y > config.finishY) {
                     resolveBall(b, i);
                     continue;
                 }
 
-                // Dibujar Rastro (Trail)
+                // Trail
                 b.trail.push({x: b.x, y: b.y, alpha: 1});
                 if(b.trail.length > 10) b.trail.shift();
-                
                 ctx.beginPath();
                 for(let t=0; t<b.trail.length-1; t++) {
                     const pt = b.trail[t];
@@ -392,7 +396,7 @@
                     pt.alpha -= 0.1;
                 }
 
-                // Dibujar Bola
+                // Ball Body
                 ctx.beginPath();
                 ctx.arc(b.x, b.y, 5, 0, Math.PI*2);
                 ctx.fillStyle = b.color;
@@ -401,9 +405,7 @@
                 ctx.shadowBlur = 0;
             }
 
-            // DIBUJAR PARTÍCULAS
             updateParticles();
-
             requestAnimationFrame(animate);
         }
 
@@ -411,29 +413,27 @@
             balls.splice(idx, 1);
             
             const rightMoves = b.path.filter(m => m === 0.5).length;
-            const mults = PAYOUTS[config.risk][config.rows];
-            // Asegurar índice dentro de rango (seguridad)
+            const mults = getPayouts(config.rows, config.risk);
             const safeIdx = Math.max(0, Math.min(rightMoves, mults.length - 1));
             const val = mults[safeIdx];
             
             const payout = b.bet * val;
-            updateParent(payout);
 
-            // Visuals
+            // 4. SUMAR GANANCIA (Local y Remota)
+            if(payout > 0) {
+                updateBalance(currentBalance + payout);
+                updateParent(payout); // Enviar número positivo para sumar
+            }
+
             spawnText(b.x, config.finishY - 20, payout, val);
             
-            // Animar Bucket HTML
             const el = bucketEls[safeIdx];
             if(el) {
                 el.style.transform = "translateY(-10px) scale(1.3)";
                 el.style.filter = "brightness(2)";
-                setTimeout(() => {
-                    el.style.transform = "none";
-                    el.style.filter = "none";
-                }, 200);
+                setTimeout(() => { el.style.transform = "none"; el.style.filter = "none"; }, 200);
             }
 
-            // Sonidos y Efectos
             if(val >= 10) {
                 playAudio('sfx-bigwin');
                 document.getElementById('mainCard').classList.add('shake');
@@ -445,25 +445,12 @@
         }
 
         // --- UTILS ---
-        function findNearestPeg(x, y) {
-            // Optimización: buscar solo en el array cerca de la Y
-            // Aquí búsqueda simple para demo
-            return pegs.find(p => Math.abs(p.y - y) < 15 && Math.abs(p.x - x) < 15);
-        }
-
         function spawnText(x, y, amount, mult) {
             const div = document.createElement('div');
             div.className = 'pop-text';
-            div.style.left = x + 'px'; // Relativo al contenedor del canvas, que coincide
-            // Ajuste manual de posición X porque el canvas está centrado
-            // Mejor usar getBoundingClientRect si fuera layout complejo
-            // Aquí asumimos stage centrado:
-            const rect = canvas.getBoundingClientRect();
             div.style.left = x + 'px'; 
             div.style.top = (y - 40) + 'px';
-            
             div.innerHTML = mult < 1 ? `<span class="text-gray-400 font-bold">${mult}x</span>` : `<span class="text-[#00ff2a]">+${amount.toFixed(2)}</span>`;
-            
             document.getElementById('stageContainer').appendChild(div);
             setTimeout(() => div.remove(), 1000);
         }
@@ -472,10 +459,8 @@
             for(let i=0; i<20; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random()-0.5) * 8,
-                    vy: (Math.random()-1) * 8,
-                    color: `hsl(${Math.random()*360}, 100%, 50%)`,
-                    life: 1
+                    vx: (Math.random()-0.5) * 8, vy: (Math.random()-1) * 8,
+                    color: `hsl(${Math.random()*360}, 100%, 50%)`, life: 1
                 });
             }
         }
@@ -483,15 +468,11 @@
         function updateParticles() {
             for(let i=particles.length-1; i>=0; i--) {
                 let p = particles[i];
-                p.x += p.vx; p.y += p.vy;
-                p.vy += 0.2; // Gravedad
-                p.life -= 0.03;
+                p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= 0.03;
                 if(p.life <= 0) particles.splice(i, 1);
                 else {
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = p.life;
-                    ctx.fillRect(p.x, p.y, 4, 4);
-                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
+                    ctx.fillRect(p.x, p.y, 4, 4); ctx.globalAlpha = 1;
                 }
             }
         }
@@ -499,23 +480,17 @@
         function adjBet(m) {
             const el = document.getElementById('betInput');
             let v = parseFloat(el.value) * m;
-            if(v<1) v=1; el.value = v.toFixed(0);
+            if(v<1) v=1; el.value = v.toFixed(2);
+            updateConfig(); // Update max profit display
         }
 
         function playAudio(id, vol=0.5) {
             const el = document.getElementById(id);
-            if(el) {
-                const clone = el.cloneNode();
-                clone.volume = vol;
-                clone.play().catch(()=>{});
-            }
+            if(el) { const clone = el.cloneNode(); clone.volume = vol; clone.play().catch(()=>{}); }
         }
 
-        // TOOLTIP MATHS
+        // Tooltip Logic
         function getBinomialProbability(n, k) {
-            // n = filas, k = posición (0 a n)
-            // Coeficiente binomial: n! / (k! * (n-k)!)
-            // Probabilidad = Coef * (0.5)^n
             let coeff = 1;
             for (let x = n - k + 1; x <= n; x++) coeff *= x;
             for (let x = 1; x <= k; x++) coeff /= x;
@@ -525,22 +500,17 @@
         function showTooltip(e, val, index, rows) {
             const tip = document.getElementById('hoverInfo');
             const bet = parseFloat(document.getElementById('betInput').value || 0);
-            
-            // Calcular probabilidad real
             const prob = (getBinomialProbability(rows, index) * 100).toFixed(4);
-            const profit = (bet * val).toFixed(2);
             
             document.getElementById('tipMult').innerText = val + 'x';
-            document.getElementById('tipProfit').innerText = profit;
+            document.getElementById('tipProfit').innerText = (bet * val).toFixed(2);
             document.getElementById('tipChance').innerText = prob + '%';
 
-            // Posicionar
             const rect = e.target.getBoundingClientRect();
             tip.style.left = (rect.left + rect.width/2) + 'px';
             tip.style.top = (rect.top - 10) + 'px';
             tip.style.opacity = 1;
         }
-
     </script>
 </body>
 </html>
