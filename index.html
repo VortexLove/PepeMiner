@@ -201,6 +201,10 @@
                     
                     <div class="grid lg:grid-cols-2 gap-12 items-center relative z-10">
                         <div>
+                            <div class="flex gap-2 mb-4 animate-bounce">
+                                <span class="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded uppercase shadow-[0_0_10px_#dc2626]">Selling Fast</span>
+                                <span class="bg-neon text-black text-[10px] font-black px-3 py-1 rounded uppercase shadow-[0_0_10px_#00ff2a]">Presale Live</span>
+                            </div>
                             <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 brand-font leading-tight">
                                 OWN THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff2a] to-emerald-500">CASINO</span>
                             </h1>
@@ -299,9 +303,7 @@
                         </div>
                         <button onclick="showSection('nft')" class="text-xs font-bold bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full transition">View Vault <i class="fas fa-arrow-right"></i></button>
                     </div>
-                    <div id="homeNftGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                        <div class="col-span-full text-center py-10"><i class="fas fa-circle-notch animate-spin text-neon text-2xl"></i></div>
-                    </div>
+                    <div id="homeNftGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"></div>
                 </div>
             </div>
 
@@ -344,16 +346,9 @@
             <div id="partnersSection" class="hidden w-full max-w-5xl mx-auto p-4 md:p-8 fade-in flex-1">
                 <div class="bg-gradient-to-b from-[#1a242d] to-black border border-white/10 rounded-3xl p-8 shadow-2xl text-center relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-600 to-yellow-300"></div>
-                    
                     <i class="fas fa-handshake text-6xl text-gold mb-4 animate-bounce"></i>
                     <h2 class="text-4xl md:text-5xl font-black text-white mb-6 brand-font">EARN MONEY WITH <br><span class="text-gold">PEPE'S AFFILIATE PROGRAM!</span> 🐸</h2>
-                    
-                    <p class="text-gray-300 text-lg max-w-3xl mx-auto mb-8">
-                        Want to become a crypto tycoon and earn passive income? Join the Pepe's Affiliate Program and start generating revenue today!
-                        Earn up to <span class="text-green-400 font-bold">50% Revenue Share</span> for every player you bring.
-                    </p>
-
-                    <!-- Referral Link Box -->
+                    <p class="text-gray-300 text-lg max-w-3xl mx-auto mb-8">Want to become a crypto tycoon? Join the Pepe's Affiliate Program and earn up to <span class="text-green-400 font-bold">50% Revenue Share</span> for every player you bring.</p>
                     <div class="bg-[#0b1016] border border-gold/30 rounded-2xl p-6 max-w-2xl mx-auto mb-12">
                         <p class="text-sm text-gray-400 mb-2 uppercase font-bold">Your Unique Referral Link</p>
                         <div class="flex items-center gap-2">
@@ -361,42 +356,14 @@
                             <button onclick="copyRefLink()" class="bg-gold text-black font-bold px-4 py-3 rounded-lg hover:bg-yellow-400 transition"><i class="fas fa-copy"></i></button>
                         </div>
                     </div>
-
-                    <!-- Tiers Grid -->
                     <div class="grid md:grid-cols-3 gap-6 text-left mb-12">
-                        <div class="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-neon/50 transition">
-                            <h3 class="text-xl font-bold text-white mb-2">Tier 1: Scout</h3>
-                            <p class="text-2xl font-black text-neon mb-2">30% Comm</p>
-                            <p class="text-sm text-gray-400">0-10 Active Players</p>
-                        </div>
-                        <div class="bg-white/5 border border-white/10 p-6 rounded-xl hover:border-blue-400/50 transition">
-                            <h3 class="text-xl font-bold text-white mb-2">Tier 2: Captain</h3>
-                            <p class="text-2xl font-black text-blue-400 mb-2">40% Comm</p>
-                            <p class="text-sm text-gray-400">11-50 Active Players</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-yellow-900/20 to-black border border-gold/50 p-6 rounded-xl shadow-[0_0_20px_rgba(255,215,0,0.1)]">
-                            <h3 class="text-xl font-bold text-gold mb-2">Tier 3: Whale</h3>
-                            <p class="text-2xl font-black text-white mb-2">50% Comm</p>
-                            <p class="text-sm text-gray-400">51+ Active Players</p>
-                        </div>
+                        <div class="bg-white/5 border border-white/10 p-6 rounded-xl"><h3 class="text-xl font-bold text-white mb-2">Tier 1: Scout</h3><p class="text-2xl font-black text-neon mb-2">30% Comm</p><p class="text-sm text-gray-400">0-10 Active Players</p></div>
+                        <div class="bg-white/5 border border-white/10 p-6 rounded-xl"><h3 class="text-xl font-bold text-white mb-2">Tier 2: Captain</h3><p class="text-2xl font-black text-blue-400 mb-2">40% Comm</p><p class="text-sm text-gray-400">11-50 Active Players</p></div>
+                        <div class="bg-gradient-to-br from-yellow-900/20 to-black border border-gold/50 p-6 rounded-xl"><h3 class="text-xl font-bold text-gold mb-2">Tier 3: Whale</h3><p class="text-2xl font-black text-white mb-2">50% Comm</p><p class="text-sm text-gray-400">51+ Active Players</p></div>
                     </div>
-
-                    <!-- Features -->
                     <div class="grid md:grid-cols-2 gap-8 text-left text-sm text-gray-300 bg-black/30 p-6 rounded-2xl">
-                        <div class="flex gap-3">
-                            <i class="fas fa-ban text-red-500 text-xl"></i>
-                            <div>
-                                <h4 class="font-bold text-white mb-1">🚫 Zero Risk: NO NEGATIVE CARRYOVER</h4>
-                                <p>If your players win big and your balance is negative at month's end, we wipe the debt! Your balance resets to $0 on the 1st.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-3">
-                            <i class="fas fa-calendar-check text-green-500 text-xl"></i>
-                            <div>
-                                <h4 class="font-bold text-white mb-1">🗓️ Weekly Payments</h4>
-                                <p>Receive your earnings every Monday in $PBJ or ETH (Base Network). Minimum withdrawal is only $10!</p>
-                            </div>
-                        </div>
+                        <div class="flex gap-3"><i class="fas fa-ban text-red-500 text-xl"></i><div><h4 class="font-bold text-white mb-1">🚫 Zero Risk</h4><p>NO NEGATIVE CARRYOVER. We wipe the debt monthly!</p></div></div>
+                        <div class="flex gap-3"><i class="fas fa-calendar-check text-green-500 text-xl"></i><div><h4 class="font-bold text-white mb-1">🗓️ Weekly Payments</h4><p>Receive earnings every Monday in $PBJ or ETH.</p></div></div>
                     </div>
                 </div>
             </div>
@@ -479,7 +446,6 @@
                     </div>
                 </div>
             </footer>
-
         </main>
 
         <!-- 4. RIGHT CHAT SIDEBAR -->
@@ -507,7 +473,7 @@
         const CHAIN_HEX = "0x2105";
         const RATE = 1000000; // 1 ETH = 1,000,000 PBJ
 
-        const PBJ_ABI = ["function balanceOf(address) view returns (uint256)", "function transfer(address recipient, uint256 amount) returns (bool)", "function approve(address, uint256) returns (bool)", "function allowance(address, address) view returns (uint256)"];
+        const PBJ_ABI = ["function balanceOf(address) view returns (uint256)", "function transfer(address recipient, uint256 amount) returns (bool)", "function approve(address, uint256) returns (bool)", "function allowance(address, address) view returns (uint256)", "function decimals() view returns (uint8)"];
         const NFT_ABI = ["function tierInfo(uint256) view returns (uint256 price, uint256 rewardPerSec, bool active)", "function mint(uint256 _id, uint256 _amount)", "function stake(uint256 _id, uint256 _amount)", "function unstake(uint256 _id, uint256 _amount)", "function claim()", "function getPendingRewards(address _user) view returns (uint256)", "function balanceOf(address, uint256) view returns (uint256)", "function getStakedBalance(address _user, uint256 _id) view returns (uint256)", "function isApprovedForAll(address account, address operator) view returns (bool)", "function setApprovalForAll(address operator, bool approved)"];
 
         // --- STATE ---
@@ -515,13 +481,17 @@
         let pbjContract, nftContract;
         let gameBalance = 0; 
         let walletBalance = 0;
-        let swapMode = 'buy'; // 'buy' or 'sell'
+        let swapMode = 'buy';
 
         // --- INIT ---
         window.onload = () => {
             const savedChips = localStorage.getItem('pepe_chips');
             if(savedChips) gameBalance = parseFloat(savedChips);
             updateUI();
+            
+            // Render NFTs Immediately (Static)
+            renderNftMintOptions();
+
             if(window.ethereum) {
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 window.ethereum.request({ method: 'eth_accounts' }).then(accounts => { if (accounts.length > 0) connectWallet(); });
@@ -567,7 +537,7 @@
             } else { sidebar.classList.toggle('open'); }
         }
 
-        // --- WEB3 & WALLET ---
+        // --- WEB3 ---
         async function connectWallet() {
             if(!window.ethereum) return Swal.fire("Error", "Install MetaMask", "error");
             try {
@@ -583,12 +553,11 @@
                 nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
                 
                 updateWalletData();
-                renderNftMintOptions();
                 
                 const swapBtn = document.getElementById('swapMainBtn');
                 if(swapBtn) swapBtn.innerText = "SWAP ETH FOR PBJ";
 
-                // Generar Link de Referido
+                // Generate Referral Link
                 document.getElementById('referralLinkInput').value = window.location.origin + "/?ref=" + userAddress;
 
                 window.ethereum.on('accountsChanged', () => window.location.reload());
@@ -596,21 +565,18 @@
             } catch (e) { console.error(e); }
         }
 
-            async function updateWalletData() {
+        async function updateWalletData() {
             if(!userAddress) return;
             const rawBal = await pbjContract.balanceOf(userAddress);
             walletBalance = parseFloat(ethers.utils.formatEther(rawBal));
             const ethRaw = await provider.getBalance(userAddress);
             const ethBal = parseFloat(ethers.utils.formatEther(ethRaw)).toFixed(4);
             
-            // Actualizaciones de UI
             document.getElementById('userNameDisplay').innerText = userAddress.substring(0,6) + "...";
             document.getElementById('headerWalletBal').innerText = walletBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
             document.getElementById('cashierWalletBal').innerText = walletBalance.toLocaleString();
             
-            // --- LA CORRECCIÓN ESTÁ AQUÍ ABAJO ---
-            // Eliminé la línea vieja 'ethBalDisplay' y dejamos solo la lógica dinámica:
-            
+            // Dynamic Label Update for Swap
             if(swapMode === 'buy') {
                 const el = document.getElementById('balInputA');
                 if(el) el.innerText = ethBal;
@@ -621,6 +587,7 @@
             
             updateUI();
         }
+
         function updateUI() {
             const chips = gameBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('headerGameBal').innerText = chips;
@@ -628,7 +595,7 @@
             document.getElementById('cashierGameBal').innerText = chips;
         }
 
-        // --- SWAP LOGIC (BIDIRECTIONAL & SELL TAB) ---
+        // --- SWAP LOGIC ---
         function toggleSwapMode(mode) {
             swapMode = mode;
             const btn = document.getElementById('swapMainBtn');
@@ -636,7 +603,6 @@
             const tokenBDiv = document.getElementById('tokenB');
             const labelA = document.getElementById('labelInputA');
             
-            // Reset Values
             document.getElementById('inputA').value = '';
             document.getElementById('inputB').value = '';
 
@@ -659,41 +625,28 @@
                 btn.classList.add('opacity-50', 'cursor-not-allowed');
                 btn.disabled = true;
             }
-            if(userAddress) updateWalletData(); // Refresh balances displayed
+            if(userAddress) updateWalletData();
         }
 
         function handleInputA() {
             const valA = parseFloat(document.getElementById('inputA').value);
             if(isNaN(valA)) { document.getElementById('inputB').value = ''; return; }
-            
-            if(swapMode === 'buy') {
-                // ETH to PBJ
-                document.getElementById('inputB').value = (valA * RATE).toLocaleString(undefined, {useGrouping:false});
-            } else {
-                // PBJ to ETH (Visual calculation only)
-                document.getElementById('inputB').value = (valA / RATE).toFixed(6);
-            }
+            if(swapMode === 'buy') document.getElementById('inputB').value = (valA * RATE).toLocaleString(undefined, {useGrouping:false});
+            else document.getElementById('inputB').value = (valA / RATE).toFixed(6);
         }
 
         function handleInputB() {
-            // Remove potential commas from display if user types them
             const valBStr = document.getElementById('inputB').value.replace(/,/g, '');
             const valB = parseFloat(valBStr);
             if(isNaN(valB)) { document.getElementById('inputA').value = ''; return; }
-
-            if(swapMode === 'buy') {
-                // PBJ to ETH
-                document.getElementById('inputA').value = (valB / RATE).toFixed(6);
-            } else {
-                // ETH to PBJ
-                document.getElementById('inputA').value = (valB * RATE).toLocaleString(undefined, {useGrouping:false});
-            }
+            if(swapMode === 'buy') document.getElementById('inputA').value = (valB / RATE).toFixed(6);
+            else document.getElementById('inputA').value = (valB * RATE).toLocaleString(undefined, {useGrouping:false});
         }
 
         async function handleSwapAction() {
-            if(swapMode === 'sell') return; // Locked
+            if(swapMode === 'sell') return; 
             if(!userAddress) return connectWallet();
-            const val = document.getElementById('inputA').value; // In Buy mode, this is ETH
+            const val = document.getElementById('inputA').value; 
             if(!val || val <= 0) return;
 
             try {
@@ -716,29 +669,30 @@
         }
 
         // --- NFT LOGIC ---
-        const TIER_NAMES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
-        const TIER_IMGS = ["common", "uncommon", "rare", "epic", "legendary"];
+        // Static data for immediate display
+        const NFT_LEVELS = [
+            {name: "Common", price: "5,000", img: "common"},
+            {name: "Uncommon", price: "10,000", img: "uncommon"},
+            {name: "Rare", price: "25,000", img: "rare"},
+            {name: "Epic", price: "50,000", img: "epic"},
+            {name: "Legendary", price: "100,000", img: "legendary"}
+        ];
 
-        async function renderNftMintOptions() {
+        function renderNftMintOptions() {
             let html = "";
-            for(let i=0; i<5; i++) {
-                let price = "Loading...";
-                try {
-                    const info = await nftContract.tierInfo(i);
-                    price = ethers.utils.formatEther(info.price);
-                } catch(e) {}
+            NFT_LEVELS.forEach((tier, i) => {
                 html += `<div class="nft-card group">
                     <div class="h-48 relative overflow-hidden bg-black">
-                        <img src="assets/img/nft-${TIER_IMGS[i]}.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="${TIER_NAMES[i]}">
+                        <img src="assets/img/nft-${tier.img}.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110" alt="${tier.name}">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 pointer-events-none"></div>
-                        <span class="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded border border-white/10 uppercase font-bold z-10 pointer-events-none">${TIER_NAMES[i]}</span>
+                        <span class="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded border border-white/10 uppercase font-bold z-10 pointer-events-none">${tier.name}</span>
                     </div>
                     <div class="p-4">
-                        <div class="flex justify-between text-xs mb-2 text-gray-400"><span>Price</span><span class="text-white font-bold">${parseFloat(price).toLocaleString()} PBJ</span></div>
-                        <button onclick="mintNft(${i}, '${price}')" class="w-full bg-white/5 hover:bg-white/20 border border-white/10 text-white py-2 rounded font-bold transition text-xs mt-2">MINT</button>
+                        <div class="flex justify-between text-xs mb-2 text-gray-400"><span>Price</span><span class="text-white font-bold">${tier.price} PBJ</span></div>
+                        <button onclick="mintNft(${i}, '${tier.price.replace(',','')}')" class="w-full bg-white/5 hover:bg-white/20 border border-white/10 text-white py-2 rounded font-bold transition text-xs mt-2">MINT</button>
                     </div>
                 </div>`;
-            }
+            });
             if(document.getElementById('homeNftGrid')) document.getElementById('homeNftGrid').innerHTML = html;
             if(document.getElementById('nftMintView')) document.getElementById('nftMintView').innerHTML = html;
         }
@@ -751,7 +705,7 @@
                 if(allowance.lt(priceWei)) {
                     Swal.fire({title: 'Approve PBJ', didOpen:()=>Swal.showLoading()});
                     const txApp = await pbjContract.approve(NFT_ADDRESS, ethers.constants.MaxUint256);
-                    await txApprove.wait();
+                    await txApp.wait();
                 }
                 Swal.fire({title: 'Minting...', didOpen:()=>Swal.showLoading()});
                 const txMint = await nftContract.mint(id, 1);
@@ -769,6 +723,7 @@
             try {
                 const pending = await nftContract.getPendingRewards(userAddress);
                 document.getElementById('pendingRewards').innerText = parseFloat(ethers.utils.formatEther(pending)).toFixed(4);
+                
                 for(let i=0; i<5; i++) {
                     const balance = await nftContract.balanceOf(userAddress, i);
                     const staked = await nftContract.getStakedBalance(userAddress, i);
@@ -777,10 +732,10 @@
                     if(balNum > 0 || stakedNum > 0) {
                         html += `<div class="nft-card border border-white/10">
                             <div class="h-32 bg-black relative overflow-hidden">
-                                <img src="assets/img/nft-${TIER_IMGS[i]}.png" class="w-full h-full object-cover opacity-80" alt="${TIER_NAMES[i]}">
+                                <img src="assets/img/nft-${NFT_LEVELS[i].img}.png" class="w-full h-full object-cover opacity-80" alt="${NFT_LEVELS[i].name}">
                             </div>
                             <div class="p-3 text-center">
-                                <h4 class="font-bold text-xs text-white mb-2">${TIER_NAMES[i]}</h4>
+                                <h4 class="font-bold text-xs text-white mb-2">${NFT_LEVELS[i].name}</h4>
                                 <div class="grid grid-cols-2 gap-2 text-[10px]">
                                     <div class="bg-black/40 p-1 rounded"><div class="text-gray-500">Wallet</div><div class="text-white font-bold">${balNum}</div>${balNum > 0 ? `<button onclick="stakeNft(${i})" class="mt-1 w-full bg-green-500/20 text-green-400 hover:bg-green-500/40 rounded py-1">STAKE</button>` : ''}</div>
                                     <div class="bg-black/40 p-1 rounded border border-neon/20"><div class="text-neon">Staked</div><div class="text-white font-bold">${stakedNum}</div>${stakedNum > 0 ? `<button onclick="unstakeNft(${i})" class="mt-1 w-full bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded py-1">UNSTAKE</button>` : ''}</div>
