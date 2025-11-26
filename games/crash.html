@@ -3,80 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash | PepeCasino</title>
+    <title>Crash Pro | PepeCasino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     
     <style>
         body { 
-            background: transparent; 
-            color: white; 
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            user-select: none;
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: transparent; color: white; font-family: 'Inter', sans-serif;
+            overflow: hidden; user-select: none; height: 100vh; margin: 0;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .game-wrapper {
-            width: 100%;
-            max-width: 1100px;
-            height: 650px;
-            background: #121924;
-            border: 1px solid #1f2937;
-            border-radius: 20px;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 100%; max-width: 1100px; height: 650px;
+            background: #121924; border: 1px solid #1f2937; border-radius: 20px;
+            display: grid; grid-template-columns: 300px 1fr;
+            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* Panel de Control */
-        .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; }
+        /* PANEL CONTROL */
+        .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; z-index: 20; }
         
         .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
         .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 10px; font-weight: bold; outline: none; }
 
-        /* Escenario */
-        .stage { position: relative; background: radial-gradient(circle at 10% 90%, #1a2530 0%, #05080a 70%); flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-
-        /* Botón gigante */
         .btn-action {
             width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; font-size: 1.2rem;
-            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px;
+            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; position: relative; overflow: hidden;
         }
         .btn-bet { background: #00ff2a; color: black; box-shadow: 0 0 20px rgba(0,255,42,0.2); }
-        .btn-bet:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,255,42,0.4); }
-        .btn-cashout { background: #eab308; color: black; box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
-        .btn-cashout:hover { filter: brightness(1.1); }
+        .btn-bet:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0,255,42,0.5); }
+        .btn-cashout { background: #eab308; color: black; box-shadow: 0 0 20px rgba(234, 179, 8, 0.4); animation: pulse 1s infinite; }
         
-        .btn-disabled { background: #374151; color: #9ca3af; cursor: not-allowed; box-shadow: none; }
+        .btn-disabled { background: #374151; color: #9ca3af; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 
-        /* UI Flotante */
-        .crash-info { position: absolute; top: 20px; right: 20px; text-align: right; }
-        .history-pill { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 5px; background: #374151; }
-        .history-pill.win { background: #00ff2a; color: black; }
-        .history-pill.lose { background: #ef4444; color: white; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
 
-        /* Canvas */
-        #crashCanvas { width: 100%; height: 100%; }
+        /* ESCENARIO */
+        .stage { position: relative; background: #0f172a; flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        canvas { width: 100%; height: 100%; display: block; }
 
-        /* Mobile */
+        /* OVERLAYS UI */
+        .overlay-ui { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        .mult-number { font-size: 5rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif; tabular-nums; transition: color 0.2s; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .crashed-text { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); transform: scale(1.1); }
+        
+        .history-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 5px; z-index: 10; }
+        .pill { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #1e293b; color: #94a3b8; }
+        .pill.win { background: #00ff2a; color: black; }
+        .pill.high { background: #eab308; color: black; }
+        .pill.loss { background: #ef4444; color: white; }
+
+        /* CASHED OUT NOTIFICATION */
+        .cashout-notif {
+            position: absolute; bottom: 100px; background: rgba(0, 255, 42, 0.2); 
+            border: 1px solid #00ff2a; color: #00ff2a; padding: 10px 20px; 
+            border-radius: 8px; font-weight: bold; font-size: 1.2rem;
+            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0; transform: translateY(20px); backdrop-filter: blur(4px);
+        }
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
         @media (max-width: 900px) {
             .game-wrapper { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: 100vh; border-radius: 0; border: none; }
             .stage { height: 60%; }
-            .controls { height: 40%; padding: 15px; }
+            .controls { padding: 15px; }
+            .mult-number { font-size: 3.5rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="game-wrapper">
-        <!-- CONTROLES IZQUIERDOS -->
+        <!-- CONTROLES -->
         <div class="controls">
             <div>
                 <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
@@ -84,284 +85,395 @@
                     <span id="balanceDisplay">Loading...</span>
                 </div>
                 <div class="input-group">
-                    <i class="fas fa-coins text-gray-500 ml-3"></i>
                     <input type="number" id="betInput" value="10" class="input-clean">
-                    <button onclick="adjBet(0.5)" class="px-2 py-1 text-[10px] font-bold text-gray-400 hover:text-white">½</button>
-                    <button onclick="adjBet(2)" class="px-2 py-1 text-[10px] font-bold text-gray-400 hover:text-white">2x</button>
+                    <button onclick="adjBet(0.5)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">½</button>
+                    <button onclick="adjBet(2)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">2x</button>
                 </div>
             </div>
 
             <div>
                 <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
-                    <span>Auto Cashout (x)</span>
+                    <span>Auto Cashout</span>
                 </div>
                 <div class="input-group">
-                    <i class="fas fa-lock text-gray-500 ml-3"></i>
-                    <input type="number" id="autoCashout" value="2.00" class="input-clean">
+                    <input type="number" id="autoCashout" value="2.00" step="0.01" class="input-clean">
                 </div>
             </div>
 
-            <div class="mt-auto">
-                <button id="mainBtn" onclick="action()" class="btn-action btn-bet">BET</button>
+            <!-- Stats Rápidas -->
+            <div class="mt-auto grid grid-cols-2 gap-2 mb-4">
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Profit</p>
+                    <p class="text-sm font-bold text-green-400" id="potentialProfit">0.00</p>
+                </div>
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Status</p>
+                    <p class="text-sm font-bold text-white" id="gameStatus">IDLE</p>
+                </div>
             </div>
+
+            <button id="mainBtn" onclick="handleAction()" class="btn-action btn-bet">BET</button>
         </div>
 
-        <!-- ESCENARIO -->
-        <div class="stage" id="stage">
-            <div class="crash-info">
-                <div class="text-[10px] font-bold text-gray-500 uppercase mb-1">Recent History</div>
-                <div id="historyRow"></div>
+        <!-- STAGE -->
+        <div class="stage" id="stageContainer">
+            <div class="history-bar" id="historyBar"></div>
+            
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="overlay-ui">
+                <div id="multiplierText" class="mult-number text-white">1.00x</div>
+                <div id="statusLabel" class="text-xs font-bold tracking-[0.2em] text-gray-500 mt-2">READY TO FLY</div>
             </div>
             
-            <!-- Texto Multiplicador Gigante -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div id="multDisplay" class="text-7xl md:text-9xl font-black text-white font-[Space_Grotesk] tracking-tighter tabular-nums">1.00x</div>
-                <div id="statusText" class="absolute mt-32 text-sm font-bold uppercase tracking-widest text-gray-500 hidden">Crashed</div>
-            </div>
-
-            <canvas id="crashCanvas"></canvas>
+            <div id="cashoutNotif" class="cashout-notif hidden"></div>
         </div>
     </div>
 
     <!-- AUDIO -->
-    <audio id="sfx-tick" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
-    <audio id="sfx-explode" src="https://assets.mixkit.co/active_storage/sfx/1707/1707-preview.mp3"></audio>
+    <audio id="sfx-engine" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" loop></audio>
+    <audio id="sfx-crash" src="https://assets.mixkit.co/active_storage/sfx/1707/1707-preview.mp3"></audio>
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
     <script>
-        // --- COMUNICACIÓN CON PADRE (Iframe Infrastructure) ---
+        // --- INFRAESTRUCTURA IFRAME ---
         let userBalance = 0;
-        
         window.addEventListener('message', (e) => {
             if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
                 userBalance = e.data.balance;
-                document.getElementById('balanceDisplay').innerText = userBalance.toFixed(2);
+                document.getElementById('balanceDisplay').innerText = userBalance.toLocaleString();
             }
         });
+        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        function updateParent(amount) {
-            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
-        }
-
-        // --- GAME LOGIC ---
-        const canvas = document.getElementById('crashCanvas');
+        // --- MOTOR DE JUEGO CRASH PRO ---
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const multDisplay = document.getElementById('multDisplay');
+        const multText = document.getElementById('multiplierText');
         const mainBtn = document.getElementById('mainBtn');
-        const statusText = document.getElementById('statusText');
+        const profitDisplay = document.getElementById('potentialProfit');
 
-        // Estado del Juego
-        let state = 'IDLE'; // IDLE, RUNNING, CRASHED
-        let currentMult = 1.00;
+        // Configuración
+        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED
+        let currentMultiplier = 1.00;
         let crashPoint = 0;
         let startTime = 0;
         let betAmount = 0;
-        let hasCashedOut = false;
-        let animationId;
-        
-        // Gráfico
-        let graphData = []; // {x, y}
+        let cashedOut = false;
+        let particles = [];
+        let stars = [];
 
-        // Init
-        resize();
-        window.addEventListener('resize', resize);
+        // Geometría del Gráfico
+        let camX = 0;
+        let camY = 0;
+        let scaleX = 100; // Pixels por segundo
+        let scaleY = 100; // Pixels por 1x
+
+        // INIT
+        window.onload = () => {
+            resize();
+            initStars();
+            animate();
+            window.addEventListener('resize', resize);
+        };
         
         function resize() {
-            canvas.width = document.getElementById('stage').clientWidth;
-            canvas.height = document.getElementById('stage').clientHeight;
-            drawGraph(); // Redibujar si está estático
+            canvas.width = document.getElementById('stageContainer').clientWidth;
+            canvas.height = document.getElementById('stageContainer').clientHeight;
+        }
+
+        function initStars() {
+            for(let i=0; i<50; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2,
+                    speed: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
+
+        // --- GAME LOGIC ---
+        function handleAction() {
+            if (gameState === 'IDLE') startGame();
+            else if (gameState === 'RUNNING') cashOut();
         }
 
         function adjBet(m) {
             const el = document.getElementById('betInput');
             let v = parseFloat(el.value) * m;
-            if(v<1) v=1; el.value = v.toFixed(2);
+            if(v<1) v=1; el.value = v.toFixed(0);
         }
 
-        // BOTÓN PRINCIPAL
-        function action() {
-            if(state === 'IDLE') {
-                startGame();
-            } else if (state === 'RUNNING') {
-                cashOut();
-            }
+        function generateCrashPoint() {
+            // MATEMÁTICA PROVABLY FAIR CON HOUSE EDGE (1% + 3% Instant Crash)
+            // Fórmula: E = 0.99 / (1 - U)
+            const r = Math.random();
+            let crash = 0.99 / (1 - r);
+            
+            // House Edge: Instant Crash (1.00x) el 3% de las veces
+            if (Math.random() < 0.03) crash = 1.00;
+            
+            return Math.max(1.00, crash);
         }
 
         function startGame() {
             const bet = parseFloat(document.getElementById('betInput').value);
-            if(isNaN(bet) || bet <= 0) return;
             if(bet > userBalance) return alert("Insufficient Balance");
+            if(bet <= 0) return;
 
-            // Descontar saldo
+            // Descontar
             betAmount = bet;
             updateParent(-betAmount);
 
-            // Reset UI
-            state = 'RUNNING';
-            hasCashedOut = false;
-            currentMult = 1.00;
-            graphData = [{x:0, y: canvas.height}];
-            statusText.classList.add('hidden');
-            multDisplay.style.color = "white";
+            // Setup Round
+            gameState = 'RUNNING';
+            cashedOut = false;
+            currentMultiplier = 1.00;
+            startTime = Date.now();
+            crashPoint = generateCrashPoint();
+            particles = [];
             
-            // Determinar punto de Crash (Simulación Provably Fair)
-            // Fórmula simple de casino: E = 0.99 / (1 - random)
-            // Genera muchos 1.xx y pocos 100.xx
-            crashPoint = Math.max(1.00, (0.99 / (1 - Math.random())));
-            if(Math.random() < 0.05) crashPoint = 1.00; // Instant crash chance
-
-            // Cambiar botón
+            // UI Reset
             mainBtn.innerText = "CASHOUT";
             mainBtn.className = "btn-action btn-cashout";
+            document.getElementById('betInput').disabled = true;
+            document.getElementById('cashoutNotif').classList.add('hidden');
+            document.getElementById('statusLabel').innerText = "FLYING...";
+            multText.className = "mult-number text-white";
+            document.getElementById('gameStatus').innerText = "LIVE";
+            document.getElementById('gameStatus').className = "text-sm font-bold text-green-500 animate-pulse";
 
-            // Iniciar Loop
-            startTime = Date.now();
-            loop();
+            // Audio
+            /* document.getElementById('sfx-engine').play(); */ // Uncomment if desired
         }
 
         function cashOut() {
-            if(state !== 'RUNNING' || hasCashedOut) return;
-            hasCashedOut = true;
+            if(gameState !== 'RUNNING' || cashedOut) return;
+            cashedOut = true;
+
+            const win = betAmount * currentMultiplier;
+            const profit = win - betAmount;
+            updateParent(win);
             
-            const win = betAmount * currentMult;
-            updateParent(win); // Pagar al usuario
-            
-            // UI Feedback
             document.getElementById('sfx-win').play();
+
+            // UI Feedback
             mainBtn.innerText = "WAITING...";
             mainBtn.className = "btn-action btn-disabled";
             
-            // Visual ganar
-            const profit = win - betAmount;
-            multDisplay.innerHTML = `<span class="text-green-500">${currentMult.toFixed(2)}x</span> <div class="text-sm text-white">+${profit.toFixed(2)}</div>`;
-        }
-
-        function loop() {
-            if(state !== 'RUNNING') return;
-
-            const now = Date.now();
-            const elapsed = (now - startTime) / 1000; // segundos
-            
-            // Función de crecimiento exponencial
-            // 1.0 + x^2 * factor (ajustar velocidad)
-            currentMult = 1.0 + Math.pow(elapsed, 1.5) * 0.15;
-            
-            // Actualizar Display
-            if(!hasCashedOut) multDisplay.innerText = currentMult.toFixed(2) + "x";
-
-            // Auto Cashout Logic
-            const autoTarget = parseFloat(document.getElementById('autoCashout').value);
-            if(!hasCashedOut && autoTarget && currentMult >= autoTarget) {
-                cashOut();
-            }
-
-            // Crash Check
-            if(currentMult >= crashPoint) {
-                crash();
-            } else {
-                drawGraph(elapsed);
-                animationId = requestAnimationFrame(loop);
-            }
+            const notif = document.getElementById('cashoutNotif');
+            notif.innerHTML = `Won ${profit.toFixed(0)} PBJ <span class="text-xs text-white">(@ ${currentMultiplier.toFixed(2)}x)</span>`;
+            notif.classList.remove('hidden');
         }
 
         function crash() {
-            state = 'CRASHED';
-            cancelAnimationFrame(animationId);
-            document.getElementById('sfx-explode').play();
+            gameState = 'CRASHED';
+            /* document.getElementById('sfx-engine').pause(); */
+            document.getElementById('sfx-crash').play();
+
+            // Explosión de partículas
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: getGraphX(Date.now() - startTime),
+                    y: getGraphY(currentMultiplier),
+                    vx: (Math.random()-0.5) * 10,
+                    vy: (Math.random()-0.5) * 10,
+                    life: 1,
+                    color: '#ef4444'
+                });
+            }
 
             // UI Crash
-            multDisplay.innerText = crashPoint.toFixed(2) + "x";
-            multDisplay.style.color = "#ef4444"; // Rojo
-            statusText.innerText = `CRASHED @ ${crashPoint.toFixed(2)}x`;
-            statusText.classList.remove('hidden');
-
-            // Reset Botón
+            multText.innerText = crashPoint.toFixed(2) + "x";
+            multText.classList.add('crashed-text');
+            document.getElementById('statusLabel').innerText = "CRASHED";
+            
             mainBtn.innerText = "BET";
             mainBtn.className = "btn-action btn-bet";
+            document.getElementById('betInput').disabled = false;
+            document.getElementById('gameStatus').innerText = "ENDED";
+            document.getElementById('gameStatus').className = "text-sm font-bold text-red-500";
 
-            // Añadir al historial
             addToHistory(crashPoint);
         }
 
-        // DIBUJAR CANVAS
-        function drawGraph(elapsed) {
+        // --- RENDER LOOP ---
+        function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Configurar Escala
-            // El gráfico debe mantenerse dentro de la vista, así que "alejamos" la cámara
-            // conforme sube el tiempo y el multiplicador
-            
-            const w = canvas.width;
-            const h = canvas.height;
-            const padding = 50;
+            // 1. DIBUJAR FONDO (Estrellas/Grid)
+            drawBackground();
 
-            ctx.beginPath();
-            ctx.moveTo(0, h); // Esquina inf izq
+            if (gameState === 'RUNNING') {
+                const now = Date.now();
+                const elapsed = (now - startTime) / 1000; // segundos
+                
+                // Crecimiento Exponencial: M = e^(0.06 * t)
+                // Ajustado para gameplay divertido: 1 + t^2 * 0.1 aprox
+                // Usamos una función simple para demo
+                currentMultiplier = 1.0 + (elapsed * elapsed * 0.08) + (elapsed * 0.1);
+                
+                // Actualizar Texto
+                multText.innerText = currentMultiplier.toFixed(2) + "x";
+                profitDisplay.innerText = ((currentMultiplier * betAmount) - betAmount).toFixed(2);
+                
+                // Color Shift
+                if(currentMultiplier > 2) multText.style.color = "#4ade80";
+                if(currentMultiplier > 10) multText.style.color = "#eab308";
+                
+                // Auto Cashout
+                const auto = parseFloat(document.getElementById('autoCashout').value);
+                if(!cashedOut && auto && currentMultiplier >= auto) cashOut();
 
-            // Curva Bezier Simulada
-            // Punto inicio: 0, h
-            // Punto fin: w * 0.8, h * 0.2 (arriba derecha)
-            // Control: curva
-            
-            // Simulación visual simple: Dibujar línea desde inicio hasta progreso actual
-            // Para hacerlo "infinito", simplemente dibujamos una curva estática que parece crecer
-            // y movemos el "cohete" a lo largo de ella.
-            
-            // Mejor approach: Dibujar una curva cuadrática simple que representa el crecimiento
-            
-            const progress = Math.min(1, elapsed / 10); // Ejemplo de normalización visual
+                // Check Crash
+                if(currentMultiplier >= crashPoint) crash();
 
-            ctx.strokeStyle = state === 'CRASHED' ? '#ef4444' : '#00ff2a';
-            ctx.lineWidth = 5;
-            ctx.lineCap = 'round';
-            
-            // Dibujamos la curva
-            // Start: (0, h)
-            // End: (w-padding, h - (h*progress))
-            
-            // Truco visual de Crash: La curva siempre se ve igual, solo cambia el numero
-            // Pero para hacerlo "real", haremos que la linea crezca
-            
-            let endX = (w * 0.8);
-            let endY = h - (h * 0.6); // Punto fijo visual de "acción"
-            
-            // Shake effect if high multiplier
-            let shakeX = 0, shakeY = 0;
-            if(currentMult > 10 && state === 'RUNNING') {
-                shakeX = (Math.random()-0.5)*5;
-                shakeY = (Math.random()-0.5)*5;
+                // 2. DIBUJAR LÍNEA Y COHETE
+                drawGraph(elapsed, currentMultiplier);
+                
+            } else if (gameState === 'CRASHED') {
+                // Mantener dibujo del punto de crash estático un momento
+                // Opcional: Fade out
+                drawParticles();
+            } else {
+                // IDLE
+                // Dibujar línea base
+                ctx.beginPath();
+                ctx.strokeStyle = "#334155";
+                ctx.lineWidth = 2;
+                ctx.moveTo(0, canvas.height - 50);
+                ctx.lineTo(canvas.width, canvas.height - 50);
+                ctx.stroke();
             }
 
-            // Dibujar linea
-            ctx.beginPath();
-            ctx.moveTo(0, h);
-            ctx.quadraticCurveTo(w/2, h, endX + shakeX, endY + shakeY);
-            ctx.stroke();
+            requestAnimationFrame(animate);
+        }
 
-            // Dibujar Cohete/Bola en la punta
+        function drawBackground() {
+            // Estrellas en movimiento
+            ctx.fillStyle = "#ffffff";
+            stars.forEach(s => {
+                let displayX = s.x - (gameState==='RUNNING' ? (Date.now()-startTime)/20 : 0);
+                // Wrap around
+                displayX = displayX % canvas.width;
+                if(displayX < 0) displayX += canvas.width;
+                
+                ctx.globalAlpha = Math.random() * 0.5 + 0.2;
+                ctx.beginPath();
+                ctx.arc(displayX, s.y, s.size, 0, Math.PI*2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function getGraphX(elapsed) {
+            // Mapear tiempo a X. Hacemos "Zoom Out" si elapsed es grande.
+            // Escala X disminuye a medida que elapsed aumenta
+            const maxX = Math.max(10, elapsed * 1.2); 
+            return (elapsed / maxX) * (canvas.width - 50) + 20; 
+        }
+
+        function getGraphY(mult) {
+            // Mapear mult a Y (invertido, 0 es abajo)
+            const maxY = Math.max(2, mult * 1.2);
+            // Logarítmico visualmente funciona mejor para Crash
+            const norm = (mult - 1) / (maxY - 1);
+            return canvas.height - 50 - (norm * (canvas.height - 100));
+        }
+
+        function drawGraph(elapsed, mult) {
+            const x = getGraphX(elapsed);
+            const y = getGraphY(mult);
+
+            // Dibujar Línea (Curva Bezier simple para suavizar)
             ctx.beginPath();
-            ctx.arc(endX + shakeX, endY + shakeY, 8, 0, Math.PI*2);
-            ctx.fillStyle = "white";
-            ctx.fill();
+            ctx.strokeStyle = "#00ff2a";
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
             
-            // Glow
-            ctx.shadowColor = state === 'CRASHED' ? '#ef4444' : '#00ff2a';
-            ctx.shadowBlur = 20;
+            // Curva desde inicio (0, height-50) hasta (x, y)
+            ctx.moveTo(20, canvas.height - 50);
+            ctx.quadraticCurveTo(x * 0.5, canvas.height - 50, x, y);
+            
+            // Glow effect
+            ctx.shadowColor = "#00ff2a";
+            ctx.shadowBlur = 15;
             ctx.stroke();
             ctx.shadowBlur = 0;
+
+            // Dibujar Cohete (Triángulo simple rotado)
+            ctx.save();
+            ctx.translate(x, y);
+            // Calcular angulo tangente (aprox)
+            const angle = Math.atan2((canvas.height - 50) - y, x - 20); // Simple approx
+            ctx.rotate(-45 * Math.PI / 180); // Rotación fija visual funciona bien en crash 2D
+
+            // Cohete
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.moveTo(10, 0);
+            ctx.lineTo(-10, 7);
+            ctx.lineTo(-10, -7);
+            ctx.fill();
+            
+            // Fuego propulsor
+            ctx.fillStyle = `rgba(255, 100, 0, ${Math.random()})`;
+            ctx.beginPath();
+            ctx.moveTo(-10, 0);
+            ctx.lineTo(-20 - Math.random()*10, 5);
+            ctx.lineTo(-20 - Math.random()*10, -5);
+            ctx.fill();
+
+            ctx.restore();
+
+            // Emitir partículas humo
+            if(Math.random() > 0.5) {
+                particles.push({
+                    x: x - 10, y: y + 10,
+                    vx: -2 - Math.random(), vy: 1 + Math.random(),
+                    life: 1, color: '#94a3b8'
+                });
+            }
+
+            drawParticles();
+        }
+
+        function drawParticles() {
+            for(let i=particles.length-1; i>=0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.02;
+                
+                if(p.life <= 0) particles.splice(i, 1);
+                else {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1;
         }
 
         function addToHistory(val) {
-            const div = document.getElementById('historyRow');
-            const pill = document.createElement('span');
-            pill.className = `history-pill ${val >= 2 ? 'win' : 'lose'}`;
-            pill.innerText = val.toFixed(2) + "x";
-            div.prepend(pill);
-            if(div.children.length > 5) div.removeChild(div.lastChild);
-        }
+            const bar = document.getElementById('historyBar');
+            const pill = document.createElement('div');
+            // Clase de color según valor
+            let type = 'loss';
+            if (val >= 2) type = 'win';
+            if (val >= 10) type = 'high';
 
-        // Initial Draw
-        drawGraph(0);
+            pill.className = `pill ${type}`;
+            pill.innerText = val.toFixed(2) + "x";
+            
+            // Animación entrada
+            pill.style.animation = "slideIn 0.3s ease";
+            
+            bar.prepend(pill);
+            if(bar.children.length > 8) bar.removeChild(bar.lastChild);
+        }
 
     </script>
 </body>
