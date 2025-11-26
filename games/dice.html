@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Dice | PepeCasino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            background: transparent; color: white; font-family: 'Inter', sans-serif;
+            overflow: hidden; user-select: none; height: 100vh; margin: 0;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .game-wrapper {
+            width: 100%; max-width: 1100px; height: 650px;
+            background: #121924; border: 1px solid #1f2937; border-radius: 20px;
+            display: grid; grid-template-columns: 300px 1fr;
+            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; z-index: 10; }
+        .stage { 
+            position: relative; background: radial-gradient(circle at 50% 50%, #1a2530 0%, #05080a 100%);
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
+        }
+
+        /* Inputs */
+        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 10px; font-weight: bold; outline: none; }
+        .btn-action { width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; font-size: 1.1rem; }
+        .btn-bet { background: #00ff2a; color: black; box-shadow: 0 0 15px rgba(0,255,42,0.2); }
+        .btn-bet:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0,255,42,0.4); }
+
+        /* --- DICE SLIDER CUSTOMIZADO --- */
+        .slider-container {
+            width: 100%; max-width: 600px; position: relative;
+            padding: 20px 0;
+        }
+        
+        .range-slider {
+            -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px;
+            outline: none; opacity: 0.9; transition: opacity .2s;
+            background: linear-gradient(to right, #00ff2a 0%, #00ff2a 50%, #ef4444 50%, #ef4444 100%);
+            cursor: pointer;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 24px; height: 24px; border-radius: 4px;
+            background: white; cursor: grab;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            border: 2px solid #05080a;
+            position: relative; top: -6px; /* Center thumb vertically */
+        }
+        .range-slider::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.1); }
+
+        /* Stats Cards */
+        .stat-card {
+            background: #1f2937; border-radius: 10px; padding: 15px; text-align: center;
+            flex: 1; border: 1px solid #374151; transition: 0.2s;
+        }
+        .stat-card:hover { border-color: #00ff2a; }
+        .stat-label { font-size: 10px; text-transform: uppercase; color: #9ca3af; font-weight: bold; margin-bottom: 5px; }
+        .stat-value { font-size: 1.2rem; font-weight: bold; color: white; font-family: 'Space Grotesk', monospace; }
+
+        /* Result Display */
+        .result-display {
+            font-size: 5rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 20px; transition: 0.1s; position: relative;
+        }
+        .win-glow { text-shadow: 0 0 30px #00ff2a; color: #00ff2a; }
+        .lose-glow { text-shadow: 0 0 30px #ef4444; color: #ef4444; }
+
+        /* Markers */
+        .scale-markers {
+            display: flex; justify-content: space-between; width: 100%; max-width: 600px;
+            color: #6b7280; font-size: 10px; font-weight: bold; margin-top: 5px;
+        }
+
+        @media (max-width: 800px) {
+            .game-wrapper { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: 100vh; border-radius: 0; border: none; }
+            .stage { height: 60%; }
+            .controls { height: 40%; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-wrapper">
+        <!-- CONTROLES -->
+        <div class="controls">
+            <div>
+                <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
+                    <span>Bet Amount</span>
+                    <span id="balanceDisplay">Loading...</span>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="betInput" value="10" class="input-clean">
+                    <button onclick="adjBet(0.5)" class="px-2 text-[10px] font-bold text-gray-400 hover:text-white">½</button>
+                    <button onclick="adjBet(2)" class="px-2 text-[10px] font-bold text-gray-400 hover:text-white">2x</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div class="bg-black/30 p-3 rounded border border-white/5">
+                    <div class="text-[9px] text-gray-500 uppercase font-bold">Profit on Win</div>
+                    <div class="text-green-400 font-bold" id="profitDisplay">0.00</div>
+                </div>
+                <div class="bg-black/30 p-3 rounded border border-white/5">
+                    <div class="text-[9px] text-gray-500 uppercase font-bold">Win Chance</div>
+                    <div class="text-white font-bold" id="chanceDisplayMini">50%</div>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <button onclick="roll()" class="btn-action btn-bet">ROLL DICE</button>
+            </div>
+        </div>
+
+        <!-- ESCENARIO -->
+        <div class="stage">
+            
+            <!-- Resultado Gigante -->
+            <div id="resultNumber" class="result-display text-white">50.00</div>
+            
+            <!-- Cards de Configuración -->
+            <div class="flex gap-4 w-full max-w-lg mb-8">
+                <div class="stat-card">
+                    <div class="stat-label">Multiplier</div>
+                    <div class="relative">
+                        <input type="number" id="multiplierInput" value="2.00" class="bg-transparent w-full text-center outline-none stat-value" onchange="syncFromMult()">
+                        <span class="absolute right-0 bottom-1 text-xs text-gray-500 font-bold">x</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Roll Under</div>
+                    <div class="stat-value text-green-400" id="rollUnderDisplay">50.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Win Chance</div>
+                    <div class="relative">
+                        <input type="number" id="chanceInput" value="49.50" class="bg-transparent w-full text-center outline-none stat-value" onchange="syncFromChance()">
+                        <span class="absolute right-0 bottom-1 text-xs text-gray-500 font-bold">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slider Visual -->
+            <div class="slider-container">
+                <input type="range" min="2" max="98" value="50" class="range-slider" id="diceSlider" oninput="updateSliderUI()">
+                <div class="scale-markers">
+                    <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+                </div>
+                
+                <!-- Indicador visual del target -->
+                <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-[#1f2937] px-2 py-1 rounded text-xs font-bold border border-gray-600 hidden">Target</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- AUDIO -->
+    <audio id="sfx-roll" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+    <audio id="sfx-lose" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+
+    <script>
+        // --- INFRAESTRUCTURA PADRE ---
+        let userBalance = 0;
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
+                userBalance = e.data.balance;
+                document.getElementById('balanceDisplay').innerText = userBalance.toFixed(2);
+            }
+        });
+        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
+
+        // --- LÓGICA DICE ---
+        const slider = document.getElementById('diceSlider');
+        const multInput = document.getElementById('multiplierInput');
+        const chanceInput = document.getElementById('chanceInput');
+        const rollUnderDisp = document.getElementById('rollUnderDisplay');
+        const profitDisp = document.getElementById('profitDisplay');
+        const resultNum = document.getElementById('resultNumber');
+        const houseEdge = 1; // 1% de ventaja
+
+        // Init
+        updateSliderUI();
+
+        function adjBet(m) {
+            const el = document.getElementById('betInput');
+            let v = parseFloat(el.value) * m;
+            if(v<1) v=1; el.value = v.toFixed(0);
+            updateProfit();
+        }
+
+        // Lógica de Sincronización (Slider <-> Inputs)
+        // Fórmula: Multiplier = (100 - HouseEdge) / WinChance
+        
+        function updateSliderUI() {
+            // El slider representa el "Target Number" (Roll Under)
+            const target = parseFloat(slider.value);
+            
+            // Actualizar visuales del track (Verde a la izquierda del target, rojo a la derecha)
+            const pct = target; 
+            slider.style.background = `linear-gradient(to right, #00ff2a 0%, #00ff2a ${pct}%, #ef4444 ${pct}%, #ef4444 100%)`;
+
+            // Actualizar Inputs
+            const chance = target; // En Roll Under, target 50 = 50% chance
+            chanceInput.value = chance.toFixed(2);
+            
+            // Calcular Multiplicador
+            // Evitar división por cero
+            const mult = (100 - houseEdge) / Math.max(0.1, chance);
+            multInput.value = mult.toFixed(4);
+
+            rollUnderDisp.innerText = target.toFixed(2);
+            document.getElementById('chanceDisplayMini').innerText = chance.toFixed(2) + "%";
+            
+            updateProfit();
+        }
+
+        function syncFromMult() {
+            let mult = parseFloat(multInput.value);
+            if(mult < 1.01) mult = 1.01;
+            
+            // Chance = (99 / Mult)
+            let chance = (100 - houseEdge) / mult;
+            if(chance > 98) chance = 98; 
+            if(chance < 1) chance = 1;
+
+            slider.value = chance; // Set slider to chance (Target)
+            updateSliderUI();
+        }
+
+        function syncFromChance() {
+            let chance = parseFloat(chanceInput.value);
+            if(chance > 98) chance = 98;
+            if(chance < 1) chance = 1;
+            
+            slider.value = chance;
+            updateSliderUI();
+        }
+
+        function updateProfit() {
+            const bet = parseFloat(document.getElementById('betInput').value || 0);
+            const mult = parseFloat(multInput.value || 0);
+            const profit = (bet * mult) - bet;
+            profitDisp.innerText = profit.toFixed(2);
+        }
+
+        // --- GAMEPLAY ---
+        function roll() {
+            const bet = parseFloat(document.getElementById('betInput').value);
+            if(bet > userBalance) return alert("Insufficient Balance");
+            if(bet <= 0) return;
+
+            // Descontar
+            updateParent(-bet);
+            
+            // Animación
+            document.getElementById('sfx-roll').play();
+            let frames = 0;
+            const target = parseFloat(slider.value);
+            
+            // Generar resultado Provably Fair (Simulado)
+            // Generamos float entre 0.00 y 100.00
+            const result = Math.random() * 100;
+            const finalResult = result.toFixed(2);
+            
+            const animInterval = setInterval(() => {
+                // Números aleatorios rápidos
+                resultNum.innerText = (Math.random() * 100).toFixed(2);
+                resultNum.className = "result-display text-gray-500";
+                frames++;
+                
+                if(frames > 10) {
+                    clearInterval(animInterval);
+                    finishRoll(finalResult, target, bet);
+                }
+            }, 30);
+        }
+
+        function finishRoll(result, target, bet) {
+            resultNum.innerText = result;
+            
+            // Roll Under Logic: Ganamos si el resultado es MENOR que el target
+            const isWin = parseFloat(result) < target;
+            
+            if(isWin) {
+                resultNum.className = "result-display win-glow";
+                document.getElementById('sfx-win').play();
+                
+                const mult = parseFloat(multInput.value);
+                const payout = bet * mult;
+                updateParent(payout);
+            } else {
+                resultNum.className = "result-display lose-glow";
+                document.getElementById('sfx-lose').play();
+            }
+        }
+
+    </script>
+</body>
+</html>
