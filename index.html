@@ -560,6 +560,25 @@
             }
         }
 
+        // --- GAMES ---
+        function loadGame(url, title) {
+            showSection('none'); // Oculta secciones principales
+            document.querySelector('footer').style.display = 'none'; // Oculta footer para más espacio
+            const container = document.getElementById('gameContainer');
+            container.style.display = 'flex';
+            container.classList.remove('hidden'); // Asegura que se quite la clase hidden
+            
+            setText('activeGameTitle', '| ' + title);
+            
+            const frame = document.getElementById('gameFrame');
+            frame.src = url;
+            
+            // Simular paso de balance al juego
+            setTimeout(() => {
+                frame.contentWindow.postMessage({type: 'INIT_BALANCE', balance: state.gameBalance}, '*');
+            }, 1000);
+        }
+
         // --- NFT SYSTEM ---
         const TIER_NAMES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
         const TIER_IMGS = ["frog", "user-ninja", "crown", "bolt", "dragon"];
