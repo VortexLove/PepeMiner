@@ -600,24 +600,31 @@
             } catch (e) { console.error(e); }
         }
 
-        async function updateWalletData() {
+            async function updateWalletData() {
             if(!userAddress) return;
             const rawBal = await pbjContract.balanceOf(userAddress);
             walletBalance = parseFloat(ethers.utils.formatEther(rawBal));
             const ethRaw = await provider.getBalance(userAddress);
             const ethBal = parseFloat(ethers.utils.formatEther(ethRaw)).toFixed(4);
             
+            // Actualizaciones de UI
             document.getElementById('userNameDisplay').innerText = userAddress.substring(0,6) + "...";
             document.getElementById('headerWalletBal').innerText = walletBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
             document.getElementById('cashierWalletBal').innerText = walletBalance.toLocaleString();
-            document.getElementById('ethBalDisplay').innerText = ethBal;
-            // Update Bal in swap based on mode
-            if(swapMode === 'buy') document.getElementById('balInputA').innerText = ethBal;
-            else document.getElementById('balInputA').innerText = walletBalance.toLocaleString();
+            
+            // --- LA CORRECCIÓN ESTÁ AQUÍ ABAJO ---
+            // Eliminé la línea vieja 'ethBalDisplay' y dejamos solo la lógica dinámica:
+            
+            if(swapMode === 'buy') {
+                const el = document.getElementById('balInputA');
+                if(el) el.innerText = ethBal;
+            } else {
+                const el = document.getElementById('balInputA');
+                if(el) el.innerText = walletBalance.toLocaleString();
+            }
             
             updateUI();
         }
-
         function updateUI() {
             const chips = gameBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('headerGameBal').innerText = chips;
