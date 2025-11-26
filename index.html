@@ -21,7 +21,6 @@
             --bg-panel: #0b1016;
             --bg-card: #121924;
             --border-color: #1f2937;
-            --accent-purple: #9d4edd;
         }
 
         body { 
@@ -34,8 +33,8 @@
         h1, h2, h3, .brand-font { font-family: 'Space Grotesk', sans-serif; }
 
         /* SCROLLBAR */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0b1016; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #05080a; }
         ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
@@ -53,12 +52,35 @@
         .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 0 30px var(--primary-glow); }
 
         /* Layout */
-        .app-layout { display: grid; grid-template-columns: 260px 1fr; grid-template-rows: 70px 1fr; height: 100vh; }
-        .sidebar { grid-row: 1 / -1; z-index: 50; display: flex; flex-direction: column; }
-        .header { grid-column: 2; z-index: 40; border-bottom: 1px solid var(--border-color); background: rgba(5, 8, 10, 0.95); backdrop-filter: blur(10px); }
+        .app-layout { 
+            display: grid; 
+            grid-template-columns: 240px 1fr 300px; /* Sidebar - Content - Chat */
+            grid-template-rows: 70px 1fr; 
+            height: 100vh; 
+            transition: 0.3s;
+        }
+        
+        /* Mobile/Tablet Adjustments */
+        @media (max-width: 1280px) {
+            .app-layout { grid-template-columns: 240px 1fr 0px; } /* Chat hidden by default on smaller screens */
+            .chat-sidebar { transform: translateX(100%); position: fixed; right: 0; height: 100vh; z-index: 60; width: 300px; }
+            .chat-sidebar.open { transform: translateX(0); }
+        }
+        @media (max-width: 1024px) {
+            .app-layout { grid-template-columns: 0px 1fr 0px; }
+            .sidebar { transform: translateX(-100%); position: fixed; height: 100vh; z-index: 60; width: 240px; }
+            .sidebar.open { transform: translateX(0); }
+        }
+
+        .sidebar { grid-row: 1 / -1; grid-column: 1; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; background: var(--bg-panel); transition: 0.3s; }
+        .header { grid-column: 2 / -1; grid-row: 1; z-index: 40; border-bottom: 1px solid var(--border-color); background: rgba(5, 8, 10, 0.95); backdrop-filter: blur(10px); }
         .content-viewport {
             grid-column: 2; grid-row: 2; position: relative;
             overflow-y: auto; background: radial-gradient(circle at 50% 20%, #111822 0%, #05080a 60%);
+        }
+        .chat-sidebar {
+            grid-row: 2; grid-column: 3; border-left: 1px solid var(--border-color); background: var(--bg-panel);
+            display: flex; flex-direction: column; overflow: hidden; transition: 0.3s;
         }
 
         /* NFT Cards */
@@ -75,45 +97,42 @@
         .swap-field { background: #131b24; border-radius: 16px; padding: 16px; border: 1px solid transparent; transition: 0.3s; }
         .swap-field:focus-within { border-color: var(--primary); background: #16202a; }
 
-        .xp-track { width: 100%; height: 8px; background: #000; border-radius: 4px; overflow: hidden; }
-        .xp-fill { height: 100%; background: linear-gradient(90deg, #00ff2a, #00cc22); width: 45%; box-shadow: 0 0 10px var(--primary); }
-
+        /* Animations */
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 1024px) {
-            .app-layout { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; transform: translateX(-100%); transition: 0.3s; height: 100vh; width: 260px; border-right: 1px solid var(--border-color); }
-            .sidebar.open { transform: translateX(0); }
-            .header { grid-column: 1; padding-left: 20px; }
-            .content-viewport { grid-column: 1; }
+        
+        /* Live Toast Notification */
+        .live-toast {
+            animation: slideIn 0.5s ease-out, fadeOut 0.5s ease-in 4.5s forwards;
         }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+
+        /* Chat */
+        .chat-msg { animation: fadeIn 0.2s ease-out; }
     </style>
 </head>
 <body>
 
-    <div class="app-layout">
+    <div class="app-layout" id="appLayout">
         
-        <!-- 1. SIDEBAR -->
-        <nav id="sidebar" class="sidebar bg-panel glass-panel p-5">
-            <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="showSection('home')">
+        <!-- 1. LEFT SIDEBAR -->
+        <nav id="sidebar" class="sidebar">
+            <div class="p-5 flex items-center gap-3 cursor-pointer group hover:opacity-80 transition" onclick="showSection('home')">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(0,255,42,0.3)]">🐸</div>
                 <div>
                     <h1 class="text-xl font-bold text-white leading-none brand-font">Pepe<span class="text-neon">BJ</span></h1>
-                    <span class="text-[9px] text-gray-400 uppercase tracking-widest">Base Network</span>
+                    <span class="text-[9px] text-gray-400 uppercase tracking-widest">Base Casino</span>
                 </div>
             </div>
 
-            <div class="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+            <div class="flex-1 overflow-y-auto custom-scrollbar px-3 space-y-1">
                 <p class="px-3 text-[10px] font-bold text-gray-500 uppercase mt-4 mb-2">Platform</p>
                 <button onclick="showSection('home')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition group">
                     <i class="fas fa-home text-blue-400 w-5 group-hover:scale-110 transition"></i> Home
                 </button>
-                <!-- PREVENTA ELIMINADA DEL SIDEBAR COMO PEDISTE -->
-                
-                <p class="px-3 text-[10px] font-bold text-gray-500 uppercase mt-6 mb-2">My Account</p>
                 <button onclick="showSection('profile')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition">
-                    <i class="fas fa-user-astronaut text-orange-400 w-5"></i> Profile & Cashier
+                    <i class="fas fa-user-astronaut text-orange-400 w-5"></i> Profile
                 </button>
                 <button onclick="showSection('nft')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition">
                     <i class="fas fa-gem text-purple-400 w-5"></i> NFT Staking
@@ -125,34 +144,62 @@
                 <button onclick="loadGame('games/blackjack.html', 'Blackjack')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition"><i class="fas fa-heart text-red-500 w-5"></i> Blackjack</button>
                 <button onclick="loadGame('games/mines.html', 'Mines')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition"><i class="fas fa-bomb text-yellow-500 w-5"></i> Mines</button>
                 <button onclick="loadGame('games/dice.html', 'Dice')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition"><i class="fas fa-dice text-cyan-400 w-5"></i> Dice</button>
+
+                <!-- VIP Promo -->
+                <div class="mt-6 mx-2 bg-gradient-to-br from-purple-900/50 to-blue-900/50 rounded-xl p-4 border border-white/10 text-center">
+                    <i class="fas fa-crown text-yellow-400 text-2xl mb-2"></i>
+                    <p class="text-xs font-bold text-white">VIP Club</p>
+                    <p class="text-[10px] text-gray-300 mb-2">Wager to unlock bonuses</p>
+                    <div class="w-full h-1.5 bg-black rounded-full overflow-hidden">
+                        <div class="h-full bg-yellow-400 w-[15%]"></div>
+                    </div>
+                </div>
             </div>
             
-            <div class="mt-4 bg-[#05080a] p-4 rounded-xl border border-white/5">
-                <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Casino Chips</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xl font-bold text-white font-mono" id="sidebarChips">0.00</span>
-                    <i class="fas fa-circle-notch text-yellow-500 animate-spin-slow"></i>
-                </div>
-                <button onclick="showSection('profile')" class="w-full mt-3 bg-white/5 hover:bg-white/10 text-[10px] py-2 rounded border border-white/10 text-gray-300 transition uppercase font-bold">Deposit / Withdraw</button>
+            <div class="p-4 border-t border-white/5 text-xs text-center text-gray-500">
+                <span id="onlineUsers" class="text-green-500 font-bold animate-pulse">● 420</span> Online Players
             </div>
         </nav>
 
-        <!-- 2. HEADER -->
+        <!-- 2. HEADER (Top Bar) -->
         <header class="header flex items-center justify-between px-6">
+            <!-- Left: Mobile Menu -->
             <div class="flex items-center gap-4">
                 <button onclick="toggleSidebar()" class="lg:hidden text-white text-xl hover:text-neon"><i class="fas fa-bars"></i></button>
                 <span class="lg:hidden font-bold text-white brand-font text-xl">Pepe<span class="text-neon">BJ</span></span>
             </div>
-            <div class="flex gap-4 items-center ml-auto">
-                <div id="userInfo" class="flex items-center gap-3 bg-black/40 px-4 py-1.5 rounded-full border border-white/10 cursor-pointer hover:border-neon/50 transition group" onclick="showSection('profile')">
-                    <div class="text-right hidden sm:block">
-                        <span class="block text-xs font-bold text-white group-hover:text-neon transition" id="userNameDisplay">Connect Wallet</span>
-                        <span class="block text-[10px] text-gray-500" id="userBalDisplay">0 PBJ</span>
-                    </div>
-                    <img id="headerAvatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-8 h-8 rounded-full bg-gray-800 border border-white/20">
+
+            <!-- CENTER: WALLET & CHIPS DISPLAY (THE STAKE STYLE) -->
+            <div class="hidden md:flex items-center gap-4 bg-black/40 border border-white/10 p-1.5 rounded-full shadow-lg absolute left-1/2 transform -translate-x-1/2">
+                <!-- Wallet Balance -->
+                <div class="flex items-center gap-2 px-4 border-r border-white/10">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Wallet</span>
+                    <span class="font-mono font-bold text-white text-sm" id="headerWalletBal">0.00</span>
+                    <span class="text-[10px] text-green-500 font-bold">PBJ</span>
                 </div>
-                <button id="connectBtnHeader" onclick="connectWallet()" class="btn-gradient px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <i class="fas fa-wallet"></i> <span id="btnText">Connect</span>
+                <!-- Casino Chips -->
+                <div class="flex items-center gap-2 px-4 cursor-pointer hover:opacity-80 transition" onclick="showSection('profile')">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Chips</span>
+                    <span class="font-mono font-bold text-neon text-lg" id="headerGameBal">0.00</span>
+                    <i class="fas fa-coins text-yellow-500 drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]"></i>
+                    <button class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded font-bold ml-1">DEPOSIT</button>
+                </div>
+            </div>
+            
+            <!-- Right: Account & Chat Toggle -->
+            <div class="flex gap-4 items-center ml-auto">
+                <div id="userInfo" class="hidden sm:flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 cursor-pointer hover:border-neon/50 transition" onclick="showSection('profile')">
+                    <img id="headerAvatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-7 h-7 rounded-full bg-gray-800 border border-white/20">
+                    <span class="text-xs font-bold text-white" id="userNameDisplay">Connect</span>
+                </div>
+
+                <button id="connectBtnHeader" onclick="connectWallet()" class="btn-gradient px-4 py-2 rounded-lg text-xs font-bold shadow-[0_0_10px_rgba(0,255,42,0.3)]">
+                    <i class="fas fa-wallet"></i> Connect
+                </button>
+
+                <button onclick="toggleChat()" class="text-gray-400 hover:text-white text-xl relative">
+                    <i class="fas fa-comments"></i>
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-black"></span>
                 </button>
             </div>
         </header>
@@ -160,137 +207,131 @@
         <!-- 3. MAIN CONTENT -->
         <main class="content-viewport custom-scrollbar flex flex-col relative">
             
-            <!-- A. HOME SECTION (MODIFICADO: PREVENTA AGRESIVA + JUEGOS + NFTS) -->
-            <div id="homeSection" class="w-full max-w-7xl mx-auto p-4 md:p-8 fade-in flex-1">
+            <!-- LIVE WINS TOASTER (Bottom Left) -->
+            <div id="liveToastContainer" class="fixed bottom-4 left-4 z-50 flex flex-col-reverse gap-2 pointer-events-none">
+                <!-- Notifications injected via JS -->
+            </div>
+
+            <!-- A. HOME SECTION -->
+            <div id="homeSection" class="w-full max-w-7xl mx-auto p-4 md:p-8 fade-in flex-1 pb-20">
                 
-                <!-- 1. AGGRESSIVE PRESALE SECTION (MOVIDO ARRIBA) -->
-                <div class="bg-gradient-to-r from-green-900/40 to-[#05080a] border border-white/10 rounded-3xl p-6 md:p-10 mb-12 relative overflow-hidden shadow-2xl">
-                    <div class="absolute top-0 right-0 p-4 opacity-20"><i class="fas fa-coins text-[200px] text-neon animate-pulse"></i></div>
+                <!-- AGGRESSIVE PRESALE BANNER -->
+                <div class="bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gradient-to-r from-green-900/60 to-[#05080a] border border-white/10 rounded-3xl p-6 md:p-10 mb-12 relative overflow-hidden shadow-2xl group">
+                    <div class="absolute inset-0 bg-green-500/5 group-hover:bg-green-500/10 transition duration-700"></div>
+                    <div class="absolute -right-20 -bottom-20 opacity-20"><i class="fas fa-frog text-[300px] text-green-400 rotate-12"></i></div>
                     
                     <div class="grid lg:grid-cols-2 gap-12 items-center relative z-10">
-                        <!-- Marketing Text -->
+                        <!-- Left: Pitch -->
                         <div>
-                            <div class="flex gap-2 mb-4">
-                                <span class="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded uppercase animate-pulse">Selling Fast</span>
-                                <span class="bg-neon text-black text-[10px] font-black px-3 py-1 rounded uppercase">Stage 1</span>
+                            <div class="flex gap-2 mb-4 animate-bounce">
+                                <span class="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded uppercase shadow-[0_0_10px_#dc2626]">Selling Fast</span>
+                                <span class="bg-neon text-black text-[10px] font-black px-3 py-1 rounded uppercase shadow-[0_0_10px_#00ff2a]">Presale Live</span>
                             </div>
-                            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 brand-font leading-tight">
-                                DON'T MISS THE <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff2a] to-emerald-500">NEXT 100X GEM</span>
+                            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 brand-font leading-tight">
+                                OWN THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff2a] to-emerald-500">CASINO</span>
                             </h1>
                             <p class="text-gray-300 text-lg mb-6">
-                                $PBJ is the fuel of the Pepe Casino. Buy now at the lowest price before listing. 
-                                <span class="text-white font-bold">Price increases in 24h.</span>
+                                Stake NFTs, play provably fair games, and earn dividends. Buy $PBJ before the 100x listing.
                             </p>
                             
-                            <!-- Progress Bar -->
-                            <div class="bg-black/50 p-4 rounded-xl border border-white/10 mb-6">
+                            <!-- Progress -->
+                            <div class="bg-black/60 backdrop-blur-sm p-4 rounded-xl border border-white/10 mb-6">
                                 <div class="flex justify-between mb-2 text-xs font-bold">
-                                    <span class="text-gray-400">Presale Progress</span>
-                                    <span class="text-neon">75% SOLD</span>
+                                    <span class="text-gray-400">Presale Stage 1</span>
+                                    <span class="text-neon">82% SOLD</span>
                                 </div>
-                                <div class="w-full h-4 bg-gray-800 rounded-full overflow-hidden shadow-inner">
-                                    <div class="h-full bg-gradient-to-r from-green-600 to-green-400 w-[75%] shadow-[0_0_20px_#00ff2a] relative">
-                                        <div class="absolute inset-0 bg-white/20 animate-[pulse_1s_infinite]"></div>
+                                <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden shadow-inner relative">
+                                    <div class="h-full bg-gradient-to-r from-green-600 to-green-400 w-[82%] shadow-[0_0_15px_#00ff2a] relative">
+                                        <div class="absolute inset-0 bg-white/30 animate-[pulse_1s_infinite]"></div>
                                     </div>
                                 </div>
-                                <p class="text-[10px] text-gray-500 mt-2 text-right">Raised: 420 ETH / 560 ETH</p>
                             </div>
                         </div>
 
-                        <!-- Professional Swap Box -->
-                        <div class="bg-[#1a242d] border border-white/10 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,255,42,0.1)]">
-                            <div class="swap-box">
-                                <div class="swap-tab active">BUY $PBJ</div>
-                                <div class="swap-tab opacity-50 cursor-not-allowed">SELL <i class="fas fa-lock ml-1"></i></div>
+                        <!-- Right: Swap -->
+                        <div class="bg-[#121924]/90 backdrop-blur-md border border-white/10 rounded-3xl p-6 shadow-[0_0_40px_rgba(0,255,42,0.15)] transform hover:scale-[1.01] transition duration-300">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-white font-bold text-lg">Swap ETH to $PBJ</span>
+                                <div class="bg-black px-2 py-1 rounded text-[10px] text-gray-400">1 ETH = 1M PBJ</div>
                             </div>
 
-                            <div class="swap-field mb-2">
-                                <div class="flex justify-between text-xs text-gray-400 mb-2"><span>Pay with</span><span>Bal: <span id="ethBalDisplay">0.00</span></span></div>
-                                <div class="flex items-center gap-4">
-                                    <input type="number" id="ethInput" placeholder="0.0" class="bg-transparent w-full text-3xl font-bold text-white outline-none" oninput="calcTokens()">
-                                    <div class="bg-black/40 px-3 py-1.5 rounded-full flex items-center gap-2 font-bold border border-white/10 shrink-0">
-                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-6 h-6"> ETH
+                            <div class="bg-[#0b1016] rounded-xl p-3 mb-2 border border-white/5 focus-within:border-neon/50 transition">
+                                <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Pay</span><span>Bal: <span id="ethBalDisplay">0.00</span></span></div>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="ethInput" placeholder="0.0" class="bg-transparent w-full text-2xl font-bold text-white outline-none" oninput="calcTokens()">
+                                    <div class="bg-black px-2 py-1 rounded-full flex items-center gap-1 font-bold border border-white/10 shrink-0 text-xs">
+                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-4 h-4"> ETH
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="flex justify-center -my-4 relative z-10"><div class="bg-[#1a242d] p-2 rounded-full border border-white/10"><i class="fas fa-arrow-down text-gray-500"></i></div></div>
+                            <div class="flex justify-center -my-3 relative z-10"><i class="fas fa-arrow-circle-down text-gray-500 bg-[#121924] rounded-full text-xl"></i></div>
 
-                            <div class="swap-field mt-2 mb-6">
-                                <div class="flex justify-between text-xs text-gray-400 mb-2"><span>You receive</span><span>1 ETH = 1M PBJ</span></div>
-                                <div class="flex items-center gap-4">
-                                    <input type="text" id="pbjOutput" placeholder="0" class="bg-transparent w-full text-3xl font-bold text-neon outline-none" readonly>
-                                    <div class="bg-black/40 px-3 py-1.5 rounded-full flex items-center gap-2 font-bold border border-white/10 shrink-0">
+                            <div class="bg-[#0b1016] rounded-xl p-3 mt-2 mb-4 border border-white/5">
+                                <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Receive</span></div>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="pbjOutput" placeholder="0" class="bg-transparent w-full text-2xl font-bold text-neon outline-none" readonly>
+                                    <div class="bg-black px-2 py-1 rounded-full flex items-center gap-1 font-bold border border-white/10 shrink-0 text-xs">
                                         🐸 PBJ
                                     </div>
                                 </div>
                             </div>
 
-                            <button onclick="buyTokens()" id="swapBtn" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg hover:scale-[1.02] transition">CONNECT WALLET TO BUY</button>
-                            <p class="text-center text-[10px] text-gray-500 mt-4"><i class="fas fa-shield-alt text-green-500"></i> Audited Contract | Liquidity Locked</p>
+                            <button onclick="buyTokens()" id="swapBtn" class="btn-gradient w-full py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-[0_0_20px_rgba(0,255,42,0.4)]">CONNECT WALLET</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. GAME GRID -->
+                <!-- 2. GAMES GRID -->
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fas fa-gamepad text-neon"></i> Featured Games</h3>
-                    <span class="text-xs text-gray-500">Provably Fair & On-Chain</span>
+                    <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fas fa-fire text-orange-500"></i> Hot Games</h3>
+                    <div class="flex gap-2 text-xs">
+                        <span class="bg-white/5 px-3 py-1 rounded-full text-white cursor-pointer hover:bg-neon hover:text-black transition">All</span>
+                        <span class="bg-white/5 px-3 py-1 rounded-full text-gray-400 cursor-pointer hover:bg-neon hover:text-black transition">Originals</span>
+                        <span class="bg-white/5 px-3 py-1 rounded-full text-gray-400 cursor-pointer hover:bg-neon hover:text-black transition">Slots</span>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-16">
-                    <!-- Plinko -->
-                    <div onclick="loadGame('games/plinko.html', 'Plinko')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg">
-                        <img src="assets/img/game-plinko.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none" alt="Plinko">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 pointer-events-none"></div>
-                        <div class="p-3 absolute bottom-0 w-full pointer-events-none"><h4 class="font-bold text-sm text-white drop-shadow-md">Plinko</h4></div>
+                    <!-- Cards -->
+                    <div onclick="loadGame('games/plinko.html', 'Plinko')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg hover:-translate-y-1">
+                        <img src="assets/img/game-plinko.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none opacity-80 group-hover:opacity-100" alt="Plinko">
+                        <div class="p-3 absolute bottom-0 w-full pointer-events-none bg-gradient-to-t from-black to-transparent"><h4 class="font-bold text-sm text-white">Plinko</h4></div>
                     </div>
-                    <!-- Crash -->
-                    <div onclick="loadGame('games/crash.html', 'Crash')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg">
-                        <img src="assets/img/game-crash.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none" alt="Crash">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 pointer-events-none"></div>
-                        <div class="p-3 absolute bottom-0 w-full pointer-events-none"><h4 class="font-bold text-sm text-white drop-shadow-md">Crash</h4></div>
+                    <div onclick="loadGame('games/crash.html', 'Crash')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg hover:-translate-y-1">
+                        <img src="assets/img/game-crash.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none opacity-80 group-hover:opacity-100" alt="Crash">
+                        <div class="p-3 absolute bottom-0 w-full pointer-events-none bg-gradient-to-t from-black to-transparent"><h4 class="font-bold text-sm text-white">Crash</h4></div>
                     </div>
-                    <!-- Blackjack -->
-                    <div onclick="loadGame('games/blackjack.html', 'Blackjack')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg">
-                        <img src="assets/img/game-blackjack.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none" alt="Blackjack">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 pointer-events-none"></div>
-                        <div class="p-3 absolute bottom-0 w-full pointer-events-none"><h4 class="font-bold text-sm text-white drop-shadow-md">Blackjack</h4></div>
+                    <div onclick="loadGame('games/blackjack.html', 'Blackjack')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg hover:-translate-y-1">
+                        <img src="assets/img/game-blackjack.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none opacity-80 group-hover:opacity-100" alt="Blackjack">
+                        <div class="p-3 absolute bottom-0 w-full pointer-events-none bg-gradient-to-t from-black to-transparent"><h4 class="font-bold text-sm text-white">Blackjack</h4></div>
                     </div>
-                    <!-- Mines -->
-                    <div onclick="loadGame('games/mines.html', 'Mines')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg">
-                        <img src="assets/img/game-mines.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none" alt="Mines">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 pointer-events-none"></div>
-                        <div class="p-3 absolute bottom-0 w-full pointer-events-none"><h4 class="font-bold text-sm text-white drop-shadow-md">Mines</h4></div>
+                    <div onclick="loadGame('games/mines.html', 'Mines')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg hover:-translate-y-1">
+                        <img src="assets/img/game-mines.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none opacity-80 group-hover:opacity-100" alt="Mines">
+                        <div class="p-3 absolute bottom-0 w-full pointer-events-none bg-gradient-to-t from-black to-transparent"><h4 class="font-bold text-sm text-white">Mines</h4></div>
                     </div>
-                    <!-- Dice -->
-                    <div onclick="loadGame('games/dice.html', 'Dice')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg">
-                        <img src="assets/img/game-dice.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none" alt="Dice">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90 pointer-events-none"></div>
-                        <div class="p-3 absolute bottom-0 w-full pointer-events-none"><h4 class="font-bold text-sm text-white drop-shadow-md">Dice</h4></div>
+                    <div onclick="loadGame('games/dice.html', 'Dice')" class="group relative aspect-square overflow-hidden rounded-2xl bg-card border border-white/5 cursor-pointer transition hover:border-neon/50 shadow-lg hover:-translate-y-1">
+                        <img src="assets/img/game-dice.png" class="w-full h-full object-cover transition duration-300 group-hover:scale-110 pointer-events-none opacity-80 group-hover:opacity-100" alt="Dice">
+                        <div class="p-3 absolute bottom-0 w-full pointer-events-none bg-gradient-to-t from-black to-transparent"><h4 class="font-bold text-sm text-white">Dice</h4></div>
                     </div>
                 </div>
 
-                <!-- 3. NFT SHOWCASE (NUEVO EN EL HOME) -->
-                <div class="bg-[#121924] rounded-3xl p-6 border border-white/5">
-                    <div class="flex items-center justify-between mb-8">
+                <!-- 3. NFT SHOWCASE -->
+                <div class="bg-[#121924] rounded-3xl p-6 border border-white/5 shadow-2xl">
+                    <div class="flex items-center justify-between mb-6">
                         <div>
-                            <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fas fa-gem text-purple-500"></i> Exclusive NFTs</h3>
-                            <p class="text-gray-400 text-sm">Mint to earn daily $PBJ rewards. Staking APY up to 200%.</p>
+                            <h3 class="text-2xl font-bold text-white flex items-center gap-2"><i class="fas fa-gem text-purple-500"></i> Mining NFTs</h3>
+                            <p class="text-gray-400 text-xs">Earn passive income. 100% On-Chain.</p>
                         </div>
-                        <button onclick="showSection('nft')" class="text-sm font-bold text-neon hover:text-white transition">View Vault <i class="fas fa-arrow-right"></i></button>
+                        <button onclick="showSection('nft')" class="text-xs font-bold bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full transition">View Vault <i class="fas fa-arrow-right"></i></button>
                     </div>
                     
-                    <!-- Aquí se renderizan los NFTs via JS -->
                     <div id="homeNftGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                        <!-- Loading State -->
-                        <div class="col-span-full text-center py-10">
-                            <i class="fas fa-circle-notch animate-spin text-neon text-2xl"></i>
-                        </div>
+                        <div class="col-span-full text-center py-10"><i class="fas fa-circle-notch animate-spin text-neon text-2xl"></i></div>
                     </div>
                 </div>
 
-            </div> <!-- FIN HOME SECTION -->
+            </div> <!-- END HOME -->
 
             <!-- B. PROFILE SECTION -->
             <div id="profileSection" class="hidden w-full max-w-6xl mx-auto p-4 md:p-8 fade-in flex-1">
@@ -298,30 +339,28 @@
                 <div class="grid lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 space-y-6">
                         <div class="bg-card border border-white/10 rounded-2xl p-6 text-center relative overflow-hidden">
-                            <div class="relative z-10">
-                                <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-24 h-24 rounded-full border-4 border-[#121924] mx-auto mb-4 bg-black">
-                                <h3 class="text-xl font-bold text-white" id="profileName">Guest</h3>
-                                <p class="text-neon text-sm font-bold uppercase tracking-widest mb-4">Pepe Initiate</p>
-                                <div class="xp-track mb-4"><div class="xp-fill"></div></div>
-                                <p class="text-xs text-gray-500">Play games to level up.</p>
-                            </div>
+                            <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-24 h-24 rounded-full border-4 border-[#121924] mx-auto mb-4 bg-black">
+                            <h3 class="text-xl font-bold text-white" id="profileName">Guest</h3>
+                            <p class="text-neon text-sm font-bold uppercase tracking-widest mb-4">Pepe Initiate</p>
+                            <div class="xp-track mb-4"><div class="xp-fill"></div></div>
+                            <p class="text-xs text-gray-500">Level 1 - 0% to Level 2</p>
                         </div>
                     </div>
                     <div class="lg:col-span-2">
                         <div class="bg-[#1a242d] border border-neon/30 rounded-2xl p-6 md:p-8 relative overflow-hidden">
                             <div class="absolute -right-10 -top-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
                             <h3 class="text-2xl font-bold text-white mb-2"><i class="fas fa-vault text-neon mr-2"></i> Cashier</h3>
-                            <p class="text-gray-400 text-sm mb-8">Exchange your real $PBJ tokens (Wallet) for Casino Chips.</p>
+                            <p class="text-gray-400 text-sm mb-8">Deposit $PBJ to play. Withdraw winnings instantly.</p>
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div class="bg-black/30 rounded-xl p-5 border border-white/5">
                                     <div class="flex justify-between mb-2"><span class="text-neon font-bold text-sm">DEPOSIT</span><span class="text-xs text-gray-500">Wallet: <span id="cashierWalletBal" class="text-white">0.00</span> PBJ</span></div>
                                     <input type="number" id="depositInput" placeholder="0.00" class="w-full bg-[#05080a] p-3 rounded-lg border border-white/10 text-white font-bold mb-4 outline-none">
-                                    <button onclick="depositChips()" class="w-full bg-green-600 hover:bg-green-500 text-black font-bold py-3 rounded-lg transition shadow-lg">Wallet <i class="fas fa-arrow-right mx-1"></i> Chips</button>
+                                    <button onclick="depositChips()" class="w-full bg-green-600 hover:bg-green-500 text-black font-bold py-3 rounded-lg transition shadow-lg">DEPOSIT</button>
                                 </div>
                                 <div class="bg-black/30 rounded-xl p-5 border border-white/5">
                                     <div class="flex justify-between mb-2"><span class="text-red-500 font-bold text-sm">WITHDRAW</span><span class="text-xs text-gray-500">Chips: <span id="cashierGameBal" class="text-white">0.00</span></span></div>
                                     <input type="number" id="withdrawInput" placeholder="0.00" class="w-full bg-[#05080a] p-3 rounded-lg border border-white/10 text-white font-bold mb-4 outline-none">
-                                    <button onclick="withdrawChips()" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-lg transition border border-white/10">Chips <i class="fas fa-arrow-right mx-1"></i> Wallet</button>
+                                    <button onclick="withdrawChips()" class="w-full bg-white/10 hover:bg-white/20 text-white font-bold py-3 rounded-lg transition border border-white/10">WITHDRAW</button>
                                 </div>
                             </div>
                         </div>
@@ -329,19 +368,17 @@
                 </div>
             </div>
 
-            <!-- C. NFT SECTION (FULL INVENTORY) -->
+            <!-- C. NFT SECTION -->
             <div id="nftSection" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 fade-in flex-1">
                 <div class="text-center mb-8">
-                    <h2 class="text-4xl font-black text-white brand-font mb-2">NFT <span class="text-purple-500">STAKING</span></h2>
+                    <h2 class="text-4xl font-black text-white brand-font mb-2">NFT <span class="text-purple-500">VAULT</span></h2>
                     <p class="text-gray-400">Mint exclusive Pepe cards using $PBJ. Stake them to earn passive $PBJ rewards.</p>
                 </div>
                 <div class="flex justify-center gap-4 mb-8">
                     <button onclick="switchNftTab('mint')" id="tabMint" class="px-6 py-2 rounded-full font-bold bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)] transition">MINT NEW</button>
                     <button onclick="switchNftTab('inventory')" id="tabInventory" class="px-6 py-2 rounded-full font-bold bg-white/5 text-gray-400 hover:text-white transition">MY VAULT</button>
                 </div>
-                <!-- Grilla de Minting (Duplicada del Home para acceso directo aquí tambien) -->
                 <div id="nftMintView" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-                
                 <div id="nftInventoryView" class="hidden">
                     <div class="bg-[#1a242d] border border-white/10 rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
                         <div><p class="text-xs text-gray-500 uppercase font-bold">Pending Rewards</p><p class="text-2xl font-bold text-neon"><span id="pendingRewards">0.00</span> PBJ</p></div>
@@ -353,18 +390,22 @@
                 </div>
             </div>
 
-            <!-- E. GAME FRAME (CONTENEDOR DEL JUEGO) -->
+            <!-- E. GAME FRAME -->
             <div id="gameContainer" class="game-frame-container w-full h-full flex-col hidden flex-1 absolute inset-0 z-50 bg-[#05080a]">
-                <div class="h-12 flex items-center px-6 bg-panel border-b border-border-color shrink-0">
-                    <button onclick="showSection('home')" class="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition">
-                        <i class="fas fa-arrow-left"></i> Exit
-                    </button>
-                    <span id="activeGameTitle" class="ml-4 text-white font-bold opacity-50 border-l border-white/10 pl-4">| Game</span>
+                <div class="h-12 flex items-center px-6 bg-panel border-b border-border-color shrink-0 justify-between">
+                    <div class="flex items-center gap-4">
+                        <button onclick="showSection('home')" class="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-bold transition"><i class="fas fa-arrow-left"></i> Exit</button>
+                        <span id="activeGameTitle" class="text-white font-bold border-l border-white/10 pl-4">Game</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">Balance:</span>
+                        <span class="text-neon font-bold" id="inGameBalance">0.00</span>
+                    </div>
                 </div>
                 <iframe id="gameFrame" class="w-full h-full border-none bg-[#05080a]" src="about:blank" allow="autoplay"></iframe>
             </div>
 
-             <!-- FOOTER -->
+            <!-- FOOTER -->
 <footer class="bg-[#020304] border-t border-white/5 py-10 mt-auto shrink-0">
                 <div class="max-w-7xl mx-auto px-6">
                     <div class="grid md:grid-cols-4 gap-8 mb-8">
@@ -410,10 +451,32 @@
             </footer>
 
         </main>
+
+        <!-- 4. RIGHT CHAT SIDEBAR (SIMULATED LIVE CHAT) -->
+        <aside id="chatSidebar" class="chat-sidebar w-72 md:w-[300px]">
+            <div class="p-4 border-b border-white/5 flex justify-between items-center bg-panel">
+                <span class="font-bold text-white text-sm"><i class="fas fa-comments text-neon mr-2"></i> Global Chat</span>
+                <div class="flex gap-2 text-[10px] text-gray-500">
+                    <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> 420</span>
+                </div>
+            </div>
+            
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-[#080c10]">
+                <!-- Chat injected via JS -->
+            </div>
+
+            <div class="p-3 bg-panel border-t border-white/5">
+                <div class="relative">
+                    <input type="text" placeholder="Type a message..." class="w-full bg-[#05080a] text-xs text-white p-3 rounded-lg border border-white/10 outline-none focus:border-neon/50">
+                    <button class="absolute right-2 top-2 text-gray-500 hover:text-white"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </aside>
+
     </div>
 
     <script>
-        // --- CONSTANTES ---
+        // --- CONFIG ---
         const PBJ_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5";
         const NFT_ADDRESS = "0xDE05dAf2cbF59ce9094979d639393ADED494e920";
         const TREASURY_ADDRESS = "0x711ec57A367C381Be6f9d9C5523F2e85C88E03AA"; 
@@ -423,22 +486,105 @@
         const PBJ_ABI = ["function balanceOf(address) view returns (uint256)", "function transfer(address recipient, uint256 amount) returns (bool)", "function approve(address, uint256) returns (bool)", "function allowance(address, address) view returns (uint256)", "function decimals() view returns (uint8)"];
         const NFT_ABI = ["function tierInfo(uint256) view returns (uint256 price, uint256 rewardPerSec, bool active)", "function mint(uint256 _id, uint256 _amount)", "function stake(uint256 _id, uint256 _amount)", "function unstake(uint256 _id, uint256 _amount)", "function claim()", "function getPendingRewards(address _user) view returns (uint256)", "function balanceOf(address, uint256) view returns (uint256)", "function getStakedBalance(address _user, uint256 _id) view returns (uint256)", "function isApprovedForAll(address account, address operator) view returns (bool)", "function setApprovalForAll(address operator, bool approved)"];
 
-        // --- ESTADO ---
+        // --- STATE ---
         let provider, signer, userAddress;
         let pbjContract, nftContract;
         let gameBalance = 0; 
         let walletBalance = 0;
 
+        // --- INIT ---
         window.onload = () => {
             const savedChips = localStorage.getItem('pepe_chips');
             if(savedChips) gameBalance = parseFloat(savedChips);
             updateUI();
+            
+            // Web3 Init
             if(window.ethereum) {
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 window.ethereum.request({ method: 'eth_accounts' }).then(accounts => { if (accounts.length > 0) connectWallet(); });
             }
+
+            // Start Simulated "Dopamine" Features
+            startFakeActivity();
         };
 
+        // --- DOPAMINE & SIMULATION FUNCTIONS ---
+        function startFakeActivity() {
+            // 1. Online Users Simulation
+            setInterval(() => {
+                const users = 400 + Math.floor(Math.random() * 50);
+                document.getElementById('onlineUsers').innerText = "● " + users;
+            }, 3000);
+
+            // 2. Fake Chat Loop
+            const fakeUsers = ["DegenKing", "PepeLover69", "Whale0x", "BasedGod", "CryptoChad", "MoonBoy", "PonziSniper"];
+            const fakeMsgs = ["LFG!", "Just bought more PBJ", "Plinko is paying out rn", "Anyone staking?", "Base season is here", "🚀🚀🚀", "Rekt on Crash lol", "Big win!", "GM fam"];
+            
+            // Pre-fill chat
+            for(let i=0; i<5; i++) addChatMessage(fakeUsers[i], fakeMsgs[i]);
+
+            setInterval(() => {
+                const u = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
+                const m = fakeMsgs[Math.floor(Math.random() * fakeMsgs.length)];
+                addChatMessage(u, m);
+            }, 4000);
+
+            // 3. Fake Live Wins (Toaster)
+            setInterval(() => {
+                const games = ["Plinko", "Crash", "Blackjack", "Mines"];
+                const game = games[Math.floor(Math.random() * games.length)];
+                const amt = Math.floor(Math.random() * 5000) + 100;
+                const user = "0x" + Math.random().toString(16).substr(2, 4) + "..." + Math.random().toString(16).substr(2, 4);
+                
+                showLiveWin(user, amt, game);
+            }, 6500);
+        }
+
+        function addChatMessage(user, msg) {
+            const div = document.createElement('div');
+            div.className = "chat-msg text-xs mb-2";
+            div.innerHTML = `<span class="font-bold text-gray-400">${user}:</span> <span class="text-gray-200">${msg}</span>`;
+            const container = document.getElementById('chatMessages');
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            
+            // Keep simulated chat clean
+            if(container.children.length > 30) container.removeChild(container.firstChild);
+        }
+
+        function showLiveWin(user, amt, game) {
+            const container = document.getElementById('liveToastContainer');
+            const div = document.createElement('div');
+            div.className = "live-toast bg-black/80 backdrop-blur-md border border-green-500/30 p-3 rounded-lg flex items-center gap-3 shadow-lg pointer-events-none";
+            div.innerHTML = `
+                <div class="bg-green-500/20 p-2 rounded-full"><i class="fas fa-trophy text-green-400"></i></div>
+                <div>
+                    <p class="text-[10px] text-gray-400 font-bold">${user}</p>
+                    <p class="text-xs text-white font-bold">Won <span class="text-neon">${amt} Chips</span> on ${game}</p>
+                </div>
+            `;
+            container.appendChild(div);
+            setTimeout(() => { if(div.parentNode) div.parentNode.removeChild(div); }, 5000);
+        }
+
+        function toggleChat() {
+            const sidebar = document.getElementById('chatSidebar');
+            const layout = document.getElementById('appLayout');
+            
+            if (window.innerWidth >= 1280) {
+                // Desktop: Toggle grid layout
+                if (layout.style.gridTemplateColumns === '240px 1fr 0px') {
+                    layout.style.gridTemplateColumns = '240px 1fr 300px';
+                } else {
+                    layout.style.gridTemplateColumns = '240px 1fr 0px';
+                }
+            } else {
+                // Mobile: Toggle class
+                sidebar.classList.toggle('open');
+            }
+        }
+
+        // --- WEB3 FUNCTIONS (UNCHANGED CORE LOGIC) ---
         async function connectWallet() {
             if(!window.ethereum) return Swal.fire("Error", "Install MetaMask", "error");
             try {
@@ -455,7 +601,6 @@
                 updateWalletData();
                 renderNftMintOptions();
                 
-                // Actualizar botón de swap si ya conectó
                 const swapBtn = document.getElementById('swapBtn');
                 if(swapBtn) swapBtn.innerText = "SWAP ETH FOR PBJ";
                 
@@ -471,16 +616,19 @@
             const ethRaw = await provider.getBalance(userAddress);
             const ethBal = parseFloat(ethers.utils.formatEther(ethRaw)).toFixed(4);
             document.getElementById('userNameDisplay').innerText = userAddress.substring(0,6) + "...";
-            document.getElementById('btnText').innerText = "Connected";
-            document.getElementById('userBalDisplay').innerText = walletBalance.toLocaleString() + " PBJ";
+            document.getElementById('headerWalletBal').innerText = walletBalance.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('cashierWalletBal').innerText = walletBalance.toLocaleString();
             document.getElementById('ethBalDisplay').innerText = ethBal;
             updateUI();
         }
 
         function updateUI() {
-            document.getElementById('sidebarChips').innerText = gameBalance.toLocaleString();
-            document.getElementById('cashierGameBal').innerText = gameBalance.toLocaleString();
-            document.getElementById('cashierWalletBal').innerText = walletBalance.toLocaleString();
+            // Update all chip counters
+            const chips = gameBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('headerGameBal').innerText = chips;
+            document.getElementById('inGameBalance').innerText = chips;
+            document.getElementById('cashierGameBal').innerText = chips;
+            // Sidebar chips removed as requested, now in header
         }
 
         function calcTokens() { document.getElementById('pbjOutput').value = (document.getElementById('ethInput').value * 1000000).toLocaleString(); }
@@ -499,11 +647,10 @@
             } catch(e) { Swal.fire("Error", e.message, "error"); }
         }
 
+        // --- NFT LOGIC ---
         const TIER_NAMES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
         const TIER_IMGS = ["common", "uncommon", "rare", "epic", "legendary"];
-        const TIER_COLORS = ["gray", "green", "blue", "purple", "yellow"];
 
-        // Esta función ahora puebla tanto el grid del Home como el de la sección NFT
         async function renderNftMintOptions() {
             let html = "";
             for(let i=0; i<5; i++) {
@@ -524,14 +671,10 @@
                     </div>
                 </div>`;
             }
-            
-            // Render en la sección NFT (si existe)
-            const nftSectionGrid = document.getElementById('nftMintView');
-            if(nftSectionGrid) nftSectionGrid.innerHTML = html;
-            
-            // Render en el Home (si existe)
             const homeNftGrid = document.getElementById('homeNftGrid');
             if(homeNftGrid) homeNftGrid.innerHTML = html;
+            const nftSectionGrid = document.getElementById('nftMintView');
+            if(nftSectionGrid) nftSectionGrid.innerHTML = html;
         }
 
         async function mintNft(id, priceStr) {
@@ -566,7 +709,7 @@
                     const balNum = balance.toNumber();
                     const stakedNum = staked.toNumber();
                     if(balNum > 0 || stakedNum > 0) {
-                        html += `<div class="nft-card border border-${TIER_COLORS[i]}-500/30">
+                        html += `<div class="nft-card border border-white/10">
                             <div class="h-32 bg-black relative overflow-hidden">
                                 <img src="assets/img/nft-${TIER_IMGS[i]}.png" class="w-full h-full object-cover opacity-80" alt="${TIER_NAMES[i]}">
                             </div>
@@ -622,6 +765,7 @@
             } catch(e) { Swal.fire("Error", e.message, "error"); }
         }
 
+        // --- CASHIER ---
         async function depositChips() {
             if(!userAddress) return connectWallet();
             const amountVal = document.getElementById('depositInput').value;
@@ -646,32 +790,34 @@
 
         function withdrawChips() {
             const amount = parseFloat(document.getElementById('withdrawInput').value);
+            if(amount <= 0 || isNaN(amount)) return Swal.fire("Error", "Enter valid amount", "error");
             if(amount > gameBalance) return Swal.fire("Error", "Insufficient Chips", "error");
+            
+            // Simulación de retiro (Para producción se requiere Backend)
             gameBalance -= amount;
-            walletBalance += amount; 
             saveChips();
             updateUI();
-            Swal.fire("Withdrawn", `${amount} Chips converted to PBJ (Simulated).`, "success");
+            
+            Swal.fire({
+                title: "Withdrawal Pending",
+                html: `<p>Requested <b>${amount} PBJ</b>.</p><p class="text-xs text-gray-400 mt-2">Processing time: ~10 mins</p>`,
+                icon: "success",
+                background: '#121924', color: '#fff'
+            });
         }
 
         function saveChips() { localStorage.setItem('pepe_chips', gameBalance); }
 
         function showSection(id) {
-            // Ocultar juego y frame
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('gameFrame').src = 'about:blank';
             document.querySelector('footer').style.display = 'block';
-            
-            // Ocultar todas las secciones
             ['homeSection','profileSection','nftSection'].forEach(s => {
                 const el = document.getElementById(s);
                 if(el) el.classList.add('hidden');
             });
-            
-            // Mostrar la seleccionada
             const target = document.getElementById(id+'Section');
             if(target) target.classList.remove('hidden');
-            
             if(window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('open');
         }
 
@@ -691,16 +837,11 @@
         }
 
         function loadGame(url, title) {
-            // 1. Ocultar Home y Footer
-            showSection('none'); // "none" oculta todas las secciones principales
+            showSection('none');
             document.querySelector('footer').style.display = 'none';
-            
-            // 2. Mostrar Contenedor de Juego
-            const container = document.getElementById('gameContainer');
-            container.style.display = 'flex';
-            container.classList.remove('hidden');
-            
-            document.getElementById('activeGameTitle').innerText = "| " + title;
+            document.getElementById('gameContainer').style.display = 'flex';
+            document.getElementById('gameContainer').classList.remove('hidden');
+            document.getElementById('activeGameTitle').innerText = title;
             const f = document.getElementById('gameFrame');
             f.src = url;
             f.onload = () => f.contentWindow.postMessage({type: 'INIT_BALANCE', balance: gameBalance}, '*');
