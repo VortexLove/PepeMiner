@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     
     <style>
+        /* ESTILOS GENERALES */
         body { 
             background: transparent; color: white; font-family: 'Inter', sans-serif;
             overflow: hidden; user-select: none; height: 100vh; margin: 0;
@@ -22,19 +23,21 @@
             overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* CONTROLES */
+        /* CONTROLES (IZQUIERDA) */
         .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; z-index: 10; }
         
-        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
+        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; transition: 0.3s; }
+        .input-group:focus-within { border-color: #00ff2a; }
         .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 10px; font-weight: bold; outline: none; }
         
         .btn-action { 
             width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; 
             text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; font-size: 1.1rem;
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; cursor: pointer;
         }
         .btn-bet { background: #00ff2a; color: black; box-shadow: 0 0 20px rgba(0,255,42,0.2); }
         .btn-bet:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0,255,42,0.5); }
+        .btn-bet:active { transform: scale(0.98); }
         
         .btn-cashout { 
             background: #eab308; color: black; 
@@ -42,20 +45,20 @@
         }
         .btn-cashout:hover { transform: translateY(-2px); filter: brightness(1.1); }
         
-        .btn-disabled { background: #374151; color: #9ca3af; cursor: not-allowed; opacity: 0.7; box-shadow: none; }
+        .btn-disabled { background: #374151; color: #9ca3af; cursor: not-allowed; opacity: 0.7; box-shadow: none; transform: none; }
 
         /* MINE OPTIONS */
         .mine-opt { transition: 0.2s; border: 1px solid transparent; }
         .mine-opt.active { background: #00ff2a; color: black; border-color: #00ff2a; box-shadow: 0 0 10px rgba(0,255,42,0.3); }
         .mine-opt:hover:not(.active) { background: rgba(255,255,255,0.1); }
 
-        /* STAGE */
+        /* STAGE (DERECHA) */
         .stage { 
             position: relative; background: radial-gradient(circle at 50% 50%, #1a2530 0%, #05080a 100%);
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
 
-        /* GRID */
+        /* GRID DEL JUEGO */
         .mines-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
             width: 100%; max-width: 450px; aspect-ratio: 1; position: relative;
@@ -107,14 +110,19 @@
     <div class="game-wrapper" id="mainWrapper">
         <!-- CONTROLES -->
         <div class="controls">
+            
+            <!-- Logo/Header -->
+            <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fas fa-bomb text-yellow-500"></i> MINES
+            </h2>
+
             <!-- Bet -->
             <div>
                 <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
                     <span>Bet Amount</span>
-                    <span id="balanceDisplay">Loading...</span>
                 </div>
                 <div class="input-group">
-                    <input type="number" id="betInput" value="10" class="input-clean">
+                    <input type="number" id="betInput" value="10" min="1" class="input-clean">
                     <button onclick="adjBet(0.5)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">½</button>
                     <button onclick="adjBet(2)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">2x</button>
                 </div>
@@ -123,7 +131,7 @@
             <!-- Mines Selector -->
             <div>
                 <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
-                    <span>Mines</span>
+                    <span>Mines Count</span>
                 </div>
                 <div class="bg-[#05080a] p-2 rounded-lg grid grid-cols-4 gap-2">
                     <button onclick="setMines(1)" class="mine-opt bg-[#1f2937] text-xs font-bold py-2 rounded text-gray-400">1</button>
@@ -134,14 +142,14 @@
             </div>
 
             <!-- Stats Info -->
-            <div class="mt-auto grid grid-cols-2 gap-2 mb-2">
-                <div class="bg-white/5 p-2 rounded text-center">
-                    <p class="text-[9px] text-gray-500 uppercase">Next Multiplier</p>
-                    <p class="text-sm font-bold text-green-400" id="nextMult">1.00x</p>
+            <div class="mt-auto space-y-2">
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Balance</p>
+                    <p class="text-sm font-bold text-white font-mono" id="balanceDisplay">---</p>
                 </div>
-                <div class="bg-white/5 p-2 rounded text-center">
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
                     <p class="text-[9px] text-gray-500 uppercase">Current Profit</p>
-                    <p class="text-sm font-bold text-white" id="currentProfit">0.00</p>
+                    <p class="text-sm font-bold text-[#00ff2a]" id="currentProfit">0.00</p>
                 </div>
             </div>
 
@@ -151,7 +159,7 @@
         <!-- STAGE -->
         <div class="stage">
             <div id="grid" class="mines-grid">
-                <!-- JS Generates Tiles -->
+                <!-- Generated by JS -->
             </div>
         </div>
     </div>
@@ -162,17 +170,33 @@
     <audio id="sfx-cashout" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
 
     <script>
-        // --- INFRAESTRUCTURA IFRAME ---
-        let userBalance = 0;
+        // ==================================================================
+        // 1. SISTEMA DE CHIPS (COMUNICACIÓN PADRE-HIJO)
+        // ==================================================================
+        let currentBalance = 0;
+
+        // Escuchar mensajes
         window.addEventListener('message', (e) => {
             if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
-                userBalance = e.data.balance;
-                document.getElementById('balanceDisplay').innerText = userBalance.toLocaleString();
+                updateBalanceUI(e.data.balance);
             }
         });
-        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // --- GAME LOGIC ---
+        // Actualizar UI local
+        function updateBalanceUI(newBal) {
+            currentBalance = parseFloat(newBal);
+            document.getElementById('balanceDisplay').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        // Enviar cambios al padre
+        function updateParent(amount) {
+            // amount negativo = apuesta, positivo = ganancia
+            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
+        }
+
+        // ==================================================================
+        // 2. LÓGICA DE JUEGO MINES
+        // ==================================================================
         const grid = document.getElementById('grid');
         const mainBtn = document.getElementById('mainBtn');
         
@@ -183,9 +207,9 @@
         let currentMultiplier = 1.0;
         let numMines = 3;
         const totalTiles = 25;
-        const houseEdge = 0.99; // 1% House Edge on every step
+        const houseEdge = 0.99; // 1% Ventaja Casa
 
-        // Init
+        // Inicializar
         createGrid();
         updateCalculations();
 
@@ -204,7 +228,6 @@
             if(gameActive) return;
             numMines = n;
             
-            // UI Update
             document.querySelectorAll('.mine-opt').forEach(b => {
                 b.classList.remove('active');
                 if(parseInt(b.innerText) === n) b.classList.add('active');
@@ -226,24 +249,35 @@
 
         function startGame() {
             const bet = parseFloat(document.getElementById('betInput').value);
-            if(bet > userBalance) return alert("Insufficient Balance");
-            if(bet <= 0) return;
+            
+            // Validaciones
+            if(isNaN(bet) || bet <= 0) return;
+            if(bet > currentBalance) {
+                // Efecto error visual
+                const grp = document.querySelector('.input-group');
+                grp.style.borderColor = 'red';
+                setTimeout(() => grp.style.borderColor = '#1f2937', 500);
+                return;
+            }
 
+            // 1. RESTAR APUESTA
             currentBet = bet;
-            updateParent(-currentBet);
+            updateBalanceUI(currentBalance - currentBet); // Resta local inmediata
+            updateParent(-currentBet); // Notificar padre
 
+            // Iniciar Estado Juego
             gameActive = true;
             revealedCount = 0;
             currentMultiplier = 1.0;
             
-            // Generar Minas (Client Side Simulado)
+            // Generar Minas
             mineLocations = [];
             while(mineLocations.length < numMines) {
                 const r = Math.floor(Math.random() * totalTiles);
                 if(!mineLocations.includes(r)) mineLocations.push(r);
             }
 
-            // Reset UI
+            // UI Reset
             createGrid();
             updateButton();
             updateCalculations();
@@ -253,7 +287,7 @@
         function clickTile(idx) {
             if(!gameActive) return;
             const tile = document.getElementById(`tile-${idx}`);
-            if(tile.classList.contains('revealed')) return;
+            if(tile.classList.contains('revealed') || tile.classList.contains('disabled')) return;
 
             if(mineLocations.includes(idx)) {
                 gameOver(idx);
@@ -266,30 +300,29 @@
             const tile = document.getElementById(`tile-${idx}`);
             tile.classList.add('revealed', 'gem-tile');
             
-            // Play Sound
+            // SFX
             const audio = document.getElementById('sfx-gem').cloneNode();
-            audio.volume = 0.5;
-            audio.play().catch(()=>{});
+            audio.volume = 0.5; audio.play().catch(()=>{});
 
-            // Icon Animation
             tile.innerHTML = `<i class="fas fa-gem text-green-400 icon-pop drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]"></i>`;
             
             revealedCount++;
             
-            // Calcular Multiplicador Real con House Edge
-            // Formula: Mult = Mult * (Remaining / Safe) * Edge
+            // CALCULAR NUEVO MULTIPLICADOR
+            // Formula: Mult = Mult * (TotalRestantes / SegurasRestantes)
             const remaining = totalTiles - (revealedCount - 1);
             const safe = totalTiles - numMines - (revealedCount - 1);
             const odds = remaining / safe;
-            currentMultiplier = currentMultiplier * odds; // Math Pure
-            // Aplicamos House Edge al global o por paso. Aquí aplicamos al retiro.
             
-            // Mostrar Multiplicador Flotante sobre la celda
-            spawnFloatText(tile, `+${currentMultiplier.toFixed(2)}x`);
+            currentMultiplier = currentMultiplier * odds;
+            
+            // Texto flotante
+            spawnFloatText(tile, `+${(currentMultiplier * houseEdge).toFixed(2)}x`);
 
             updateButton();
             updateCalculations();
 
+            // Auto win si se revelan todas
             if(revealedCount === (totalTiles - numMines)) {
                 cashOut();
             }
@@ -302,44 +335,49 @@
             
             gameActive = false;
             
-            // Reveal All
+            // Revelar todo
             for(let i=0; i<totalTiles; i++) {
                 const t = document.getElementById(`tile-${i}`);
-                t.classList.add('disabled'); // Bloquear clicks
+                t.classList.add('disabled'); 
                 
                 if(mineLocations.includes(i)) {
                     t.classList.add('revealed', 'mine-tile');
                     t.innerHTML = `<i class="fas fa-bomb text-red-500 icon-pop"></i>`;
-                    if(i === idx) t.style.backgroundColor = "#7f1d1d"; // Highlight explosion source
+                    if(i === idx) t.style.backgroundColor = "#7f1d1d"; 
                 } else if (!t.classList.contains('revealed')) {
                     t.style.opacity = "0.3";
                     t.innerHTML = `<i class="fas fa-gem text-gray-600 opacity-20"></i>`;
                 }
             }
 
+            // Reset Botón
             mainBtn.innerText = "BET";
             mainBtn.className = "btn-action btn-bet";
             document.getElementById('betInput').disabled = false;
+            document.getElementById('currentProfit').innerText = "0.00";
         }
 
         function cashOut() {
             if(!gameActive) return;
             gameActive = false;
             
-            // Aplicar House Edge al final (1%)
+            // 2. SUMAR GANANCIA
+            // Aplicamos House Edge al final
             const finalMult = currentMultiplier * houseEdge;
-            const win = currentBet * finalMult;
+            const winAmount = currentBet * finalMult;
             
-            updateParent(win);
+            updateBalanceUI(currentBalance + winAmount); // Suma local
+            updateParent(winAmount); // Notificar padre
+
             document.getElementById('sfx-cashout').play();
 
-            // Disable Grid
+            // Bloquear grid y mostrar minas restantes
             document.querySelectorAll('.tile').forEach(t => t.classList.add('disabled'));
-            
-            // Reveal Mines (Dimmed)
             mineLocations.forEach(loc => {
                 const t = document.getElementById(`tile-${loc}`);
-                t.innerHTML = `<i class="fas fa-bomb text-white opacity-20"></i>`;
+                if(!t.classList.contains('revealed')) {
+                    t.innerHTML = `<i class="fas fa-bomb text-white opacity-20"></i>`;
+                }
             });
 
             mainBtn.innerText = "BET";
@@ -348,27 +386,9 @@
         }
 
         function updateCalculations() {
-            // Predecir siguiente multiplicador
-            // Next = Current * (Remaining / SafeRemaining) * Edge
-            const remaining = totalTiles - revealedCount;
-            const safe = totalTiles - numMines - revealedCount;
-            
-            let nextVal = 0;
-            if(safe > 0) {
-                const odds = remaining / safe;
-                nextVal = currentMultiplier * odds * houseEdge;
-            }
-
-            document.getElementById('nextMult').innerText = (gameActive ? nextVal : getInitialMult()).toFixed(2) + "x";
-            
+            // Mostrar ganancia potencial actual
             const currentWin = currentBet * currentMultiplier * houseEdge;
             document.getElementById('currentProfit').innerText = (gameActive ? (currentWin - currentBet) : 0).toFixed(2);
-        }
-
-        function getInitialMult() {
-            // Predicción inicial
-            const odds = totalTiles / (totalTiles - numMines);
-            return odds * houseEdge;
         }
 
         function updateButton() {
@@ -383,15 +403,11 @@
         }
 
         function spawnFloatText(element, text) {
-            const rect = element.getBoundingClientRect();
-            const parentRect = document.querySelector('.stage').getBoundingClientRect();
-            
             const el = document.createElement('div');
             el.className = 'float-text';
             el.innerText = text;
             el.style.left = (element.offsetLeft + element.offsetWidth/2 - 15) + 'px';
             el.style.top = (element.offsetTop) + 'px';
-            
             document.querySelector('.mines-grid').appendChild(el);
             setTimeout(() => el.remove(), 800);
         }
