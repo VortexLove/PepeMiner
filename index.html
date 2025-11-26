@@ -62,16 +62,12 @@
         .game-toolbar { height: 50px; display: flex; align-items: center; padding: 0 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-color); }
 
         /* SWAP CARD (PRESALE) */
-        .swap-card {
-            background: #1a242d; border: 1px solid #2f3b4b; border-radius: 24px;
-            padding: 4px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
         .swap-input-container {
-            background: #0b1016; border-radius: 20px; padding: 16px; border: 1px solid transparent; transition: 0.3s;
+            background: #0b1016; border-radius: 16px; padding: 12px; border: 1px solid #2f3b4b; transition: 0.3s;
         }
         .swap-input-container:focus-within { border-color: var(--primary); }
         .swap-input {
-            background: transparent; font-size: 24px; font-weight: bold; color: white;
+            background: transparent; font-size: 20px; font-weight: bold; color: white;
             width: 100%; outline: none; font-family: 'Space Grotesk', sans-serif;
         }
 
@@ -98,7 +94,7 @@
         <!-- 1. SIDEBAR -->
         <nav id="sidebar" class="sidebar bg-panel glass-panel p-5 pt-16 lg:pt-6">
             <div class="flex items-center gap-3 mb-8 px-2 cursor-pointer group" onclick="showSection('home')">
-                <div class="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(0,255,42,0.3)] group-hover:rotate-12 transition">🐸</div>
+                <div class="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(0,255,42,0.3)]">🐸</div>
                 <div>
                     <h1 class="text-xl font-bold text-white leading-none">Pepe<span class="text-neon">BJ</span></h1>
                     <span class="text-[9px] text-gray-500 uppercase tracking-widest">DeFi Casino</span>
@@ -110,9 +106,10 @@
                 <button onclick="showSection('home')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition">
                     <i class="fas fa-home text-blue-400 w-5"></i> Home
                 </button>
-                <button onclick="showSection('presale')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-green-900/20 border border-green-500/30 text-white font-bold transition hover:bg-green-900/40 pulse-ring relative overflow-hidden">
-                    <i class="fas fa-coins text-neon w-5"></i> BUY $PBJ
-                    <span class="absolute right-2 text-[9px] bg-neon text-black px-1.5 rounded font-bold">HOT</span>
+                <!-- Botón Presale destacado en sidebar -->
+                <button onclick="showSection('home')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-green-900/20 border border-green-500/30 text-white font-bold transition hover:bg-green-900/40 pulse-ring relative overflow-hidden">
+                    <i class="fas fa-coins text-neon w-5"></i> PRESALE
+                    <span class="absolute right-2 text-[9px] bg-neon text-black px-1.5 rounded font-bold">LIVE</span>
                 </button>
 
                 <p class="px-3 text-[10px] font-bold text-gray-500 uppercase mt-6 mb-2">Games</p>
@@ -144,7 +141,6 @@
                     <span class="text-2xl font-bold text-white font-mono" id="sidebarBalance">0.00</span>
                     <span class="text-xs text-neon font-bold">PBJ</span>
                 </div>
-                <button onclick="showSection('presale')" class="w-full mt-2 bg-white/5 hover:bg-white/10 text-xs py-1.5 rounded text-gray-300 transition">Deposit</button>
             </div>
         </nav>
 
@@ -157,21 +153,13 @@
             </div>
             
             <div class="flex gap-4 items-center">
-                <div class="hidden md:flex items-center gap-6 mr-4">
-                    <div class="text-right">
-                        <p class="text-[10px] text-gray-500 uppercase font-bold">Jackpot</p>
-                        <p class="text-sm font-bold text-yellow-400">$1,240,592.00</p>
-                    </div>
-                </div>
-
                 <div id="userInfo" class="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10 cursor-pointer hover:border-neon/50 transition" onclick="showSection('profile')">
                     <div class="text-right hidden sm:block">
                         <span class="block text-xs font-bold text-white" id="userNameDisplay">Guest</span>
-                        <span class="block text-[9px] text-neon uppercase tracking-wide">Level 1</span>
                     </div>
                     <img id="headerAvatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-9 h-9 rounded-full bg-black border-2 border-white/10">
                 </div>
-                <button id="connectBtn" onclick="openWalletModal()" class="btn-gradient px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2">
+                <button id="connectBtnHeader" onclick="openWalletModal()" class="btn-gradient px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2">
                     <i class="fas fa-wallet"></i> Connect
                 </button>
             </div>
@@ -180,24 +168,88 @@
         <!-- 3. CONTENIDO PRINCIPAL -->
         <main class="content-viewport custom-scrollbar">
             
-            <!-- A. SECCIÓN HOME (LOBBY) -->
-            <div id="homeSection" class="max-w-7xl mx-auto p-6 md:p-10 fade-in">
-                <!-- Hero Banner -->
-                <div class="relative rounded-3xl overflow-hidden p-10 mb-12 bg-gradient-to-r from-green-900/80 to-black border border-white/10 shadow-2xl group">
-                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                    <div class="relative z-10 max-w-2xl">
-                        <span class="inline-block bg-neon text-black text-[10px] font-black px-2 py-1 rounded mb-4">NEW SEASON</span>
-                        <h1 class="text-5xl md:text-7xl font-black text-white mb-6 brand-font leading-tight">
-                            CASINO <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff2a] to-emerald-500">DEFI</span>
-                        </h1>
-                        <p class="text-gray-400 text-lg mb-8 max-w-lg">Experience the first fair-launch casino. 100% of profits are distributed to $PBJ stakers.</p>
-                        <div class="flex gap-4">
-                            <button onclick="loadGame('games/plinko.html', 'Plinko')" class="btn-gradient px-8 py-4 rounded-xl text-black font-bold hover:scale-105 transition">PLAY NOW</button>
-                            <button onclick="showSection('presale')" class="bg-white/10 border border-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/20 transition">BUY TOKEN</button>
+            <!-- A. SECCIÓN HOME (CON PREVENTA INTEGRADA) -->
+            <div id="homeSection" class="max-w-7xl mx-auto p-4 md:p-8 fade-in">
+                
+                <!-- HERO / PRESALE SPLIT LAYOUT -->
+                <div class="grid lg:grid-cols-2 gap-6 mb-10">
+                    
+                    <!-- Left: Marketing / Info -->
+                    <div class="bg-gradient-to-br from-green-900/40 to-black border border-white/10 rounded-3xl p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                        <div class="relative z-10">
+                            <span class="bg-neon text-black text-[10px] font-black px-2 py-1 rounded mb-4 inline-block">PRESALE LIVE</span>
+                            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 brand-font leading-tight">
+                                OWN THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00ff2a] to-emerald-500">CASINO</span>
+                            </h1>
+                            <p class="text-gray-400 text-lg mb-6">Buy $PBJ now and earn 40% of casino profits daily. The earlier you buy, the more you earn.</p>
+                            
+                            <div class="flex flex-wrap gap-3 mb-6">
+                                <div class="bg-black/30 px-4 py-2 rounded-lg border border-white/5">
+                                    <p class="text-[10px] text-gray-500 font-bold">Current Price</p>
+                                    <p class="text-white font-bold">1 ETH = 1M PBJ</p>
+                                </div>
+                                <div class="bg-black/30 px-4 py-2 rounded-lg border border-white/5">
+                                    <p class="text-[10px] text-gray-500 font-bold">Next Stage</p>
+                                    <p class="text-white font-bold">+20% Price</p>
+                                </div>
+                            </div>
+
+                            <div class="w-full bg-black/50 rounded-full h-3 mb-2 overflow-hidden">
+                                <div class="bg-neon h-full w-[65%] shadow-[0_0_10px_#00ff2a]"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 text-right">Target: 500 ETH</p>
                         </div>
+                        
+                        <i class="fas fa-frog absolute -bottom-10 -right-10 text-[250px] text-green-600 opacity-20 rotate-12 group-hover:scale-110 transition duration-700"></i>
                     </div>
-                    <div class="absolute right-[-50px] bottom-[-50px] opacity-30 md:opacity-100 transition duration-500 group-hover:scale-110 group-hover:rotate-6">
-                        <i class="fas fa-frog text-[300px] text-green-600 drop-shadow-[0_0_50px_rgba(0,255,42,0.5)]"></i>
+
+                    <!-- Right: Swap Interface -->
+                    <div class="bg-[#1a242d] border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl flex flex-col justify-center">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-white">Buy $PBJ</h3>
+                            <span class="text-xs text-green-400 font-bold bg-green-400/10 px-2 py-1 rounded border border-green-400/20">Zero Tax</span>
+                        </div>
+
+                        <!-- INPUT ETH -->
+                        <div class="swap-input-container mb-2">
+                            <div class="flex justify-between text-xs text-gray-500 mb-2">
+                                <span>You Pay (ETH)</span>
+                                <span>Balance: <span id="walletEthBal">0.00</span></span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="number" id="ethAmount" placeholder="0.0" class="swap-input" oninput="calcTokens()">
+                                <div class="bg-black/40 px-3 py-1.5 rounded-full flex items-center gap-2 font-bold border border-white/10 shrink-0">
+                                    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-5"> ETH
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex justify-center -my-3 relative z-10">
+                            <div class="bg-[#0b1016] p-1.5 rounded-full border border-[#2f3b4b]">
+                                <i class="fas fa-arrow-down text-gray-500 text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- OUTPUT PBJ -->
+                        <div class="swap-input-container mt-2 mb-6">
+                            <div class="flex justify-between text-xs text-gray-500 mb-2">
+                                <span>You Receive ($PBJ)</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <input type="text" id="pbjAmount" placeholder="0" class="swap-input text-neon" readonly>
+                                <div class="bg-black/40 px-3 py-1.5 rounded-full flex items-center gap-2 font-bold border border-white/10 shrink-0">
+                                    <span class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-[8px] text-black">🐸</span> PBJ
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="handleBuyAction()" id="swapBtn" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg hover:scale-[1.02] transition">
+                            CONNECT WALLET
+                        </button>
+                        
+                        <p class="text-center text-[10px] text-gray-500 mt-4">Official Contract: <span class="text-gray-400 font-mono select-all cursor-pointer hover:text-white transition">0xff4b...944E5</span></p>
                     </div>
                 </div>
 
@@ -265,108 +317,6 @@
                 </div>
             </div>
 
-            <!-- B. SECCIÓN PRESALE (DEX UI) -->
-            <div id="presaleSection" class="hidden max-w-6xl mx-auto p-6 md:p-12 fade-in">
-                <div class="grid lg:grid-cols-2 gap-12 items-start">
-                    
-                    <!-- Marketing Column -->
-                    <div>
-                        <span class="text-neon font-bold tracking-widest text-xs uppercase mb-2 block">Initial Coin Offering</span>
-                        <h2 class="text-5xl font-black text-white mb-6 brand-font leading-tight">Don't Just Play.<br><span class="text-gray-500">Own The Casino.</span></h2>
-                        <p class="text-gray-400 text-lg mb-8">PBJ is the first utility token that pays you daily dividends from casino profits. Staking goes live in Q4 2025.</p>
-                        
-                        <div class="space-y-6 mb-10">
-                            <div class="flex gap-4">
-                                <div class="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center text-2xl">📈</div>
-                                <div>
-                                    <h4 class="font-bold text-white">Revenue Share</h4>
-                                    <p class="text-sm text-gray-500">Holders get 40% of House Edge profits.</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4">
-                                <div class="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center text-2xl">🔥</div>
-                                <div>
-                                    <h4 class="font-bold text-white">Deflationary</h4>
-                                    <p class="text-sm text-gray-500">2% of every loss is burned forever.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="bg-[#1a242d] p-6 rounded-2xl border border-white/5">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-xs font-bold text-gray-400">Stage 1 Progress</span>
-                                <span class="text-xs font-bold text-neon">75% SOLD</span>
-                            </div>
-                            <div class="w-full h-4 bg-black rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-green-500 to-emerald-300 w-[75%] shadow-[0_0_20px_#00ff2a]"></div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-3 text-center">Price increases in <span class="text-white font-bold">04h 23m 10s</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Swap UI Column -->
-                    <div class="bg-[#121924] p-1 rounded-3xl shadow-2xl border border-white/10">
-                        <div class="bg-[#1a242d] rounded-[20px] p-6 md:p-8">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-xl font-bold text-white">Swap</h3>
-                                <div class="flex gap-2">
-                                    <button class="p-2 rounded-lg bg-black/30 text-gray-400 hover:text-white"><i class="fas fa-cog"></i></button>
-                                </div>
-                            </div>
-
-                            <!-- INPUT -->
-                            <div class="swap-input-container mb-2">
-                                <div class="flex justify-between text-xs text-gray-500 mb-2">
-                                    <span>You pay</span>
-                                    <span>Balance: <span id="walletEthBal">0.00</span> ETH</span>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <input type="number" id="ethAmount" placeholder="0" class="swap-input" oninput="calcTokens()">
-                                    <button class="bg-black/40 hover:bg-black/60 text-white px-3 py-1.5 rounded-full flex items-center gap-2 font-bold border border-white/10">
-                                        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" class="w-6"> ETH
-                                        <i class="fas fa-chevron-down text-xs"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- ARROW -->
-                            <div class="flex justify-center -my-4 relative z-10">
-                                <div class="bg-[#1a242d] p-1.5 rounded-lg border border-[#0b1016]">
-                                    <div class="bg-[#0b1016] p-2 rounded-md text-gray-400">
-                                        <i class="fas fa-arrow-down"></i>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- OUTPUT -->
-                            <div class="swap-input-container mt-2 mb-6">
-                                <div class="flex justify-between text-xs text-gray-500 mb-2">
-                                    <span>You receive</span>
-                                    <span>~ $0.00</span>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <input type="text" id="pbjAmount" placeholder="0" class="swap-input text-neon" readonly>
-                                    <button class="bg-black/40 text-white px-3 py-1.5 rounded-full flex items-center gap-2 font-bold border border-white/10">
-                                        <span class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-[10px] text-black">🐸</span> PBJ
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-between text-xs text-gray-500 font-bold mb-6 px-2">
-                                <span>1 ETH = 1,000,000 PBJ</span>
-                                <span class="text-green-400"><i class="fas fa-gas-pump"></i> $2.40</span>
-                            </div>
-
-                            <button onclick="handleBuyAction()" id="swapBtn" class="btn-gradient w-full py-4 rounded-xl text-lg font-bold shadow-lg">
-                                CONNECT WALLET
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
             <!-- C. SECCIÓN PERFIL -->
             <div id="profileSection" class="hidden max-w-4xl mx-auto p-10 fade-in">
                 <div class="bg-card border border-white/10 rounded-3xl p-8">
@@ -374,10 +324,7 @@
                         <img id="profileImageMain" src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pepe" class="w-24 h-24 rounded-full bg-black border-4 border-white/5">
                         <div>
                             <h2 class="text-3xl font-bold text-white" id="profileName">Guest User</h2>
-                            <div class="flex gap-2 mt-2">
-                                <span class="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full font-bold border border-green-500/30">Level 1</span>
-                                <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full font-bold border border-blue-500/30">Verified</span>
-                            </div>
+                            <p class="text-gray-400 text-sm font-mono mt-1" id="profileAddress">0x...</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-3 gap-4 text-center">
@@ -446,8 +393,11 @@
     </div>
 
     <script>
-        // --- ESTADO ---
-        const STORAGE_KEY = 'pepeblackjack_v3_real'; // Key nueva para resetear estados corruptos
+        // --- CONFIGURACIÓN WEB3 ---
+        const CONTRACT_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5";
+        const STORAGE_KEY = 'pepeblackjack_prod_v4';
+        
+        // Estado inicial
         let state = { 
             balance: 0, 
             user: 'Guest', 
@@ -459,19 +409,17 @@
         // --- INIT ---
         window.onload = () => {
             loadState();
-            // Verificar si hay cuenta ya conectada en Metamask
-            if(window.ethereum && window.ethereum.selectedAddress) {
-               connectWalletReal(true); // Silent connect
-            }
             updateUI();
+            // Auto-reconnect si Metamask ya tiene permisos
+            if(window.ethereum && window.ethereum.selectedAddress && !state.address) {
+                connectWalletReal(true);
+            }
         };
 
         function loadState() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if(stored) {
-                try {
-                    state = {...state, ...JSON.parse(stored)};
-                } catch(e) { console.error("Error loading state", e); }
+                try { state = {...state, ...JSON.parse(stored)}; } catch(e) { console.error(e); }
             }
         }
         
@@ -491,21 +439,28 @@
             setText('headerBalance', fmt);
             setText('userNameDisplay', state.user);
             setText('profileName', state.user);
+            setText('profileAddress', state.address || "Not Connected");
             setSrc('headerAvatar', state.avatar);
             setSrc('profileImageMain', state.avatar);
 
-            // Actualizar Botón de Swap/Connect
+            // Actualizar Botón de Swap/Connect en Header y Presale
             const swapBtn = document.getElementById('swapBtn');
-            const connectBtn = document.getElementById('connectBtn');
+            const connectBtn = document.getElementById('connectBtnHeader');
             
             if(state.address) {
-                if(swapBtn) swapBtn.innerText = "SWAP TOKENS";
+                if(swapBtn) swapBtn.innerText = "BUY $PBJ (SEND ETH)";
                 if(connectBtn) {
                     connectBtn.innerHTML = `<i class="fas fa-check-circle text-green-500"></i> ${state.address.substring(0,6)}...`;
-                    connectBtn.onclick = null; // Desactivar click si ya está conectado
+                    connectBtn.classList.remove('btn-gradient');
+                    connectBtn.classList.add('bg-black/40', 'border', 'border-white/10');
+                    connectBtn.onclick = null; 
                 }
             } else {
                 if(swapBtn) swapBtn.innerText = "CONNECT WALLET";
+                if(connectBtn) {
+                    connectBtn.innerHTML = `<i class="fas fa-wallet"></i> Connect`;
+                    connectBtn.onclick = openWalletModal;
+                }
             }
         }
 
@@ -514,7 +469,7 @@
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('gameFrame').src = 'about:blank';
             
-            ['homeSection', 'presaleSection', 'profileSection'].forEach(s => {
+            ['homeSection', 'profileSection'].forEach(s => {
                 const el = document.getElementById(s);
                 if(el) el.classList.add('hidden');
             });
@@ -546,7 +501,7 @@
             }
         });
 
-        // --- PRESALE & WALLET LOGIC (REAL) ---
+        // --- WEB3 & PRESALE LOGIC (REAL) ---
         
         function calcTokens() {
             const eth = parseFloat(document.getElementById('ethAmount').value || 0);
@@ -555,7 +510,7 @@
 
         function handleBuyAction() {
             if(!state.address) openWalletModal();
-            else performFakeSwap();
+            else buyTokensOnChain();
         }
 
         function openWalletModal() { document.getElementById('walletModal').classList.remove('hidden'); }
@@ -573,23 +528,29 @@
                 await provider.send("eth_requestAccounts", []);
                 const signer = provider.getSigner();
                 const address = await signer.getAddress();
+                const balance = await provider.getBalance(address);
                 
                 state.address = address;
                 state.user = address.substring(0,6) + "..." + address.substring(38);
                 state.avatar = `https://api.dicebear.com/9.x/avataaars/svg?seed=${address}`;
 
-                // BONUS SOLO UNA VEZ
-                if(!state.hasClaimedBonus) {
-                    state.balance = 1000; // Reset o Add
-                    state.hasClaimedBonus = true;
-                    if(!silent) Swal.fire({
+                if(!silent) {
+                    Swal.fire({
                         icon: 'success',
                         title: 'Wallet Connected!',
-                        text: 'Welcome Bonus: +1,000 PBJ Credits',
+                        text: `Balance: ${ethers.utils.formatEther(balance).substring(0,6)} ETH`,
                         background: '#121924', color: '#fff', confirmButtonColor: '#00ff2a'
                     });
-                } else {
-                    if(!silent) Swal.fire({toast:true, position:'top-end', icon:'success', title:'Welcome back!', background:'#121924', color:'#fff'});
+                }
+                
+                // Update display immediately
+                const ethBalDisplay = document.getElementById('walletEthBal');
+                if(ethBalDisplay) ethBalDisplay.innerText = ethers.utils.formatEther(balance).substring(0,6);
+
+                // Welcome Bonus Logic (Only once per connection lifecycle reset)
+                if(!state.hasClaimedBonus) {
+                    state.balance = 1000; // Start credits
+                    state.hasClaimedBonus = true;
                 }
 
                 saveState();
@@ -600,33 +561,50 @@
             }
         }
 
-        function performFakeSwap() {
+        async function buyTokensOnChain() {
             const ethInput = document.getElementById('ethAmount');
-            const val = parseFloat(ethInput.value);
+            const val = ethInput.value;
             
-            if(isNaN(val) || val <= 0) return Swal.fire("Invalid Amount", "Enter ETH amount", "warning");
+            if(!val || parseFloat(val) <= 0) return Swal.fire("Invalid Amount", "Enter ETH amount", "warning");
 
-            // Simulación de transacción
-            Swal.fire({
-                title: 'Confirm Transaction',
-                text: `Swap ${val} ETH for ${(val*1000000).toLocaleString()} PBJ?`,
-                showCancelButton: true,
-                confirmButtonText: 'Confirm',
-                background: '#121924', color: '#fff'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Simular espera de red
-                    Swal.fire({title: 'Processing...', didOpen: () => Swal.showLoading(), background: '#121924', color:'#fff'});
-                    
-                    setTimeout(() => {
-                        state.balance += val * 1000000;
-                        saveState();
-                        ethInput.value = "";
-                        document.getElementById('pbjAmount').value = "";
-                        Swal.fire("Success", "Tokens added to your balance!", "success");
-                    }, 2000);
-                }
-            });
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+
+                // Enviar transacción REAL al contrato
+                const tx = await signer.sendTransaction({
+                    to: CONTRACT_ADDRESS,
+                    value: ethers.utils.parseEther(val)
+                });
+
+                Swal.fire({
+                    title: 'Processing...',
+                    text: 'Transaction sent to blockchain. Waiting for confirmation.',
+                    didOpen: () => Swal.showLoading(),
+                    background: '#121924', color: '#fff'
+                });
+
+                await tx.wait();
+
+                // Success: Dar créditos en el casino (Off-chain balance mirroring)
+                const tokensBought = parseFloat(val) * 1000000;
+                state.balance += tokensBought;
+                saveState();
+                
+                ethInput.value = "";
+                document.getElementById('pbjAmount').value = "";
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Purchase Successful!',
+                    text: `You received ${tokensBought.toLocaleString()} PBJ Credits.`,
+                    background: '#121924', color: '#fff', confirmButtonColor: '#00ff2a'
+                });
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire("Transaction Failed", error.message || "User rejected transaction", "error");
+            }
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
