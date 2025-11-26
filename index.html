@@ -460,16 +460,25 @@
             const stored = localStorage.getItem(STORAGE_KEY);
             if(stored) state = {...state, ...JSON.parse(stored)};
         }
+        
         function saveState() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             updateUI();
         }
+
         function updateUI() {
             const fmt = state.balance.toLocaleString('en-US', {minimumFractionDigits: 2});
-            document.getElementById('sidebarBalance').innerText = fmt;
-            document.getElementById('headerBalance').innerText = fmt;
-            document.getElementById('userNameDisplay').innerText = state.user;
-            document.getElementById('profileName').innerText = state.user;
+            
+            // Helper seguro para evitar errores si un elemento no existe en el DOM
+            const setTxt = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            const setSrc = (id, val) => { const el = document.getElementById(id); if(el) el.src = val; };
+
+            setTxt('sidebarBalance', fmt);
+            setTxt('headerBalance', fmt);
+            setTxt('userNameDisplay', state.user);
+            setTxt('profileName', state.user);
+            setSrc('headerAvatar', state.avatar);
+            setSrc('profileImageMain', state.avatar);
         }
 
         // --- NAVEGACIÓN ---
@@ -477,8 +486,14 @@
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('gameFrame').src = 'about:blank';
             
-            ['homeSection', 'presaleSection', 'profileSection'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(id+'Section').classList.remove('hidden');
+            ['homeSection', 'presaleSection', 'profileSection'].forEach(s => {
+                const el = document.getElementById(s);
+                if(el) el.classList.add('hidden');
+            });
+            
+            const target = document.getElementById(id+'Section');
+            if(target) target.classList.remove('hidden');
+            
             document.getElementById('sidebar').classList.remove('open');
         }
 
