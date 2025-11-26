@@ -24,17 +24,19 @@
 
         /* CONTROLES */
         .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; z-index: 10; }
-        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
+        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; transition: 0.3s; }
+        .input-group:focus-within { border-color: #00ff2a; }
         .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 10px; font-weight: bold; outline: none; }
         
         .btn-action {
             width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; 
             text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; font-size: 1.1rem;
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; cursor: pointer;
         }
         .btn-bet { background: #00ff2a; color: black; box-shadow: 0 0 20px rgba(0,255,42,0.2); }
         .btn-bet:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0,255,42,0.5); }
         .btn-bet:active { transform: scale(0.98); }
+        .btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
         /* STAGE */
         .stage { 
@@ -67,7 +69,6 @@
             pointer-events: none; transition: width 0.1s;
             box-shadow: 0 0 15px rgba(0, 255, 42, 0.3);
         }
-        .slider-fill.reverse { background: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); left: auto; right: 0; }
 
         .range-input {
             -webkit-appearance: none; width: 100%; height: 16px; background: transparent;
@@ -107,13 +108,18 @@
     <div class="game-wrapper">
         <!-- CONTROLES -->
         <div class="controls">
+            
+            <!-- Logo/Header -->
+            <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fas fa-dice text-cyan-400"></i> DICE
+            </h2>
+
             <div>
                 <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
                     <span>Bet Amount</span>
-                    <span id="balanceDisplay">Loading...</span>
                 </div>
                 <div class="input-group">
-                    <input type="number" id="betInput" value="10" class="input-clean">
+                    <input type="number" id="betInput" value="10" min="1" class="input-clean">
                     <button onclick="adjBet(0.5)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">½</button>
                     <button onclick="adjBet(2)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">2x</button>
                 </div>
@@ -130,7 +136,15 @@
                 </div>
             </div>
 
-            <button onclick="roll()" id="rollBtn" class="btn-action btn-bet mt-auto">ROLL DICE</button>
+            <!-- Stats Info (Balance) -->
+            <div class="mt-auto space-y-2">
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Balance</p>
+                    <p class="text-sm font-bold text-white font-mono" id="balanceDisplay">---</p>
+                </div>
+            </div>
+
+            <button onclick="roll()" id="rollBtn" class="btn-action btn-bet mt-2">ROLL DICE</button>
         </div>
 
         <!-- STAGE -->
@@ -192,17 +206,33 @@
     <audio id="sfx-lose" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
 
     <script>
-        // --- INFRAESTRUCTURA IFRAME ---
-        let userBalance = 0;
+        // ==================================================================
+        // 1. SISTEMA DE CHIPS (COMUNICACIÓN PADRE-HIJO)
+        // ==================================================================
+        let currentBalance = 0;
+
+        // Escuchar mensajes
         window.addEventListener('message', (e) => {
             if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
-                userBalance = e.data.balance;
-                document.getElementById('balanceDisplay').innerText = userBalance.toLocaleString();
+                updateBalanceUI(e.data.balance);
             }
         });
-        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // --- LÓGICA DICE ---
+        // Actualizar UI local
+        function updateBalanceUI(newBal) {
+            currentBalance = parseFloat(newBal);
+            document.getElementById('balanceDisplay').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        // Enviar cambios al padre
+        function updateParent(amount) {
+            // amount negativo = apuesta, positivo = ganancia
+            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
+        }
+
+        // ==================================================================
+        // 2. LÓGICA DE JUEGO DICE
+        // ==================================================================
         const slider = document.getElementById('diceSlider');
         const fill = document.getElementById('sliderFill');
         const multInput = document.getElementById('multiplierInput');
@@ -232,7 +262,6 @@
             fill.style.width = target + "%";
             
             // Move Float Label
-            // Calcular posición relativa del thumb (aprox)
             const percent = (target - 2) / (98 - 2); 
             const thumbWidth = 34;
             const trackWidth = slider.clientWidth;
@@ -284,19 +313,26 @@
         // --- GAMEPLAY LOOP ---
         function roll() {
             const bet = parseFloat(document.getElementById('betInput').value);
-            if(bet > userBalance) return alert("Insufficient Balance");
-            if(bet <= 0) return;
+            
+            // Validaciones
+            if(isNaN(bet) || bet <= 0) return;
+            if(bet > currentBalance) {
+                const grp = document.querySelector('.input-group');
+                grp.style.borderColor = 'red';
+                setTimeout(() => grp.style.borderColor = '#1f2937', 500);
+                return;
+            }
 
-            // Descontar
+            // 1. RESTAR APUESTA (Local y Remota)
+            updateBalanceUI(currentBalance - bet);
             updateParent(-bet);
             
             // UI State
             const btn = document.getElementById('rollBtn');
             btn.disabled = true;
-            btn.classList.add('opacity-50');
+            btn.classList.add('btn-disabled');
             
             // Generar Resultado Provably Fair (Simulado)
-            // Crypto.getRandomValues para mayor aleatoriedad que Math.random
             const array = new Uint32Array(1);
             window.crypto.getRandomValues(array);
             const random = array[0] / (0xffffffff + 1);
@@ -307,13 +343,12 @@
             let frames = 0;
             
             const animInterval = setInterval(() => {
-                // Generar números aleatorios visuales
                 const temp = (Math.random() * 100).toFixed(2);
                 resultNum.innerText = temp;
                 resultNum.className = "result-display text-gray-500";
                 
                 frames++;
-                if(frames > 8) { // Velocidad rápida
+                if(frames > 8) { 
                     clearInterval(animInterval);
                     finishRoll(finalResult, bet);
                 }
@@ -323,14 +358,17 @@
         function finishRoll(resultStr, bet) {
             const result = parseFloat(resultStr);
             const target = parseFloat(slider.value);
-            const isWin = result < target; // Roll Under
+            const isWin = result < target; // Roll Under Logic
             
             resultNum.innerText = resultStr;
 
             if(isWin) {
-                // Ganó
+                // Ganó: Calcular Payout y Sumar
                 const mult = parseFloat(multInput.value);
                 const payout = bet * mult;
+                
+                // 2. SUMAR GANANCIA (Local y Remota)
+                updateBalanceUI(currentBalance + payout);
                 updateParent(payout);
                 
                 resultNum.className = "result-display win-anim";
@@ -344,7 +382,7 @@
             // Reset UI
             const btn = document.getElementById('rollBtn');
             btn.disabled = false;
-            btn.classList.remove('opacity-50');
+            btn.classList.remove('btn-disabled');
         }
 
     </script>
