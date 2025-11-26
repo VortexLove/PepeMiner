@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* Estilos SOLO para el juego */
         body { 
-            background: transparent; /* Transparente para que se funda con el fondo del padre */
-            color: white; font-family: 'Inter', sans-serif; 
+            background: transparent; color: white; font-family: 'Inter', sans-serif; 
             overflow: hidden; user-select: none;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; margin: 0;
@@ -23,129 +23,524 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
         }
 
-        .controls { background: #0b1016; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #1f2937; }
-        .stage { position: relative; background: radial-gradient(circle at 50% 100%, #1a2430 0%, #05080a 100%); flex: 1; display: flex; flex-direction: column; align-items: center; }
+        /* PANEL IZQUIERDO */
+        .controls { background: #0b1016; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #1f2937; z-index: 20; }
         
-        canvas { display: block; width: 100%; height: 100%; }
-        
+        /* INPUTS */
+        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 4px; display: flex; align-items: center; }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 8px; font-weight: bold; outline: none; }
+        .select-clean { background: #05080a; border: 1px solid #1f2937; color: white; padding: 10px; border-radius: 8px; width: 100%; outline: none; font-weight: bold; cursor: pointer; }
+
+        /* BOTÓN PRINCIPAL */
         .btn-action {
             background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
             color: black; font-weight: 900; padding: 15px; border-radius: 10px;
-            transition: 0.2s; text-transform: uppercase;
+            transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;
+            position: relative; overflow: hidden;
         }
-        .btn-action:hover { transform: scale(1.02); box-shadow: 0 0 15px #00ff2a; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 255, 42, 0.4); }
+        .btn-action:active { transform: scale(0.98); }
 
+        /* STAGE & CANVAS */
+        .stage { 
+            position: relative; 
+            background: radial-gradient(circle at 50% 100%, #1a2430 0%, #05080a 100%); 
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; overflow: hidden;
+        }
+        canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+
+        /* MULTIPLICADORES (BUCKETS) */
+        .buckets-container {
+            position: absolute; bottom: 20px; width: 90%; max-width: 700px;
+            display: flex; justify-content: center; gap: 4px; z-index: 10;
+        }
+        .bucket {
+            flex: 1; height: 35px; border-radius: 4px; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 800; color: #000;
+            box-shadow: 0 4px 5px rgba(0,0,0,0.3);
+            transition: transform 0.1s, filter 0.1s; cursor: help;
+        }
+        .bucket:hover { transform: translateY(-5px) scale(1.1); filter: brightness(1.2); z-index: 20; }
+        
+        /* HOVER TOOLTIP */
+        #hoverInfo {
+            position: absolute; background: rgba(0,0,0,0.9); border: 1px solid #00ff2a;
+            color: white; padding: 8px 12px; border-radius: 8px; pointer-events: none;
+            opacity: 0; transition: opacity 0.2s; transform: translate(-50%, -120%);
+            z-index: 100; font-size: 11px; box-shadow: 0 0 15px rgba(0,255,42,0.2);
+            white-space: nowrap;
+        }
+
+        /* EFECTOS VISUALES */
+        .pop-text {
+            position: absolute; font-weight: 900; font-size: 14px; pointer-events: none;
+            animation: floatUp 1s forwards; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 50;
+        }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(0.8); opacity: 1; } 100% { transform: translateY(-50px) scale(1.2); opacity: 0; } }
+
+        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+
+        /* RESPONSIVE */
         @media (max-width: 800px) {
             .game-card { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: 100vh; border-radius: 0; border: none; }
             .stage { height: 60%; }
+            .controls { padding: 15px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="game-card">
+    <!-- TOOLTIP FLOTANTE -->
+    <div id="hoverInfo">
+        <div class="text-white font-bold text-sm" id="tipMult">100x</div>
+        <div class="text-[10px] text-gray-400">Profit: <span id="tipProfit" class="text-green-400 font-bold">0.00</span></div>
+        <div class="text-[10px] text-gray-400">Chance: <span id="tipChance" class="text-yellow-400 font-bold">0.00%</span></div>
+    </div>
+
+    <!-- AUDIO -->
+    <audio id="sfx-hit" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
+    <audio id="sfx-bigwin" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+
+    <div class="game-card" id="mainCard">
         <!-- CONTROLES -->
         <div class="controls">
-            <h2 class="text-xl font-bold text-white mb-4">PLINKO</h2>
+            <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <i class="fas fa-caret-down text-[#00ff2a]"></i> PLINKO
+            </h2>
             
+            <!-- Bet Amount -->
             <div>
                 <label class="text-[10px] uppercase font-bold text-gray-500">Bet Amount</label>
-                <div class="flex gap-2">
-                    <input type="number" id="betInput" value="10" class="w-full bg-[#05080a] border border-gray-700 rounded p-2 text-white font-bold">
-                    <button onclick="adjBet(2)" class="bg-gray-800 px-3 rounded text-xs font-bold hover:bg-gray-700">2x</button>
+                <div class="input-group">
+                    <input type="number" id="betInput" value="10" class="input-clean">
+                    <button onclick="adjBet(0.5)" class="text-gray-500 hover:text-white text-xs font-bold px-2">½</button>
+                    <button onclick="adjBet(2)" class="text-gray-500 hover:text-white text-xs font-bold px-2">2x</button>
                 </div>
             </div>
 
+            <!-- Risk -->
             <div>
-                <label class="text-[10px] uppercase font-bold text-gray-500">Rows</label>
-                <select id="rowsSelect" onchange="resize()" class="w-full bg-[#05080a] border border-gray-700 rounded p-2 text-white font-bold">
-                    <option value="16">16 Rows</option>
-                    <option value="12">12 Rows</option>
-                    <option value="8">8 Rows</option>
+                <label class="text-[10px] uppercase font-bold text-gray-500">Risk</label>
+                <select id="riskSelect" onchange="updateConfig()" class="select-clean">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
                 </select>
             </div>
 
-            <div class="mt-auto p-3 bg-white/5 rounded text-center">
-                <p class="text-[10px] text-gray-500 uppercase">Available Balance</p>
-                <p class="text-xl font-bold text-[#00ff2a]" id="gameBalance">Loading...</p>
+            <!-- Rows -->
+            <div>
+                <label class="text-[10px] uppercase font-bold text-gray-500">Rows: <span id="rowsVal" class="text-white">16</span></label>
+                <select id="rowsSelect" onchange="updateConfig()" class="select-clean">
+                    <option value="8">8 Rows</option>
+                    <option value="10">10 Rows</option>
+                    <option value="12">12 Rows</option>
+                    <option value="14">14 Rows</option>
+                    <option value="16" selected>16 Rows</option>
+                </select>
             </div>
 
-            <button onclick="play()" class="btn-action">BET</button>
+            <!-- Stats -->
+            <div class="mt-auto grid grid-cols-2 gap-2">
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Max Profit</p>
+                    <p class="text-sm font-bold text-[#00ff2a]" id="uiMaxProfit">0.00</p>
+                </div>
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <p class="text-[9px] text-gray-500 uppercase">Balance</p>
+                    <p class="text-sm font-bold text-white" id="gameBalance">Loading...</p>
+                </div>
+            </div>
+
+            <button onclick="play()" id="playBtn" class="btn-action">
+                <span id="btnText">PLAY</span>
+            </button>
         </div>
 
-        <!-- CANVAS -->
-        <div class="stage" id="stage">
+        <!-- STAGE -->
+        <div class="stage" id="stageContainer">
             <canvas id="gameCanvas"></canvas>
+            <div id="bucketsContainer" class="buckets-container"></div>
         </div>
     </div>
 
     <script>
-        // --- LÓGICA DE COMUNICACIÓN CON EL PADRE (IND ---
+        // --- INFRAESTRUCTURA PADRE ---
         let currentBalance = 0;
-
-        // 1. Escuchar cuando el padre nos da el saldo inicial
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'INIT_BALANCE' || event.data.type === 'SYNC_BALANCE') {
-                currentBalance = event.data.balance;
-                updateUI();
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
+                currentBalance = e.data.balance;
+                document.getElementById('gameBalance').innerText = currentBalance.toFixed(2);
             }
         });
+        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // 2. Función para pedirle al padre que descuente/sume dinero
-        function updateParentBalance(amount) {
-            // amount negativo = apuesta, positivo = ganancia
-            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
-        }
-
-        function updateUI() {
-            document.getElementById('gameBalance').innerText = currentBalance.toFixed(2);
-        }
-
-        // --- LÓGICA MÍNIMA DEL JUEGO (Simplificada para el ejemplo) ---
+        // --- MOTOR PLINKO ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const container = document.getElementById('stageContainer');
+
+        // Configuración
+        let config = { rows: 16, risk: 'medium' };
+        
+        // Tablas de Multiplicadores (Stake Clone)
+        const PAYOUTS = {
+            low: { 16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16], 8: [5.6, 2.1, 1.1, 1, 0.5, 1, 1.1, 2.1, 5.6] },
+            medium: { 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110], 8: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13] },
+            high: { 16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000], 8: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29] }
+        };
+
+        // Estado del Juego
+        let pegs = [];
         let balls = [];
+        let particles = [];
+        let bucketEls = []; // Elementos HTML
+
+        // INIT
+        window.onload = () => {
+            updateConfig();
+            animate();
+            window.addEventListener('resize', resize);
+        };
 
         function resize() {
-            const rect = document.getElementById('stage').getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            initGeometry();
         }
-        window.addEventListener('resize', resize);
-        setTimeout(resize, 100); // Init
 
+        function updateConfig() {
+            config.rows = parseInt(document.getElementById('rowsSelect').value);
+            config.risk = document.getElementById('riskSelect').value;
+            
+            // Fallback para filas intermedias (10, 12, 14) usando interpolación simple o defaulting a 16
+            // Para este ejemplo usaremos las tablas de 16 y 8, y si no existe, simulamos
+            if(!PAYOUTS[config.risk][config.rows]) {
+                // Generar tabla dummy si no está hardcodeada
+                let arr = [];
+                for(let i=0; i<=config.rows; i++) arr.push(1.5); 
+                PAYOUTS[config.risk][config.rows] = arr;
+            }
+
+            renderBuckets();
+            resize();
+            
+            // UI Update
+            const bet = parseFloat(document.getElementById('betInput').value || 0);
+            const maxM = Math.max(...PAYOUTS[config.risk][config.rows]);
+            document.getElementById('uiMaxProfit').innerText = (bet * maxM).toLocaleString();
+        }
+
+        // --- GEOMETRÍA & FÍSICA ---
+        function initGeometry() {
+            pegs = [];
+            const rows = config.rows;
+            const startY = 40;
+            const availableH = canvas.height - startY - 50; // 50px para buckets
+            const gap = Math.min(availableH / rows, 40); // Limitar tamaño max
+            config.gap = gap;
+            config.startY = startY;
+            config.finishY = startY + (rows * gap) + gap/2;
+
+            for(let r=0; r < rows; r++) {
+                for(let c=0; c <= r; c++) {
+                    pegs.push({
+                        x: (canvas.width/2) - (r*gap/2) + (c*gap),
+                        y: startY + (r*gap),
+                        r: 3,
+                        glow: 0
+                    });
+                }
+            }
+        }
+
+        function renderBuckets() {
+            const container = document.getElementById('bucketsContainer');
+            container.innerHTML = '';
+            const mults = PAYOUTS[config.risk][config.rows];
+            bucketEls = [];
+
+            mults.forEach((val, i) => {
+                const el = document.createElement('div');
+                el.className = 'bucket';
+                el.innerText = val + 'x';
+                
+                // Colores
+                let bg1='#374151', bg2='#1f2937';
+                if(val >= 1) { bg1='#10b981'; bg2='#047857'; }
+                if(val >= 10) { bg1='#eab308'; bg2='#a16207'; }
+                if(val >= 50) { bg1='#ef4444'; bg2='#991b1b'; }
+                if(val < 1) el.style.opacity = '0.6';
+
+                el.style.background = `linear-gradient(180deg, ${bg1}, ${bg2})`;
+                el.style.color = val >= 10 || val < 1 ? 'white' : 'black';
+                
+                // HOVER LOGIC
+                el.onmouseenter = (e) => showTooltip(e, val, i, config.rows);
+                el.onmouseleave = () => document.getElementById('hoverInfo').style.opacity = 0;
+
+                container.appendChild(el);
+                bucketEls.push(el);
+            });
+        }
+
+        // --- LÓGICA DE JUEGO ---
         function play() {
             const bet = parseFloat(document.getElementById('betInput').value);
             if(bet > currentBalance) return alert("Saldo insuficiente");
+            if(bet <= 0) return;
 
-            // 1. Restar visualmente (y avisar al padre)
-            updateParentBalance(-bet);
+            updateParent(-bet);
             
-            // Simular Juego (Aquí iría toda tu lógica física anterior)
-            balls.push({x: canvas.width/2, y: 0, vy: 0});
+            // DETERMINAR RESULTADO (PRE-CÁLCULO PARA HOUSE EDGE)
+            // Usamos distribución normal para determinar dónde cae
+            // 0 = Izquierda, 1 = Derecha. Sumamos pasos a la derecha.
+            // Para house edge, simplemente usamos la probabilidad matemática real.
+            // El array de multiplicadores es simétrico.
             
-            // Simular Ganancia tras 2 segundos (Ejemplo)
-            setTimeout(() => {
-                const multiplier = 2; // Ganó x2
-                const win = bet * multiplier;
-                if(win > 0) updateParentBalance(win);
-                // Visual feedback would go here
-            }, 2000);
+            const path = [];
+            for(let i=0; i<config.rows; i++) {
+                // 50/50 puro es lo justo en Plinko físico.
+                // La ventaja de la casa viene de que los premios centrales pagan < 1.0
+                path.push(Math.random() < 0.5 ? -0.5 : 0.5); 
+            }
 
-            loop();
-        }
-
-        function loop() {
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-            ctx.fillStyle = "#00ff2a";
-            balls.forEach(b => {
-                b.vy += 0.5; b.y += b.vy;
-                ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI*2); ctx.fill();
+            balls.push({
+                x: canvas.width / 2, y: 10,
+                vx: 0, vy: 0,
+                path: path,
+                row: 0,
+                bet: bet,
+                color: Math.random() > 0.5 ? '#00ff2a' : '#ffffff',
+                trail: []
             });
-            requestAnimationFrame(loop);
+
+            // Animación botón
+            const btn = document.getElementById('playBtn');
+            btn.style.transform = "scale(0.95)";
+            setTimeout(() => btn.style.transform = "scale(1)", 100);
         }
 
-        function adjBet(m) { document.getElementById('betInput').value *= m; }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // DIBUJAR CLAVOS
+            pegs.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                if(p.glow > 0) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.glow})`;
+                    ctx.shadowBlur = 15; ctx.shadowColor = "white";
+                    p.glow -= 0.05;
+                } else {
+                    ctx.fillStyle = '#4b5563'; ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+            });
+            ctx.shadowBlur = 0;
+
+            // DIBUJAR BOLAS
+            for(let i=balls.length-1; i>=0; i--) {
+                const b = balls[i];
+                
+                // Física Simulada
+                b.vy += 0.25; // Gravedad
+                b.y += b.vy;
+                b.x += b.vx;
+
+                // Colisión con Fila Virtual
+                const targetY = config.startY + (b.row * config.gap);
+                
+                if(b.y > targetY - 5 && b.row < config.rows) {
+                    // Impacto
+                    const dir = b.path[b.row]; // -0.5 (Izq) o 0.5 (Der)
+                    const noise = (Math.random() - 0.5) * 0.3; // Variación natural
+                    
+                    b.vx = (dir * 2) + noise; 
+                    b.vy *= 0.55; // Pérdida de energía
+                    b.row++;
+
+                    // Iluminar clavo cercano
+                    const peg = findNearestPeg(b.x, b.y);
+                    if(peg) {
+                        peg.glow = 1;
+                        playAudio('sfx-hit', 0.1);
+                    }
+                }
+
+                // Finalizar Bola
+                if(b.y > config.finishY) {
+                    resolveBall(b, i);
+                    continue;
+                }
+
+                // Dibujar Rastro (Trail)
+                b.trail.push({x: b.x, y: b.y, alpha: 1});
+                if(b.trail.length > 10) b.trail.shift();
+                
+                ctx.beginPath();
+                for(let t=0; t<b.trail.length-1; t++) {
+                    const pt = b.trail[t];
+                    ctx.strokeStyle = `rgba(0, 255, 42, ${pt.alpha * 0.5})`;
+                    ctx.lineWidth = 2;
+                    ctx.lineTo(pt.x, pt.y);
+                    ctx.stroke();
+                    pt.alpha -= 0.1;
+                }
+
+                // Dibujar Bola
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 5, 0, Math.PI*2);
+                ctx.fillStyle = b.color;
+                ctx.shadowColor = b.color; ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // DIBUJAR PARTÍCULAS
+            updateParticles();
+
+            requestAnimationFrame(animate);
+        }
+
+        function resolveBall(b, idx) {
+            balls.splice(idx, 1);
+            
+            const rightMoves = b.path.filter(m => m === 0.5).length;
+            const mults = PAYOUTS[config.risk][config.rows];
+            // Asegurar índice dentro de rango (seguridad)
+            const safeIdx = Math.max(0, Math.min(rightMoves, mults.length - 1));
+            const val = mults[safeIdx];
+            
+            const payout = b.bet * val;
+            updateParent(payout);
+
+            // Visuals
+            spawnText(b.x, config.finishY - 20, payout, val);
+            
+            // Animar Bucket HTML
+            const el = bucketEls[safeIdx];
+            if(el) {
+                el.style.transform = "translateY(-10px) scale(1.3)";
+                el.style.filter = "brightness(2)";
+                setTimeout(() => {
+                    el.style.transform = "none";
+                    el.style.filter = "none";
+                }, 200);
+            }
+
+            // Sonidos y Efectos
+            if(val >= 10) {
+                playAudio('sfx-bigwin');
+                document.getElementById('mainCard').classList.add('shake');
+                setTimeout(()=>document.getElementById('mainCard').classList.remove('shake'), 300);
+                spawnConfetti(b.x, config.finishY);
+            } else if (payout > 0) {
+                playAudio('sfx-win');
+            }
+        }
+
+        // --- UTILS ---
+        function findNearestPeg(x, y) {
+            // Optimización: buscar solo en el array cerca de la Y
+            // Aquí búsqueda simple para demo
+            return pegs.find(p => Math.abs(p.y - y) < 15 && Math.abs(p.x - x) < 15);
+        }
+
+        function spawnText(x, y, amount, mult) {
+            const div = document.createElement('div');
+            div.className = 'pop-text';
+            div.style.left = x + 'px'; // Relativo al contenedor del canvas, que coincide
+            // Ajuste manual de posición X porque el canvas está centrado
+            // Mejor usar getBoundingClientRect si fuera layout complejo
+            // Aquí asumimos stage centrado:
+            const rect = canvas.getBoundingClientRect();
+            div.style.left = x + 'px'; 
+            div.style.top = (y - 40) + 'px';
+            
+            div.innerHTML = mult < 1 ? `<span class="text-gray-400 font-bold">${mult}x</span>` : `<span class="text-[#00ff2a]">+${amount.toFixed(2)}</span>`;
+            
+            document.getElementById('stageContainer').appendChild(div);
+            setTimeout(() => div.remove(), 1000);
+        }
+
+        function spawnConfetti(x, y) {
+            for(let i=0; i<20; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random()-0.5) * 8,
+                    vy: (Math.random()-1) * 8,
+                    color: `hsl(${Math.random()*360}, 100%, 50%)`,
+                    life: 1
+                });
+            }
+        }
+
+        function updateParticles() {
+            for(let i=particles.length-1; i>=0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.vy += 0.2; // Gravedad
+                p.life -= 0.03;
+                if(p.life <= 0) particles.splice(i, 1);
+                else {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life;
+                    ctx.fillRect(p.x, p.y, 4, 4);
+                    ctx.globalAlpha = 1;
+                }
+            }
+        }
+
+        function adjBet(m) {
+            const el = document.getElementById('betInput');
+            let v = parseFloat(el.value) * m;
+            if(v<1) v=1; el.value = v.toFixed(0);
+        }
+
+        function playAudio(id, vol=0.5) {
+            const el = document.getElementById(id);
+            if(el) {
+                const clone = el.cloneNode();
+                clone.volume = vol;
+                clone.play().catch(()=>{});
+            }
+        }
+
+        // TOOLTIP MATHS
+        function getBinomialProbability(n, k) {
+            // n = filas, k = posición (0 a n)
+            // Coeficiente binomial: n! / (k! * (n-k)!)
+            // Probabilidad = Coef * (0.5)^n
+            let coeff = 1;
+            for (let x = n - k + 1; x <= n; x++) coeff *= x;
+            for (let x = 1; x <= k; x++) coeff /= x;
+            return coeff * Math.pow(0.5, n);
+        }
+
+        function showTooltip(e, val, index, rows) {
+            const tip = document.getElementById('hoverInfo');
+            const bet = parseFloat(document.getElementById('betInput').value || 0);
+            
+            // Calcular probabilidad real
+            const prob = (getBinomialProbability(rows, index) * 100).toFixed(4);
+            const profit = (bet * val).toFixed(2);
+            
+            document.getElementById('tipMult').innerText = val + 'x';
+            document.getElementById('tipProfit').innerText = profit;
+            document.getElementById('tipChance').innerText = prob + '%';
+
+            // Posicionar
+            const rect = e.target.getBoundingClientRect();
+            tip.style.left = (rect.left + rect.width/2) + 'px';
+            tip.style.top = (rect.top - 10) + 'px';
+            tip.style.opacity = 1;
+        }
+
     </script>
 </body>
 </html>
