@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Limbo Royal | PepeCasino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 'pepe-dark': '#020202', 'royal-gold': '#FFD700' },
+                    fontFamily: { 'display': ['Chakra Petch', 'sans-serif'], 'body': ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background: transparent; color: white; font-family: 'Inter', sans-serif;
+            overflow: hidden; user-select: none; height: 100vh; margin: 0; touch-action: none;
+        }
+
+        .game-wrapper {
+            width: 100%; height: 100%; background: #020202; 
+            display: flex; flex-direction: column-reverse; position: relative;
+        }
+        @media (min-width: 1024px) {
+            .game-wrapper {
+                flex-direction: row; max-width: 1200px; height: 700px;
+                border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+                margin: auto; background: #050505; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            }
+        }
+
+        /* CONTROLES */
+        .controls { 
+            background: #080808; padding: 16px; display: flex; flex-direction: column; gap: 12px; 
+            border-top: 1px solid rgba(255, 215, 0, 0.1); z-index: 20; flex-shrink: 0;
+        }
+        @media (min-width: 1024px) {
+            .controls { width: 320px; height: 100%; border-top: none; border-right: 1px solid rgba(255, 215, 0, 0.1); padding: 30px; gap: 20px; }
+        }
+
+        .input-group { 
+            background: #121212; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px; display: flex; align-items: center; transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 12px; font-weight: bold; outline: none; font-family: 'Chakra Petch'; }
+
+        .btn-action {
+            width: 100%; padding: 16px; border-radius: 8px; font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; transition: 0.1s; letter-spacing: 1px; font-family: 'Chakra Petch';
+            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); 
+            color: black; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); border: 1px solid #FFE4B5;
+        }
+        .btn-action:active { transform: scale(0.98); filter: brightness(0.9); }
+        .btn-disabled { filter: grayscale(1); opacity: 0.5; pointer-events: none; }
+
+        /* STAGE */
+        .stage { 
+            position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            background: radial-gradient(circle at 50% 50%, #1a1a00 0%, #020202 80%);
+        }
+
+        /* RESULT DISPLAY */
+        .limbo-result {
+            font-size: 6rem; font-weight: 900; font-family: 'Chakra Petch', sans-serif;
+            transition: color 0.2s; text-shadow: 0 0 30px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        @media (min-width: 1024px) { .limbo-result { font-size: 8rem; } }
+
+        .text-win { color: #00ff2a; text-shadow: 0 0 40px rgba(0, 255, 42, 0.4); animation: pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .text-lose { color: #ef4444; text-shadow: 0 0 30px rgba(239, 68, 68, 0.3); animation: shake 0.3s; }
+        
+        @keyframes pop { 0% { transform: scale(0.9); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* TARGET DISPLAY */
+        .target-display {
+            font-size: 1.2rem; color: #6b7280; font-weight: bold; letter-spacing: 2px; margin-top: -10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-wrapper">
+        <!-- CONTROLES -->
+        <div class="controls">
+            <!-- Header -->
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-rocket text-gold text-xl"></i>
+                <h2 class="text-xl font-bold font-display text-white">LIMBO</h2>
+            </div>
+
+            <!-- Balance -->
+            <div class="flex justify-between items-center bg-[#121212] p-2 rounded border border-white/5">
+                <span class="text-[10px] text-gray-500 font-bold uppercase">Balance</span>
+                <span class="text-gold font-mono font-bold" id="balanceDisplay">Loading...</span>
+            </div>
+
+            <!-- Inputs -->
+            <div class="space-y-4 flex-1 lg:flex-none flex flex-col justify-center">
+                <!-- Bet -->
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Bet Amount</label>
+                    <div class="input-group">
+                        <input type="number" id="betInput" value="10" min="1" class="input-clean">
+                        <div class="flex gap-1 pr-1">
+                            <button onclick="adjBet(0.5)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">½</button>
+                            <button onclick="adjBet(2)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">2x</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Target Multiplier -->
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Target Multiplier</label>
+                    <div class="input-group">
+                        <input type="number" id="targetInput" value="2.00" step="0.01" min="1.01" class="input-clean text-gold" onchange="updateCalc()">
+                        <span class="text-xs font-bold text-gray-600 mr-3">x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 gap-2 mt-2">
+                <div class="bg-[#121212] p-2 rounded text-center border border-white/5">
+                    <p class="text-[9px] text-gray-500 uppercase">Profit on Win</p>
+                    <p class="text-sm font-bold text-green-400 font-mono" id="profitDisplay">0.00</p>
+                </div>
+                <div class="bg-[#121212] p-2 rounded text-center border border-white/5">
+                    <p class="text-[9px] text-gray-500 uppercase">Win Chance</p>
+                    <p class="text-sm font-bold text-white" id="chanceDisplay">45.00%</p>
+                </div>
+            </div>
+
+            <!-- Boton -->
+            <button onclick="play()" id="playBtn" class="btn-action mt-auto">BET</button>
+        </div>
+
+        <!-- STAGE -->
+        <div class="stage">
+            <div id="result" class="limbo-result text-white">1.00x</div>
+            <div class="target-display">TARGET: <span id="targetDisplay">2.00x</span></div>
+        </div>
+    </div>
+
+    <!-- AUDIO -->
+    <audio id="sfx-roll" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+    <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
+    <audio id="sfx-lose" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
+
+    <script>
+        // --- CHIPS SYSTEM ---
+        let currentBalance = 0;
+        
+        function fixHeight() { document.querySelector('.game-wrapper').style.height = window.innerHeight + 'px'; }
+        window.addEventListener('resize', fixHeight);
+        fixHeight();
+
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
+                updateBalanceUI(e.data.balance);
+            }
+        });
+
+        function updateBalanceUI(newBal) {
+            currentBalance = parseFloat(newBal);
+            document.getElementById('balanceDisplay').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        function updateParent(amount) {
+            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
+        }
+
+        // --- LIMBO LOGIC (10% EDGE) ---
+        const houseEdge = 10; // 10%
+        let isRolling = false;
+
+        function updateCalc() {
+            let target = parseFloat(document.getElementById('targetInput').value);
+            if(target < 1.01) target = 1.01;
+            
+            const bet = parseFloat(document.getElementById('betInput').value || 0);
+            
+            // Win Chance = (100 - Edge) / Target
+            const chance = (100 - houseEdge) / target;
+            const profit = (bet * target) - bet;
+
+            document.getElementById('chanceDisplay').innerText = chance.toFixed(2) + "%";
+            document.getElementById('profitDisplay').innerText = profit.toFixed(2);
+            document.getElementById('targetDisplay').innerText = target.toFixed(2) + "x";
+        }
+
+        function adjBet(m) {
+            const el = document.getElementById('betInput');
+            let v = parseFloat(el.value) * m;
+            if(v<1) v=1; el.value = v.toFixed(2);
+            updateCalc();
+        }
+
+        function play() {
+            if(isRolling) return;
+            const bet = parseFloat(document.getElementById('betInput').value);
+            const target = parseFloat(document.getElementById('targetInput').value);
+
+            if(isNaN(bet) || bet <= 0) return;
+            if(bet > currentBalance) {
+                document.getElementById('betInput').parentElement.style.borderColor = 'red';
+                setTimeout(() => document.getElementById('betInput').parentElement.style.borderColor = '#1f2937', 500);
+                return;
+            }
+
+            // 1. Deducir Apuesta
+            isRolling = true;
+            updateBalanceUI(currentBalance - bet);
+            updateParent(-bet);
+            
+            const btn = document.getElementById('playBtn');
+            btn.classList.add('btn-disabled');
+
+            // 2. Determinar Resultado (RNG)
+            // Generamos un resultado flotante. Si el resultado es < Target, pierde.
+            // Para mantener el edge: Generamos un número entre 0 y 100.
+            // Si el número es < WinChance, gana.
+            
+            const winChance = (100 - houseEdge) / target;
+            const randomRoll = Math.random() * 100;
+            const isWin = randomRoll < winChance;
+            
+            // Visualmente, qué numero mostramos?
+            // Si gana: Mostramos un número > Target
+            // Si pierde: Mostramos un número < Target
+            
+            let finalResult;
+            if (isWin) {
+                // Generar número random entre Target y un Max Cap (ej 1000x)
+                finalResult = target + (Math.random() * (target * 2)); 
+            } else {
+                // Generar número random entre 1.00 y Target
+                finalResult = 1.00 + (Math.random() * (target - 1.00));
+            }
+
+            // 3. Animación Rápida
+            // document.getElementById('sfx-roll').play().catch(()=>{});
+            let duration = 0;
+            const resultEl = document.getElementById('result');
+            resultEl.className = "limbo-result text-gray-500";
+
+            const interval = setInterval(() => {
+                const temp = (Math.random() * (target * 2)).toFixed(2);
+                resultEl.innerText = temp + "x";
+                duration += 50;
+
+                if(duration > 400) {
+                    clearInterval(interval);
+                    finish(finalResult, target, bet, isWin);
+                }
+            }, 30);
+        }
+
+        function finish(resultVal, target, bet, isWin) {
+            const resultEl = document.getElementById('result');
+            resultEl.innerText = resultVal.toFixed(2) + "x";
+
+            if (isWin) {
+                resultEl.className = "limbo-result text-win";
+                const payout = bet * target;
+                updateBalanceUI(currentBalance + payout);
+                updateParent(payout);
+                document.getElementById('sfx-win').play().catch(()=>{});
+            } else {
+                resultEl.className = "limbo-result text-lose";
+                document.getElementById('sfx-lose').play().catch(()=>{});
+            }
+
+            isRolling = false;
+            document.getElementById('playBtn').classList.remove('btn-disabled');
+        }
+
+        // Init
+        updateCalc();
+    </script>
+</body>
+</html>
