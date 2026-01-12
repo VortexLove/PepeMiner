@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pepe Royal Casino | $PBJ VIP Presale</title>
-    <meta name="description" content="Exclusive Web3 Casino. Join the High Rollers. Buy $PBJ.">
+    <meta name="description" content="The First DeFi Casino on Base Chain. Own the House.">
     
     <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,6 +33,7 @@
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'shine': 'shine 2s infinite',
                         'marquee': 'marquee 25s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
                     },
                     keyframes: {
                         marquee: {
@@ -42,6 +43,10 @@
                         shine: {
                             '0%': { backgroundPosition: '-100%' },
                             '100%': { backgroundPosition: '200%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         }
                     }
                 }
@@ -59,12 +64,25 @@
 
         body { 
             background-color: #020202;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.08) 0%, transparent 60%),
-                url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+            background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
             color: #d1d5db; 
             font-family: 'Inter', sans-serif; 
             overflow: hidden; 
+        }
+
+        /* Particles Background Effect */
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(#FFD700 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+            animation: particleMove 60s linear infinite;
+        }
+        @keyframes particleMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
         }
 
         h1, h2, h3, .brand-font { font-family: 'Chakra Petch', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -104,15 +122,24 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             border: 1px solid #FFE4B5;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
             transition: all 0.3s ease;
         }
         .btn-gold:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); 
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); 
             filter: brightness(1.1);
         }
         .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+        /* Range Slider Custom */
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #FFD700; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px #FFD700;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #333; border-radius: 2px;
+        }
 
         /* Layout */
         .app-layout { 
@@ -156,6 +183,9 @@
     </style>
 </head>
 <body>
+    
+    <!-- Dynamic Background -->
+    <div class="particles"></div>
 
     <div class="app-layout" id="appLayout">
         
@@ -273,39 +303,47 @@
         </header>
 
         <!-- 3. MAIN CONTENT -->
-        <main class="content-viewport custom-scrollbar flex flex-col relative">
+        <main class="content-viewport custom-scrollbar flex flex-col relative pb-20">
             
-            <div id="liveToastContainer" class="fixed bottom-6 left-6 z-50 flex flex-col-reverse gap-3 pointer-events-none"></div>
+            <div id="liveToastContainer" class="fixed bottom-20 left-6 z-50 flex flex-col-reverse gap-3 pointer-events-none"></div>
 
             <!-- HOME SECTION (PRESALE FOCUSED) -->
-            <div id="homeSection" class="w-full max-w-[1200px] mx-auto p-4 md:p-8 fade-in flex-1 pb-20">
+            <div id="homeSection" class="w-full max-w-[1200px] mx-auto p-4 md:p-8 fade-in flex-1">
                 
                 <!-- HERO: TOKEN SALE -->
-                <div class="flex flex-col items-center justify-center py-8 mb-12 relative">
+                <div class="flex flex-col items-center justify-center py-8 mb-4 relative">
                     <!-- Glow Behind -->
                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-yellow-600/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
                     
-                    <span class="px-4 py-1 rounded bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-[10px] font-bold uppercase mb-4 tracking-widest">
-                        <i class="fas fa-star mr-1"></i> Official Token Launch
+                    <span class="px-4 py-1 rounded bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 text-[10px] font-bold uppercase mb-4 tracking-widest animate-bounce">
+                        <i class="fas fa-bolt mr-1"></i> Phase 1 Almost Sold Out
                     </span>
                     
                     <h1 class="text-5xl md:text-7xl font-black text-white text-center leading-none brand-font mb-4 drop-shadow-2xl">
-                        JOIN THE <span class="text-gradient-gold">$PBJ</span>
-                        <br>ELITE CLUB
+                        THE FIRST <span class="text-gradient-gold">DEFI CASINO</span>
+                        <br>ON BASE CHAIN
                     </h1>
                     
                     <p class="text-gray-400 text-base md:text-lg text-center max-w-xl mb-8">
                         The house always wins. Now, <span class="text-white font-bold">you represent the house</span>.
-                        Purchase chips to play or stake to earn dividends.
+                        Purchase chips to play or stake to earn 50% of the casino profits.
                     </p>
 
                     <!-- SWAP CARD (Center Stage) -->
-                    <div class="w-full max-w-md relative z-20">
+                    <div class="w-full max-w-md relative z-20 animate-float">
                         <div class="absolute -inset-0.5 bg-gradient-to-b from-yellow-500 to-transparent rounded-2xl blur opacity-30"></div>
                         <div class="relative bg-[#121212] rounded-xl border border-white/10 p-1 shadow-2xl">
                             <div class="bg-[#0e0e0e] rounded-lg p-6">
-                                <div class="flex justify-between items-center mb-6">
-                                    <h3 class="text-xl font-bold text-white uppercase tracking-widest text-gold"><i class="fas fa-exchange-alt mr-2"></i> Exchange</h3>
+                                <!-- URGENCY TIMER -->
+                                <div class="flex justify-between items-center mb-4 bg-yellow-500/5 border border-yellow-500/10 rounded p-2">
+                                    <div class="text-[10px] text-yellow-500 uppercase font-bold animate-pulse">
+                                        <i class="fas fa-clock mr-1"></i> Price Increases In:
+                                    </div>
+                                    <div class="font-mono text-white font-bold text-sm" id="countdownTimer">04:23:12</div>
+                                </div>
+
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-xl font-bold text-white uppercase tracking-widest text-gold"><i class="fas fa-exchange-alt mr-2"></i> Presale</h3>
                                     <div class="flex bg-black rounded p-1 border border-white/5">
                                         <button class="px-4 py-1 rounded bg-[#222] text-white font-bold text-[10px] border border-white/10" id="tabBuy" onclick="toggleSwapMode('buy')">BUY</button>
                                         <button class="px-4 py-1 rounded text-gray-500 font-bold text-[10px] hover:text-white" id="tabSell" onclick="toggleSwapMode('sell')">SELL</button>
@@ -313,18 +351,24 @@
                                 </div>
 
                                 <!-- Progress Bar -->
-                                <div class="mb-6">
+                                <div class="mb-2">
                                     <div class="flex justify-between text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">
                                         <span>Total Raised</span>
                                         <span class="text-gold">$4,280,105 / $5M</span>
                                     </div>
-                                    <div class="w-full h-2 bg-[#222] rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-yellow-700 to-yellow-400 w-[82%] shadow-[0_0_10px_#FFD700]"></div>
+                                    <div class="w-full h-3 bg-[#222] rounded-full overflow-hidden relative">
+                                        <div class="h-full bg-gradient-to-r from-yellow-700 to-yellow-400 w-[82%] shadow-[0_0_10px_#FFD700] relative">
+                                            <div class="absolute top-0 left-0 w-full h-full bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] animate-[marquee_1s_linear_infinite]"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between text-[9px] text-gray-600 mt-1">
+                                        <span>Current: $0.0025</span>
+                                        <span class="text-gold">Next: $0.0030</span>
                                     </div>
                                 </div>
 
                                 <!-- Inputs -->
-                                <div class="space-y-3">
+                                <div class="space-y-3 mt-4">
                                     <div class="bg-[#050505] p-3 rounded border border-white/10 hover:border-yellow-500/30 transition">
                                         <div class="flex justify-between text-[10px] text-gray-500 font-bold uppercase mb-1">
                                             <span id="labelInputA">Pay (ETH)</span>
@@ -360,25 +404,51 @@
                                 <button onclick="handleSwapAction()" id="swapMainBtn" class="btn-gold w-full py-4 rounded mt-6 text-sm font-black shadow-lg">
                                     CONNECT WALLET
                                 </button>
-                                <p class="text-center text-[10px] text-gray-600 mt-3 font-mono">No Tax. Instant Delivery.</p>
+                                
+                                <!-- CALCULATOR -->
+                                <div class="mt-6 border-t border-white/10 pt-4">
+                                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-2 flex justify-between">
+                                        <span>Passive Income Calculator</span>
+                                        <span class="text-green-500">APY: 142%</span>
+                                    </p>
+                                    <input type="range" min="10000" max="1000000" step="10000" value="50000" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer mb-2" oninput="updateCalc(this.value)">
+                                    <div class="flex justify-between items-end">
+                                        <div>
+                                            <span class="text-[9px] text-gray-400">If you hold:</span>
+                                            <div class="text-white font-bold text-xs"><span id="calcHold">50,000</span> $PBJ</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-[9px] text-gray-400">Weekly Earnings:</span>
+                                            <div class="text-gold font-black text-lg">~ <span id="calcEarn">0.45</span> ETH</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
+                <!-- TRUST / PARTNERS STRIP -->
+                <div class="flex flex-wrap justify-center items-center gap-8 opacity-40 mb-16 grayscale hover:grayscale-0 transition duration-500">
+                    <div class="flex items-center gap-2 text-xl font-bold font-display"><i class="fas fa-circle text-blue-500"></i> BASE</div>
+                    <div class="flex items-center gap-2 text-xl font-bold font-display"><i class="fas fa-shield-alt text-green-500"></i> CERTIK</div>
+                    <div class="flex items-center gap-2 text-xl font-bold font-display"><i class="fas fa-search-dollar text-pink-500"></i> DEXTools</div>
+                    <div class="flex items-center gap-2 text-xl font-bold font-display"><i class="fas fa-exchange-alt text-purple-500"></i> Uniswap</div>
+                </div>
 
                 <!-- VALUE PROPOSITION -->
                 <div class="grid md:grid-cols-3 gap-6 mb-20 mt-10">
-                    <div class="glass-panel p-6 rounded relative overflow-hidden group hover:bg-[#151515] transition">
+                    <div class="glass-panel p-6 rounded relative overflow-hidden group hover:bg-[#151515] transition border-t-2 border-transparent hover:border-gold">
                         <div class="text-gold text-2xl mb-3"><i class="fas fa-chart-line"></i></div>
                         <h3 class="text-sm font-bold text-white uppercase mb-2 tracking-wider">Passive Income</h3>
                         <p class="text-xs text-gray-400 leading-relaxed">Stake $PBJ to earn ETH. The casino profits are distributed to holders every week.</p>
                     </div>
-                    <div class="glass-panel p-6 rounded relative overflow-hidden group hover:bg-[#151515] transition">
+                    <div class="glass-panel p-6 rounded relative overflow-hidden group hover:bg-[#151515] transition border-t-2 border-transparent hover:border-gold">
                         <div class="text-gold text-2xl mb-3"><i class="fas fa-shield-alt"></i></div>
                         <h3 class="text-sm font-bold text-white uppercase mb-2 tracking-wider">Provably Fair</h3>
                         <p class="text-xs text-gray-400 leading-relaxed">Every transaction is on-chain. Verified by CertiK. Mathematical fairness guaranteed.</p>
                     </div>
-                    <div class="glass-panel p-6 rounded relative overflow-hidden group hover:bg-[#151515] transition">
+                    <div class="glass-panel p-6 rounded relative overflow-hidden group hover:bg-[#151515] transition border-t-2 border-transparent hover:border-gold">
                         <div class="text-gold text-2xl mb-3"><i class="fas fa-gamepad"></i></div>
                         <h3 class="text-sm font-bold text-white uppercase mb-2 tracking-wider">Live Utility</h3>
                         <p class="text-xs text-gray-400 leading-relaxed">The token isn't just a meme. It's the currency of the casino. Demand is driven by players.</p>
@@ -549,7 +619,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-white/5 pb-6">
                     <div>
                         <h2 class="text-3xl font-black text-white brand-font mb-2 uppercase tracking-wide">MEMBERSHIP <span class="text-gold">CARDS</span></h2>
-                        <p class="text-gray-400 text-xs">Own a piece of the casino floor.</p>
+                        <p class="text-gray-400 text-xs">Own a piece of the casino floor. Limited Supply.</p>
                     </div>
                     <div class="flex gap-2 mt-4 md:mt-0 bg-[#121212] p-1 rounded border border-white/5">
                         <button onclick="switchNftTab('mint')" id="tabMint" class="px-6 py-2 rounded font-bold text-[10px] bg-gold text-black shadow-lg transition uppercase tracking-wider">Mint New</button>
@@ -634,7 +704,18 @@
         </aside>
     </div>
 
-    <!-- SCRIPT (LOGIC PRESERVED 100%) -->
+    <!-- MOBILE STICKY CTA (Optimized for Sales) -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-[#121212] border-t border-gold/20 p-3 z-40 flex items-center gap-3 shadow-[0_-5px_20px_rgba(0,0,0,0.8)]">
+        <div class="flex-1">
+            <p class="text-[9px] text-gray-400 uppercase leading-none mb-1">Price Increases In:</p>
+            <p class="text-xs text-white font-mono font-bold" id="mobileTimer">04:23:12</p>
+        </div>
+        <button onclick="document.getElementById('homeSection').scrollIntoView({behavior:'smooth'})" class="flex-[2] btn-gold rounded py-3 text-xs shadow-[0_0_15px_rgba(255,215,0,0.3)] animate-pulse font-black">
+            BUY $PBJ NOW
+        </button>
+    </div>
+
+    <!-- SCRIPT -->
     <script>
         // --- CONFIG ---
         const PBJ_ADDRESS = "0xff4b4f2076F39550e2C5fD44cb2024Eb06B944E5";
@@ -662,6 +743,7 @@
             
             // Render NFTs Immediately
             renderNftMintOptions();
+            startCountdown();
 
             if(window.ethereum) {
                 provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -669,6 +751,33 @@
             }
             startFakeActivity();
         };
+
+        // --- CALCULATOR LOGIC ---
+        function updateCalc(val) {
+            const pbjaAmount = parseInt(val);
+            document.getElementById('calcHold').innerText = pbjaAmount.toLocaleString();
+            // Logic: 10k PBJ = 0.09 ETH weekly (Example)
+            const ethEarned = (pbjaAmount * 0.000009).toFixed(4);
+            document.getElementById('calcEarn').innerText = ethEarned;
+        }
+
+        // --- COUNTDOWN TIMER ---
+        function startCountdown() {
+            let time = 15800; // 4 hours in seconds
+            const timerEl = document.getElementById('countdownTimer');
+            const mobileTimer = document.getElementById('mobileTimer');
+            
+            setInterval(() => {
+                time--;
+                if(time < 0) time = 15800;
+                const h = Math.floor(time / 3600).toString().padStart(2, '0');
+                const m = Math.floor((time % 3600) / 60).toString().padStart(2, '0');
+                const s = (time % 60).toString().padStart(2, '0');
+                const str = `${h}h ${m}m ${s}s`;
+                if(timerEl) timerEl.innerText = str;
+                if(mobileTimer) mobileTimer.innerText = str;
+            }, 1000);
+        }
 
         // --- EVENT LISTENER FOR GAMES ---
         window.addEventListener('message', (event) => {
@@ -679,22 +788,30 @@
             }
         });
 
+        // --- SOCIAL PROOF ENGINE ---
         function startFakeActivity() {
-            const fakeUsers = ["0xWhale", "GoldenPepe", "BasedGod", "ElonMusk", "Satoshi", "HighRoller", "AlphaMale"];
-            const fakeMsgs = ["Going all in on Red", "Just bought 10M PBJ", "Plinko pays!", "LFG", "Bullish on this", "Wen moon?", "Nice UI"];
+            const fakeUsers = ["0xWhale", "GoldenPepe", "BasedGod", "ElonMusk", "Satoshi", "HighRoller", "AlphaMale", "DegenKing"];
+            const fakeMsgs = ["LFG!", "Just bought the dip", "Plinko pays!", "Staking rewards represent", "Bullish", "Wen moon?", "Nice UI"];
+            
             for(let i=0; i<6; i++) addChatMessage(fakeUsers[i % fakeUsers.length], fakeMsgs[i % fakeMsgs.length]);
             
             setInterval(() => { addChatMessage(fakeUsers[Math.floor(Math.random()*fakeUsers.length)], fakeMsgs[Math.floor(Math.random()*fakeMsgs.length)]); }, 5000);
             
             setInterval(() => {
-                showLiveWin("0x"+Math.random().toString(16).substr(2,4)+"...", Math.floor(Math.random()*10000)+500, ["Plinko","Blackjack","Mines"][Math.floor(Math.random()*3)]);
-            }, 8000);
+                const rand = Math.random();
+                if(rand > 0.7) {
+                    // Show a BUY event (Green)
+                    showLiveAction("0x"+Math.random().toString(16).substr(2,4)+"...", (Math.random()*5).toFixed(2) + " ETH", "BOUGHT $PBJ", "green");
+                } else {
+                    // Show a WIN event (Gold)
+                    showLiveAction("0x"+Math.random().toString(16).substr(2,4)+"...", Math.floor(Math.random()*10000)+500 + " PBJ", "WON PLINKO", "gold");
+                }
+            }, 6000);
         }
 
         function addChatMessage(user, msg) {
             const div = document.createElement('div');
             div.className = "flex gap-3 mb-3 animate-fadeIn";
-            
             div.innerHTML = `
                 <div class="w-6 h-6 rounded bg-[#1a1a1a] shrink-0 flex items-center justify-center text-[9px] font-bold text-gray-500 border border-white/5">${user[0]}</div>
                 <div>
@@ -710,15 +827,18 @@
             if(container.children.length > 50) container.removeChild(container.firstChild);
         }
 
-        function showLiveWin(user, amt, game) {
+        function showLiveAction(user, amt, action, color) {
             const container = document.getElementById('liveToastContainer');
             const div = document.createElement('div');
-            div.className = "live-toast bg-[#121212] border-t border-r border-b border-white/5 p-3 rounded shadow-2xl pointer-events-none flex gap-3 items-center";
+            const icon = color === 'green' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-trophy"></i>';
+            const colorClass = color === 'green' ? 'text-green-500' : 'text-gold';
+            
+            div.className = `live-toast bg-[#121212] border-t border-r border-b border-white/5 p-3 rounded shadow-2xl pointer-events-none flex gap-3 items-center border-l-4 ${color === 'green' ? 'border-l-green-500' : 'border-l-yellow-500'}`;
             div.innerHTML = `
-                <div class="text-gold"><i class="fas fa-trophy"></i></div>
+                <div class="${colorClass}">${icon}</div>
                 <div>
-                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">${game}</p>
-                    <p class="text-[10px] text-white"><span class="font-bold text-gold">${user}</span> won ${amt.toLocaleString()} PBJ</p>
+                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">${action}</p>
+                    <p class="text-[10px] text-white"><span class="font-bold ${colorClass}">${user}</span> ${color === 'green' ? 'purchased' : 'received'} ${amt}</p>
                 </div>
             `;
             container.appendChild(div);
@@ -873,17 +993,21 @@
 
         // --- NFT LOGIC ---
         const NFT_LEVELS = [
-            {name: "Bronze", price: "5,000", img: "common"},
-            {name: "Silver", price: "10,000", img: "uncommon"},
-            {name: "Gold", price: "25,000", img: "rare"},
-            {name: "Platinum", price: "50,000", img: "epic"},
-            {name: "Diamond", price: "100,000", img: "legendary"}
+            {name: "Bronze", price: "5,000", img: "common", supply: 500},
+            {name: "Silver", price: "10,000", img: "uncommon", supply: 250},
+            {name: "Gold", price: "25,000", img: "rare", supply: 100},
+            {name: "Platinum", price: "50,000", img: "epic", supply: 50},
+            {name: "Diamond", price: "100,000", img: "legendary", supply: 10}
         ];
 
         function renderNftMintOptions() {
             let html = "";
             NFT_LEVELS.forEach((tier, i) => {
-                html += `<div class="bg-[#0e0e0e] rounded p-4 border border-white/5 hover:border-gold/30 transition group shadow-lg">
+                const left = Math.floor(Math.random() * (tier.supply / 2)) + 1; // Fake scarcity
+                html += `<div class="bg-[#0e0e0e] rounded p-4 border border-white/5 hover:border-gold/30 transition group shadow-lg relative">
+                    <div class="absolute top-3 left-3 z-30 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded animate-pulse">
+                        Only ${left} Left
+                    </div>
                     <div class="h-40 mb-4 relative overflow-hidden rounded bg-black">
                         <img src="assets/img/nft-${tier.img}.png" class="w-full h-full object-cover relative z-10 transition duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100" alt="${tier.name}">
                         <div class="absolute top-2 right-2 z-20 bg-black/80 px-2 py-1 rounded border border-white/10 text-[9px] font-bold uppercase text-white">${tier.name}</div>
