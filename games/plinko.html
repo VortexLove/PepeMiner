@@ -2,94 +2,138 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plinko | PepeBJ</title>
+    <!-- Viewport estricto para evitar zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plinko Royal | PepeCasino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pepe-dark': '#020202',
+                        'royal-gold': '#FFD700',
+                    },
+                    fontFamily: {
+                        'display': ['Chakra Petch', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* --- ESTILOS GENERALES --- */
         body { 
             background: transparent; color: white; font-family: 'Inter', sans-serif; 
             overflow: hidden; user-select: none;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0;
+            height: 100vh; margin: 0; touch-action: none;
         }
 
-        .game-card {
-            background: #121924; border: 1px solid #1f2937;
-            border-radius: 20px; display: grid; grid-template-columns: 280px 1fr;
-            width: 100%; max-width: 1100px; height: 650px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden;
+        .game-wrapper {
+            width: 100%; height: 100%;
+            background: #020202; 
+            display: flex; flex-direction: column-reverse; /* MÓVIL: Controles abajo */
+            position: relative;
         }
 
-        /* PANEL IZQUIERDO (CONTROLES) */
-        .controls { background: #0b1016; padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid #1f2937; z-index: 20; }
-        
-        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 4px; display: flex; align-items: center; }
-        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 8px; font-weight: bold; outline: none; }
-        .select-clean { background: #05080a; border: 1px solid #1f2937; color: white; padding: 10px; border-radius: 8px; width: 100%; outline: none; font-weight: bold; cursor: pointer; }
+        /* En PC: Diseño Horizontal */
+        @media (min-width: 1024px) {
+            .game-wrapper {
+                flex-direction: row; /* PC: Controles izquierda */
+                max-width: 1200px; height: 700px;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                margin: auto; /* Centrado */
+                background: #050505;
+                box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            }
+        }
+
+        /* CONTROLES */
+        .controls { 
+            background: #080808; 
+            padding: 16px; 
+            display: flex; flex-direction: column; gap: 12px; 
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 1024px) {
+            .controls {
+                width: 320px; height: 100%;
+                border-top: none; border-right: 1px solid rgba(255, 215, 0, 0.1);
+                padding: 30px; gap: 20px;
+            }
+        }
+
+        .input-group { 
+            background: #121212; border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; padding: 4px; display: flex; align-items: center; 
+            transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 12px; font-weight: bold; outline: none; font-family: 'Chakra Petch'; }
+
+        .select-clean { 
+            background: #121212; border: 1px solid rgba(255,255,255,0.1); 
+            color: white; padding: 12px; border-radius: 8px; width: 100%; 
+            outline: none; font-weight: bold; cursor: pointer; font-family: 'Chakra Petch';
+            appearance: none;
+        }
+        .select-clean:focus { border-color: #FFD700; }
 
         /* BOTÓN PRINCIPAL */
         .btn-action {
-            background: linear-gradient(135deg, #00ff2a 0%, #009919 100%);
-            color: black; font-weight: 900; padding: 15px; border-radius: 10px;
-            transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;
-            position: relative; overflow: hidden; cursor: pointer;
+            width: 100%; padding: 16px; border-radius: 8px; font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; font-family: 'Chakra Petch';
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); 
+            color: black; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            border: 1px solid #FFE4B5;
         }
-        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(0, 255, 42, 0.4); }
-        .btn-action:active { transform: scale(0.98); }
-        .btn-action:disabled { background: #1f2937; color: #4b5563; cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-action:active { transform: scale(0.98); filter: brightness(0.9); }
 
         /* STAGE & CANVAS */
         .stage { 
-            position: relative; 
-            background: radial-gradient(circle at 50% 100%, #1a2430 0%, #05080a 100%); 
-            flex: 1; display: flex; flex-direction: column; 
-            align-items: center; overflow: hidden;
+            position: relative; flex: 1; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            background: radial-gradient(circle at 50% 50%, #1a1a00 0%, #020202 80%);
+            overflow: hidden;
         }
         canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
 
         /* MULTIPLICADORES (BUCKETS) */
         .buckets-container {
-            position: absolute; bottom: 20px; width: 90%; max-width: 700px;
-            display: flex; justify-content: center; gap: 4px; z-index: 10;
+            position: absolute; bottom: 20px; width: 95%; max-width: 800px;
+            display: flex; justify-content: center; gap: 2px; z-index: 10;
         }
         .bucket {
-            flex: 1; height: 35px; border-radius: 4px; 
+            flex: 1; height: 30px; border-radius: 4px; 
             display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 800; color: #000;
-            box-shadow: 0 4px 5px rgba(0,0,0,0.3);
-            transition: transform 0.1s, filter 0.1s; cursor: help;
+            font-size: 9px; font-weight: 900; color: #000; font-family: 'Chakra Petch';
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transition: transform 0.1s; cursor: default;
         }
-        .bucket:hover { transform: translateY(-5px) scale(1.1); filter: brightness(1.2); z-index: 20; }
+        @media (min-width: 1024px) { 
+            .bucket { height: 40px; font-size: 11px; gap: 4px; } 
+            .buckets-container { bottom: 40px; gap: 6px; }
+        }
         
-        /* HOVER TOOLTIP */
-        #hoverInfo {
-            position: absolute; background: rgba(0,0,0,0.9); border: 1px solid #00ff2a;
-            color: white; padding: 8px 12px; border-radius: 8px; pointer-events: none;
-            opacity: 0; transition: opacity 0.2s; transform: translate(-50%, -120%);
-            z-index: 100; font-size: 11px; box-shadow: 0 0 15px rgba(0,255,42,0.2);
-            white-space: nowrap;
-        }
-
-        /* EFECTOS VISUALES */
+        /* POP TEXT */
         .pop-text {
             position: absolute; font-weight: 900; font-size: 14px; pointer-events: none;
             animation: floatUp 1s forwards; text-shadow: 0 2px 4px rgba(0,0,0,0.8); z-index: 50;
+            font-family: 'Chakra Petch';
         }
         @keyframes floatUp { 0% { transform: translateY(0) scale(0.8); opacity: 1; } 100% { transform: translateY(-50px) scale(1.2); opacity: 0; } }
 
         .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
-
-        /* RESPONSIVE */
-        @media (max-width: 800px) {
-            .game-card { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: 100vh; border-radius: 0; border: none; }
-            .stage { height: 60%; }
-            .controls { padding: 15px; }
-        }
     </style>
 </head>
 <body>
@@ -99,67 +143,59 @@
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2044/2044-preview.mp3"></audio>
     <audio id="sfx-bigwin" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 
-    <!-- TOOLTIP -->
-    <div id="hoverInfo">
-        <div class="text-white font-bold text-sm" id="tipMult">100x</div>
-        <div class="text-[10px] text-gray-400">Profit: <span id="tipProfit" class="text-green-400 font-bold">0.00</span></div>
-        <div class="text-[10px] text-gray-400">Chance: <span id="tipChance" class="text-yellow-400 font-bold">0.00%</span></div>
-    </div>
-
-    <div class="game-card" id="mainCard">
+    <div class="game-wrapper" id="mainCard">
         <!-- CONTROLES -->
         <div class="controls">
-            <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                <i class="fas fa-caret-down text-[#00ff2a]"></i> PLINKO
-            </h2>
+            
+            <!-- Balance Info -->
+            <div class="flex justify-between items-center bg-[#121212] p-2 rounded border border-white/5">
+                <span class="text-[10px] text-gray-500 font-bold uppercase">Balance</span>
+                <span class="text-gold font-mono font-bold" id="balanceDisplay">Loading...</span>
+            </div>
             
             <!-- Bet Amount -->
             <div>
-                <label class="text-[10px] uppercase font-bold text-gray-500">Bet Amount</label>
-                <div class="input-group focus-within:border-[#00ff2a] transition">
+                <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Bet Amount</label>
+                <div class="input-group">
                     <input type="number" id="betInput" value="10" min="1" class="input-clean">
-                    <button onclick="adjBet(0.5)" class="text-gray-500 hover:text-white text-xs font-bold px-2">½</button>
-                    <button onclick="adjBet(2)" class="text-gray-500 hover:text-white text-xs font-bold px-2">2x</button>
+                    <div class="flex gap-1 pr-1">
+                        <button onclick="adjBet(0.5)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">½</button>
+                        <button onclick="adjBet(2)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">2x</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Risk -->
-            <div>
-                <label class="text-[10px] uppercase font-bold text-gray-500">Risk</label>
-                <select id="riskSelect" onchange="updateConfig()" class="select-clean">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
-                </select>
-            </div>
-
-            <!-- Rows -->
-            <div>
-                <label class="text-[10px] uppercase font-bold text-gray-500">Rows: <span id="rowsVal" class="text-white">16</span></label>
-                <select id="rowsSelect" onchange="updateConfig()" class="select-clean">
-                    <option value="8">8 Rows</option>
-                    <option value="10">10 Rows</option>
-                    <option value="12">12 Rows</option>
-                    <option value="14">14 Rows</option>
-                    <option value="16" selected>16 Rows</option>
-                </select>
-            </div>
-
-            <!-- Stats & Balance -->
-            <div class="mt-auto space-y-2">
-                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
-                    <p class="text-[9px] text-gray-500 uppercase">Balance</p>
-                    <p class="text-sm font-bold text-white font-mono" id="gameBalance">---</p>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Risk</label>
+                    <select id="riskSelect" onchange="updateConfig()" class="select-clean">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
                 </div>
-                <div class="bg-white/5 p-2 rounded flex justify-between items-center">
-                    <p class="text-[9px] text-gray-500 uppercase">Max Profit</p>
-                    <p class="text-sm font-bold text-[#00ff2a]" id="uiMaxProfit">0.00</p>
+
+                <!-- Rows -->
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Rows</label>
+                    <select id="rowsSelect" onchange="updateConfig()" class="select-clean">
+                        <option value="8">8</option>
+                        <option value="10">10</option>
+                        <option value="12">12</option>
+                        <option value="14">14</option>
+                        <option value="16" selected>16</option>
+                    </select>
                 </div>
             </div>
 
-            <button onclick="play()" id="playBtn" class="btn-action">
-                PLAY
-            </button>
+            <!-- Stats -->
+            <div class="bg-[#121212] p-2 rounded border border-white/5 flex justify-between items-center mt-auto">
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Max Profit</p>
+                <p class="text-sm font-bold text-green-400 font-mono" id="uiMaxProfit">0.00</p>
+            </div>
+
+            <button onclick="play()" id="playBtn" class="btn-action">DROP BALL</button>
         </div>
 
         <!-- STAGE -->
@@ -171,30 +207,31 @@
 
     <script>
         // ==================================================================
-        // 1. COMUNICACIÓN CON EL CASINO (PADRE)
+        // 1. SISTEMA DE CHIPS (COMUNICACIÓN PADRE-HIJO)
         // ==================================================================
         let currentBalance = 0;
 
-        // Escuchar mensajes del Index principal
+        // Ajuste dinámico de altura para móviles
+        function fixHeight() { document.querySelector('.game-wrapper').style.height = window.innerHeight + 'px'; }
+        window.addEventListener('resize', fixHeight);
+        fixHeight();
+
+        // Escuchar mensajes
         window.addEventListener('message', (e) => {
-            if (e.data.type === 'INIT_BALANCE') {
-                updateBalance(e.data.balance);
-                console.log("Plinko initialized with: " + e.data.balance);
-            } 
-            else if (e.data.type === 'SYNC_BALANCE') {
-                updateBalance(e.data.balance);
+            if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
+                updateBalanceUI(e.data.balance);
             }
         });
 
-        // Actualizar UI interna
-        function updateBalance(newBal) {
+        // Actualizar UI local
+        function updateBalanceUI(newBal) {
             currentBalance = parseFloat(newBal);
-            document.getElementById('gameBalance').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('balanceDisplay').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
 
-        // Enviar actualización de saldo al Padre
+        // Enviar cambios al padre
         function updateParent(amount) {
-            // amount es negativo para apuestas, positivo para ganancias
+            // amount negativo = apuesta, positivo = ganancia
             window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
         }
 
@@ -207,25 +244,24 @@
 
         let config = { rows: 16, risk: 'medium' };
         
-        // Tablas de Pagos (Multiplicadores)
+        // PAYOUTS (Ajustados con House Edge ~4%)
         const PAYOUTS = {
             low: { 16: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16] },
-            medium: { 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.5, 1, 1.5, 3, 5, 10, 41, 110] },
+            medium: { 16: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.3, 1, 1.5, 3, 5, 10, 41, 110] },
             high: { 16: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000] }
         };
 
-        // Generador de Arrays Simples para filas menores (Fallback para evitar errores si faltan datos)
+        // Generador de Arrays Simples para filas menores (Fallback)
         function getPayouts(rows, risk) {
             if(PAYOUTS[risk] && PAYOUTS[risk][rows]) return PAYOUTS[risk][rows];
             // Generar dummy si no existe la config exacta
             const arr = [];
-            for(let i=0; i<=rows; i++) arr.push(i === 0 || i === rows ? (rows*2) : 0.5);
+            for(let i=0; i<=rows; i++) arr.push(i === 0 || i === rows ? (rows*1.5) : 0.4);
             return arr;
         }
 
         let pegs = [];
         let balls = [];
-        let particles = [];
         let bucketEls = []; 
 
         window.onload = () => {
@@ -243,8 +279,6 @@
         function updateConfig() {
             config.rows = parseInt(document.getElementById('rowsSelect').value);
             config.risk = document.getElementById('riskSelect').value;
-            document.getElementById('rowsVal').innerText = config.rows;
-
             renderBuckets();
             resize();
             
@@ -260,7 +294,7 @@
             const rows = config.rows;
             const startY = 40;
             const availableH = canvas.height - startY - 50; 
-            const gap = Math.min(availableH / rows, 40); 
+            const gap = Math.min(availableH / rows, 35); 
             config.gap = gap;
             config.startY = startY;
             config.finishY = startY + (rows * gap) + gap/2;
@@ -270,7 +304,7 @@
                     pegs.push({
                         x: (canvas.width/2) - (r*gap/2) + (c*gap),
                         y: startY + (r*gap),
-                        r: 3,
+                        r: 2.5,
                         glow: 0
                     });
                 }
@@ -288,17 +322,17 @@
                 el.className = 'bucket';
                 el.innerText = val + 'x';
                 
-                let bg1='#374151', bg2='#1f2937';
-                if(val >= 1) { bg1='#10b981'; bg2='#047857'; }
-                if(val >= 10) { bg1='#eab308'; bg2='#a16207'; }
-                if(val >= 50) { bg1='#ef4444'; bg2='#991b1b'; }
-                if(val < 1) el.style.opacity = '0.6';
-
-                el.style.background = `linear-gradient(180deg, ${bg1}, ${bg2})`;
-                el.style.color = val >= 10 || val < 1 ? 'white' : 'black';
+                // Colores Royal Gold & Black
+                let bg1='#1f2937', bg2='#000';
+                let txt='gray';
                 
-                el.onmouseenter = (e) => showTooltip(e, val, i, config.rows);
-                el.onmouseleave = () => document.getElementById('hoverInfo').style.opacity = 0;
+                if(val >= 1) { bg1='#374151'; txt='white'; }
+                if(val >= 3) { bg1='#854d0e'; bg2='#422006'; txt='#FFD700'; } // Bronze/Gold
+                if(val >= 10) { bg1='#FFD700'; bg2='#a16207'; txt='black'; } // Pure Gold
+                
+                el.style.background = `linear-gradient(180deg, ${bg1}, ${bg2})`;
+                el.style.color = txt;
+                if(val < 1) el.style.opacity = '0.4';
 
                 container.appendChild(el);
                 bucketEls.push(el);
@@ -312,15 +346,14 @@
             // 1. VALIDACIONES
             if(isNaN(bet) || bet <= 0) return;
             if(bet > currentBalance) {
-                // Efecto visual de error
-                betInput.style.borderColor = 'red';
-                setTimeout(() => betInput.style.borderColor = '#1f2937', 500);
+                betInput.parentNode.style.borderColor = 'red';
+                setTimeout(() => betInput.parentNode.style.borderColor = 'rgba(255,255,255,0.1)', 500);
                 return;
             }
 
             // 2. DEDUCIR SALDO (Local y Remoto)
-            updateBalance(currentBalance - bet);
-            updateParent(-bet); // Enviar número negativo para restar
+            updateBalanceUI(currentBalance - bet);
+            updateParent(-bet);
 
             // 3. LOGICA DE LA BOLA
             const path = [];
@@ -332,13 +365,16 @@
                 path: path,
                 row: 0,
                 bet: bet,
-                color: Math.random() > 0.5 ? '#00ff2a' : '#ffffff',
+                color: Math.random() > 0.5 ? '#FFD700' : '#ffffff',
                 trail: []
             });
+        }
 
-            const btn = document.getElementById('playBtn');
-            btn.style.transform = "scale(0.95)";
-            setTimeout(() => btn.style.transform = "scale(1)", 100);
+        function adjBet(m) {
+            const el = document.getElementById('betInput');
+            let v = parseFloat(el.value) * m;
+            if(v<1) v=1; el.value = v.toFixed(2);
+            updateConfig(); 
         }
 
         function animate() {
@@ -349,8 +385,8 @@
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
                 if(p.glow > 0) {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${p.glow})`;
-                    ctx.shadowBlur = 15; ctx.shadowColor = "white";
+                    ctx.fillStyle = `rgba(255, 215, 0, ${p.glow})`; // Gold Glow
+                    ctx.shadowBlur = 10; ctx.shadowColor = "#FFD700";
                     p.glow -= 0.05;
                 } else {
                     ctx.fillStyle = '#4b5563'; ctx.shadowBlur = 0;
@@ -384,28 +420,27 @@
                 }
 
                 // Trail
-                b.trail.push({x: b.x, y: b.y, alpha: 1});
-                if(b.trail.length > 10) b.trail.shift();
                 ctx.beginPath();
-                for(let t=0; t<b.trail.length-1; t++) {
+                for(let t=0; t<b.trail.length; t++) {
                     const pt = b.trail[t];
-                    ctx.strokeStyle = `rgba(0, 255, 42, ${pt.alpha * 0.5})`;
-                    ctx.lineWidth = 2;
                     ctx.lineTo(pt.x, pt.y);
-                    ctx.stroke();
-                    pt.alpha -= 0.1;
                 }
+                ctx.strokeStyle = `rgba(255, 215, 0, 0.3)`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                b.trail.push({x: b.x, y: b.y});
+                if(b.trail.length > 8) b.trail.shift();
 
                 // Ball Body
                 ctx.beginPath();
-                ctx.arc(b.x, b.y, 5, 0, Math.PI*2);
+                ctx.arc(b.x, b.y, 4, 0, Math.PI*2);
                 ctx.fillStyle = b.color;
-                ctx.shadowColor = b.color; ctx.shadowBlur = 10;
+                ctx.shadowColor = b.color; ctx.shadowBlur = 8;
                 ctx.fill();
                 ctx.shadowBlur = 0;
             }
 
-            updateParticles();
             requestAnimationFrame(animate);
         }
 
@@ -414,6 +449,8 @@
             
             const rightMoves = b.path.filter(m => m === 0.5).length;
             const mults = getPayouts(config.rows, config.risk);
+            // In Plinko, buckets are standard distribution. 
+            // Index 0 is all left, Index Last is all right.
             const safeIdx = Math.max(0, Math.min(rightMoves, mults.length - 1));
             const val = mults[safeIdx];
             
@@ -421,8 +458,8 @@
 
             // 4. SUMAR GANANCIA (Local y Remota)
             if(payout > 0) {
-                updateBalance(currentBalance + payout);
-                updateParent(payout); // Enviar número positivo para sumar
+                updateBalanceUI(currentBalance + payout);
+                updateParent(payout); 
             }
 
             spawnText(b.x, config.finishY - 20, payout, val);
@@ -438,7 +475,6 @@
                 playAudio('sfx-bigwin');
                 document.getElementById('mainCard').classList.add('shake');
                 setTimeout(()=>document.getElementById('mainCard').classList.remove('shake'), 300);
-                spawnConfetti(b.x, config.finishY);
             } else if (payout > 0) {
                 playAudio('sfx-win');
             }
@@ -448,68 +484,16 @@
         function spawnText(x, y, amount, mult) {
             const div = document.createElement('div');
             div.className = 'pop-text';
-            div.style.left = x + 'px'; 
+            div.style.left = (x - 20) + 'px'; 
             div.style.top = (y - 40) + 'px';
-            div.innerHTML = mult < 1 ? `<span class="text-gray-400 font-bold">${mult}x</span>` : `<span class="text-[#00ff2a]">+${amount.toFixed(2)}</span>`;
-            document.getElementById('stageContainer').appendChild(div);
+            div.innerHTML = mult < 1 ? `<span class="text-gray-500 font-bold">${mult}x</span>` : `<span class="text-[#FFD700]">+${amount.toFixed(1)}</span>`;
+            container.appendChild(div);
             setTimeout(() => div.remove(), 1000);
-        }
-
-        function spawnConfetti(x, y) {
-            for(let i=0; i<20; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random()-0.5) * 8, vy: (Math.random()-1) * 8,
-                    color: `hsl(${Math.random()*360}, 100%, 50%)`, life: 1
-                });
-            }
-        }
-
-        function updateParticles() {
-            for(let i=particles.length-1; i>=0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= 0.03;
-                if(p.life <= 0) particles.splice(i, 1);
-                else {
-                    ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
-                    ctx.fillRect(p.x, p.y, 4, 4); ctx.globalAlpha = 1;
-                }
-            }
-        }
-
-        function adjBet(m) {
-            const el = document.getElementById('betInput');
-            let v = parseFloat(el.value) * m;
-            if(v<1) v=1; el.value = v.toFixed(2);
-            updateConfig(); // Update max profit display
         }
 
         function playAudio(id, vol=0.5) {
             const el = document.getElementById(id);
             if(el) { const clone = el.cloneNode(); clone.volume = vol; clone.play().catch(()=>{}); }
-        }
-
-        // Tooltip Logic
-        function getBinomialProbability(n, k) {
-            let coeff = 1;
-            for (let x = n - k + 1; x <= n; x++) coeff *= x;
-            for (let x = 1; x <= k; x++) coeff /= x;
-            return coeff * Math.pow(0.5, n);
-        }
-
-        function showTooltip(e, val, index, rows) {
-            const tip = document.getElementById('hoverInfo');
-            const bet = parseFloat(document.getElementById('betInput').value || 0);
-            const prob = (getBinomialProbability(rows, index) * 100).toFixed(4);
-            
-            document.getElementById('tipMult').innerText = val + 'x';
-            document.getElementById('tipProfit').innerText = (bet * val).toFixed(2);
-            document.getElementById('tipChance').innerText = prob + '%';
-
-            const rect = e.target.getBoundingClientRect();
-            tip.style.left = (rect.left + rect.width/2) + 'px';
-            tip.style.top = (rect.top - 10) + 'px';
-            tip.style.opacity = 1;
         }
     </script>
 </body>
