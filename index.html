@@ -1130,9 +1130,70 @@
             }
         });
 
-        // Deposit/Withdraw Placeholders
-        function depositChips() { Swal.fire("Deposit", "Send PBJ to Treasury...", "info"); }
-        function withdrawChips() { Swal.fire("Withdraw", "Requesting withdrawal...", "info"); }
+        // --- NEW DEPOSIT LOGIC (Fixing the "Loading" issue) ---
+        async function depositChips() {
+            if(!userAddress) return connectWallet();
+            const amountVal = document.getElementById('depositInput').value;
+            if(!amountVal || parseFloat(amountVal) <= 0) return Swal.fire("Error", "Enter a valid amount", "warning");
+
+            try {
+                // 1. Confirm UI
+                const result = await Swal.fire({
+                    title: 'Deposit $PBJ',
+                    text: `Send ${amountVal} PBJ to Game Balance?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FFD700',
+                    confirmButtonText: 'CONFIRM',
+                    background: '#121212', color: '#fff'
+                });
+
+                if(!result.isConfirmed) return;
+
+                // 2. Blockchain Transaction
+                const amountWei = ethers.utils.parseUnits(amountVal, 18); // Assuming 18 decimals
+                
+                Swal.fire({title: 'Processing...', didOpen: () => Swal.showLoading(), background: '#121212', color: '#fff'});
+                
+                // Note: In a real app, you might need approve() first if the contract pulls tokens.
+                // But here, we are just transferring to the Treasury address manually.
+                const tx = await pbjContract.transfer(TREASURY_ADDRESS, amountWei);
+                
+                await tx.wait(); // Wait for mining
+
+                // 3. Update Local State (Simulate instant credit)
+                gameBalance += parseFloat(amountVal);
+                localStorage.setItem('pepe_chips', gameBalance);
+                updateUI();
+                updateWalletData(); // Refresh wallet balance
+                triggerConfetti();
+
+                Swal.fire({title: "Success", text: "Chips added to account!", icon: "success", background: '#121212', color: '#fff'});
+
+            } catch(e) {
+                console.error(e);
+                Swal.fire({title: "Error", text: e.message || "Transaction failed", icon: "error", background: '#121212', color: '#fff'});
+            }
+        }
+
+        // --- SIMULATED WITHDRAWAL ---
+        async function withdrawChips() {
+            const amountVal = document.getElementById('withdrawInput').value;
+            const amount = parseFloat(amountVal);
+            
+            if(!amount || amount <= 0) return Swal.fire("Error", "Enter amount", "warning");
+            if(amount > gameBalance) return Swal.fire("Error", "Insufficient Game Balance", "error");
+
+            Swal.fire({title: 'Processing Withdrawal...', didOpen: () => Swal.showLoading(), background: '#121212', color: '#fff'});
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                gameBalance -= amount;
+                localStorage.setItem('pepe_chips', gameBalance);
+                updateUI();
+                Swal.fire({title: "Sent!", text: "PBJ sent to your wallet (Simulated).", icon: "success", background: '#121212', color: '#fff'});
+            }, 1500);
+        }
 
         // --- NEW FEATURES ---
         function triggerConfetti() {
