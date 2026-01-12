@@ -11,6 +11,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700;900&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     
@@ -249,6 +252,11 @@
                 <button onclick="showSection('partners')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group border border-transparent hover:border-yellow-500/30">
                     <i class="fas fa-users text-yellow-600 group-hover:text-gold transition"></i> Affiliate Club
                 </button>
+                
+                <!-- NEW ROADMAP BUTTON -->
+                <button onclick="showRoadmap()" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group border border-transparent hover:border-yellow-500/30">
+                    <i class="fas fa-map-signs text-yellow-600 group-hover:text-gold transition"></i> Roadmap
+                </button>
 
                 <p class="px-2 text-[10px] font-bold text-yellow-600/70 uppercase mb-2 mt-6 tracking-wider">Gaming Floor</p>
                 <button onclick="loadGame('games/plinko.html', 'Plinko')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group">
@@ -263,7 +271,6 @@
                 <button onclick="loadGame('games/mines.html', 'Mines')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group">
                     <i class="fas fa-bomb text-gray-500 group-hover:text-gold w-5"></i> Mines
                 </button>
-                <!-- AGREGADO: Juego DICE en la barra lateral -->
                 <button onclick="loadGame('games/dice.html', 'Dice')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group">
                     <i class="fas fa-dice text-gray-500 group-hover:text-gold w-5"></i> Dice
                 </button>
@@ -693,6 +700,32 @@
         </button>
     </div>
 
+    <!-- ROADMAP MODAL -->
+    <div id="roadmapModal" class="fixed inset-0 z-[60] bg-black/90 hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-[#121212] border border-gold/30 p-6 rounded-lg max-w-lg w-full relative shadow-[0_0_50px_rgba(255,215,0,0.1)]">
+            <button onclick="document.getElementById('roadmapModal').style.display='none'" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+            <h3 class="text-2xl font-black text-white mb-6 brand-font uppercase">Project <span class="text-gold">Roadmap</span></h3>
+            
+            <div class="space-y-6 border-l-2 border-white/10 pl-6 ml-2">
+                <div class="relative">
+                    <span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-gold shadow-[0_0_10px_#FFD700]"></span>
+                    <h4 class="text-white font-bold text-sm">Phase 1: The Launch (Current)</h4>
+                    <p class="text-xs text-gray-400 mt-1">Website Launch, $PBJ Presale, Community Building, Smart Contract Audit.</p>
+                </div>
+                <div class="relative opacity-50">
+                    <span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-gray-700 border border-white/20"></span>
+                    <h4 class="text-white font-bold text-sm">Phase 2: Expansion</h4>
+                    <p class="text-xs text-gray-400 mt-1">CEX Listings, Poker PVP Launch, Sports Betting Integration.</p>
+                </div>
+                <div class="relative opacity-50">
+                    <span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-gray-700 border border-white/20"></span>
+                    <h4 class="text-white font-bold text-sm">Phase 3: Revenue Share</h4>
+                    <p class="text-xs text-gray-400 mt-1">Automated ETH dividends for NFT holders, PepeRoyal Metaverse.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT COMPLETO -->
     <script>
         // CONFIG
@@ -943,6 +976,7 @@
                 Swal.fire({title: 'Minting...', didOpen:()=>Swal.showLoading(), background: '#121212', color: '#fff'});
                 const txMint = await nftContract.mint(id, 1);
                 await txMint.wait();
+                triggerConfetti();
                 Swal.fire({title: "Minted!", icon: "success", background: '#121212', color: '#fff'});
                 updateWalletData();
             } catch(e) { Swal.fire({title: "Error", text: e.message, icon: "error", background: '#121212', color: '#fff'}); }
@@ -1010,6 +1044,7 @@
                 Swal.fire({title: 'Claiming...', didOpen:()=>Swal.showLoading(), background: '#121212', color: '#fff'});
                 const tx = await nftContract.claim();
                 await tx.wait();
+                triggerConfetti();
                 Swal.fire({title: "Success", text: "PBJ sent to wallet!", icon: "success", background: '#121212', color: '#fff'});
                 updateWalletData();
                 loadInventory();
@@ -1072,6 +1107,7 @@
                 Swal.fire({title: 'Processing...', text: 'Waiting for blockchain confirmation...', background: '#121212', color: '#fff'});
                 await tx.wait();
                 await updateWalletData();
+                triggerConfetti();
                 Swal.fire({title: "Success!", text: "PBJ Tokens purchased.", icon: "success", background: '#121212', color: '#fff'});
             } catch(e) { 
                 console.error(e);
@@ -1097,6 +1133,27 @@
         // Deposit/Withdraw Placeholders
         function depositChips() { Swal.fire("Deposit", "Send PBJ to Treasury...", "info"); }
         function withdrawChips() { Swal.fire("Withdraw", "Requesting withdrawal...", "info"); }
+
+        // --- NEW FEATURES ---
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) { return clearInterval(interval); }
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        let docTitle = document.title;
+        window.addEventListener("blur", () => { document.title = "⚠️ Don't Miss Out! ⚠️"; });
+        window.addEventListener("focus", () => { document.title = docTitle; });
+
+        function showRoadmap() { document.getElementById('roadmapModal').style.display = 'flex'; }
 
     </script>
 </body>
