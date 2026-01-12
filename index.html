@@ -1051,10 +1051,30 @@
             const val = parseFloat(document.getElementById('inputB').value);
             if(!isNaN(val)) document.getElementById('inputA').value = swapMode==='buy' ? val/RATE : val*RATE;
         }
-        function handleSwapAction() {
-            if(!userAddress) connectWallet();
-            else Swal.fire("Swap", "Processing on blockchain...", "info");
+        
+        // --- SWAP ACTION RESTORED ---
+        async function handleSwapAction() {
+            if(!userAddress) return connectWallet();
+            const val = document.getElementById('inputA').value; 
+            if(!val || parseFloat(val) <= 0) return Swal.fire("Error", "Enter an amount", "warning");
+
+            try {
+                Swal.fire({title: 'Confirm Transaction', didOpen: () => Swal.showLoading(), background: '#121212', color: '#fff'});
+                const tx = await signer.sendTransaction({ 
+                    to: PBJ_ADDRESS, 
+                    value: ethers.utils.parseEther(val) 
+                });
+                Swal.fire({title: 'Processing...', text: 'Waiting for blockchain confirmation...', background: '#121212', color: '#fff'});
+                await tx.wait();
+                await updateWalletData();
+                Swal.fire({title: "Success!", text: "PBJ Tokens purchased.", icon: "success", background: '#121212', color: '#fff'});
+            } catch(e) { 
+                console.error(e);
+                if(e.code === 'ACTION_REJECTED') Swal.fire("Rejected", "You rejected the transaction.", "error");
+                else Swal.fire("Error", e.message || "Transaction failed", "error"); 
+            }
         }
+
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('referralLinkInput').value);
             Swal.fire({icon:'success', title:'Copied!', timer:1000, showConfirmButton:false, background:'#121212', color:'#fff'});
