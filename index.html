@@ -180,6 +180,19 @@
         .live-toast { animation: slideIn 0.4s ease-out, fadeOut 0.4s ease-in 4.5s forwards; border-left: 3px solid var(--primary); }
         @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+
+        /* FIX PARA JUEGOS EN MÓVIL: Ocupar pantalla completa sobre todo lo demás */
+.game-frame-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100; /* Encima del header, footer y botones */
+    background: #020202;
+    display: flex;
+    flex-direction: column;
+}
+.game-frame-container.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -715,6 +728,28 @@
         </button>
     </div>
 
+    
+<!-- CONTENEDOR DE JUEGO (PANTALLA COMPLETA) -->
+<div id="gameContainer" class="game-frame-container hidden">
+    <!-- Cabecera del Juego -->
+    <div class="h-12 flex items-center px-4 bg-[#080808] border-b border-white/5 shrink-0 justify-between">
+        <div class="flex items-center gap-2">
+            <!-- Botón Salir -->
+            <button onclick="showSection('home')" class="text-white flex items-center gap-1 text-[10px] font-bold bg-white/10 px-3 py-1.5 rounded border border-white/5">
+                <i class="fas fa-arrow-left"></i> EXIT
+            </button>
+            <span id="activeGameTitle" class="text-gold font-bold text-xs uppercase ml-2">Game</span>
+        </div>
+        <!-- Balance dentro del juego -->
+        <div class="flex items-center gap-2 bg-[#121212] px-3 py-1 rounded border border-white/5">
+            <span class="text-[10px] text-gray-500 uppercase font-bold">PBJ:</span>
+            <span class="text-white font-bold font-mono text-xs" id="inGameBalance">0.00</span>
+        </div>
+    </div>
+    <!-- El Iframe ocupa el resto del espacio -->
+    <iframe id="gameFrame" class="w-full h-full border-none bg-[#020202]" src="about:blank" allow="autoplay"></iframe>
+</div>
+
     <!-- SCRIPT -->
     <script>
         // --- CONFIG ---
@@ -1068,6 +1103,49 @@
             navigator.clipboard.writeText(copyText.value);
             Swal.fire({icon: 'success', title: 'Copied!', text: 'Share to earn.', timer: 1500, showConfirmButton: false, background: '#121212', color: '#fff'});
         }
+
+         function showSection(id) {
+    // 1. Ocultar el Overlay del Juego
+    const gc = document.getElementById('gameContainer');
+    gc.classList.add('hidden'); // Ocultar contenedor
+    document.getElementById('gameFrame').src = 'about:blank'; // Detener juego
+    
+    // 2. Restaurar elementos de la interfaz principal
+    document.querySelector('footer').style.display = 'block';
+    // Si tienes el ticker o barra sticky, muéstralos aquí si los ocultaste
+
+    // 3. Ocultar todas las secciones
+    ['homeSection','profileSection','nftSection','partnersSection'].forEach(s => {
+        const el = document.getElementById(s);
+        if(el) el.classList.add('hidden');
+    });
+
+    // 4. Mostrar sección elegida
+    const target = document.getElementById(id+'Section');
+    if(target) target.classList.remove('hidden');
+    
+    // Cerrar sidebar en móvil
+    if(window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('open');
+    window.scrollTo(0,0);
+}
+
+function loadGame(url, title) {
+    // 1. Ocultar el Footer y Tickers para dar espacio
+    document.querySelector('footer').style.display = 'none';
+    
+    // 2. Mostrar el Contenedor de Juego (Overlay)
+    const gc = document.getElementById('gameContainer');
+    gc.classList.remove('hidden');
+    gc.style.display = 'flex';
+    
+    // 3. Cargar Iframe
+    document.getElementById('activeGameTitle').innerText = title;
+    const f = document.getElementById('gameFrame');
+    f.src = url;
+    
+    // Enviar balance al juego cuando cargue
+    f.onload = () => f.contentWindow.postMessage({type: 'INIT_BALANCE', balance: gameBalance}, '*');
+}
 
         // --- NFT LOGIC ---
         const NFT_LEVELS = [
