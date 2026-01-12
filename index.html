@@ -859,16 +859,83 @@
             }
         }
 
-        // --- WEB3 ---
+        // --- WEB3 MODIFICADO PARA MOVIL ---
         async function connectWallet() {
-            if(!window.ethereum) return Swal.fire("Error", "Install MetaMask", "error");
+            // 1. Detectar si estamos en móvil
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            // 2. Si no hay billetera detectada (window.ethereum no existe)
+            if(!window.ethereum) {
+                if (isMobile) {
+                    // SI ES MOVIL: Ofrecer abrir la App de MetaMask
+                    Swal.fire({
+                        title: "Conectar Billetera",
+                        text: "Para conectar en móvil, necesitas abrir esta web dentro de la App de MetaMask. ¿Abrir ahora?",
+                        icon: "info",
+                        showCancelButton: true,
+                        confirmButtonText: "Abrir MetaMask App",
+                        cancelButtonText: "Cancelar",
+                        confirmButtonColor: "#FFD700",
+                        background: '#121212',
+                        color: '#fff'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Construir el Deep Link
+                            // Esto fuerza al móvil a abrir la URL actual dentro del navegador de MetaMask
+                            const currentUrl = window.location.host + window.location.pathname;
+                            window.location.href = "https://metamask.app.link/dapp/" + currentUrl;
+                        }
+                    });
+                    return;
+                } else {
+                    // SI ES PC: Pedir instalar extensión
+                    return Swal.fire({
+                        title: "MetaMask no encontrado", 
+                        text: "Por favor instala la extensión de MetaMask en tu navegador.", 
+                        icon: "error",
+                        background: '#121212', 
+                        color: '#fff'
+                    });
+                }
+            }
+
+            // 3. Conexión Normal (Si window.ethereum existe)
             try {
                 await provider.send("eth_requestAccounts", []);
                 const network = await provider.getNetwork();
+                
+                // Verificar Red Base (Chain ID 8453)
                 if(network.chainId !== CHAIN_ID) {
-                    try { await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_HEX }], }); } 
-                    catch (e) { Swal.fire("Wrong Network", "Switch to Base Mainnet", "warning"); return; }
+                    try { 
+                        await window.ethereum.request({ 
+                            method: 'wallet_switchEthereumChain', 
+                            params: [{ chainId: CHAIN_HEX }], 
+                        }); 
+                    } catch (switchError) {
+                        // Si la red no está agregada, intentar agregarla (Mejora UX)
+                        if (switchError.code === 4902) {
+                            try {
+                                await window.ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [{
+                                        chainId: CHAIN_HEX,
+                                        chainName: 'Base Mainnet',
+                                        nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                        rpcUrls: ['https://mainnet.base.org'],
+                                        blockExplorerUrls: ['https://basescan.org']
+                                    }],
+                                });
+                            } catch (addError) {
+                                Swal.fire("Error", "No se pudo agregar la red Base.", "error");
+                                return;
+                            }
+                        } else {
+                            Swal.fire("Red Incorrecta", "Por favor cambia a Base Mainnet", "warning"); 
+                            return; 
+                        }
+                    }
                 }
+                
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
                 pbjContract = new ethers.Contract(PBJ_ADDRESS, PBJ_ABI, signer);
@@ -881,11 +948,22 @@
 
                 document.getElementById('referralLinkInput').value = window.location.origin + "/?ref=" + userAddress;
 
-                window.ethereum.on('accountsChanged', () => window.location.reload());
-                window.ethereum.on('chainChanged', () => window.location.reload());
+                // Listeners
+                if(window.ethereum.on) {
+                    window.ethereum.on('accountsChanged', () => window.location.reload());
+                    window.ethereum.on('chainChanged', () => window.location.reload());
+                }
                 
                 document.getElementById('connectBtnHeader').innerHTML = `<i class="fas fa-check-circle text-green-500"></i> ${userAddress.substring(0,6)}...`;
-            } catch (e) { console.error(e); }
+                
+                // Feedback visual de éxito
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#121212', color: '#fff' });
+                Toast.fire({ icon: 'success', title: 'Wallet Connected' });
+
+            } catch (e) { 
+                console.error(e); 
+                Swal.fire({title: "Error de Conexión", text: e.message, icon: "error", background: '#121212', color: '#fff'});
+            }
         }
 
         async function updateWalletData() {
