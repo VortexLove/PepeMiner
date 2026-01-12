@@ -263,6 +263,10 @@
                 <button onclick="loadGame('games/mines.html', 'Mines')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group">
                     <i class="fas fa-bomb text-gray-500 group-hover:text-gold w-5"></i> Mines
                 </button>
+                <!-- AGREGADO: Juego DICE en la barra lateral -->
+                <button onclick="loadGame('games/dice.html', 'Dice')" class="w-full text-left flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition group">
+                    <i class="fas fa-dice text-gray-500 group-hover:text-gold w-5"></i> Dice
+                </button>
             </div>
             
             <div class="p-4 border-t border-white/5 text-xs bg-[#080808] text-center">
@@ -789,13 +793,14 @@
 
         // --- NAVIGATION & GAME LOADING (FIXED) ---
         function showSection(id) {
-            // Hide Game Overlay
+            // 1. Hide Game Overlay (Force Hide with Style)
             const gc = document.getElementById('gameContainer');
             gc.classList.add('hidden');
+            gc.style.display = 'none'; // Force hide inline style
             document.getElementById('gameFrame').src = 'about:blank';
             
-            // Restore Mobile Elements
-            document.getElementById('mobileStickyCTA').style.display = 'flex';
+            // 2. Restore Mobile Elements
+            document.getElementById('mobileStickyCTA').style.display = ''; // Revert to CSS
             document.getElementById('mainTicker').style.display = 'block';
             document.querySelector('footer').style.display = 'block';
 
@@ -824,8 +829,8 @@
 
             // 3. Show Game Container (Fullscreen Overlay)
             const gc = document.getElementById('gameContainer');
-            gc.style.display = 'flex';
             gc.classList.remove('hidden');
+            gc.style.display = 'flex';
             
             document.getElementById('activeGameTitle').innerText = title;
             const f = document.getElementById('gameFrame');
