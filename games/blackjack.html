@@ -2,72 +2,127 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Viewport optimizado para evitar zoom y scroll elástico en móvil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Blackjack | PepeCasino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* --- ESTILOS GENERALES (Igual que los otros juegos) --- */
+        /* --- ESTILOS GENERALES Y RESPONSIVE --- */
         body { 
             background: transparent; color: white; font-family: 'Inter', sans-serif;
-            overflow: hidden; user-select: none; height: 100vh; margin: 0;
+            overflow: hidden; user-select: none; height: 100vh; margin: 0; padding: 0;
             display: flex; justify-content: center; align-items: center;
+            touch-action: none; /* Bloquea gestos del navegador */
         }
 
         .game-wrapper {
-            width: 100%; max-width: 1100px; height: 650px;
-            background: #121924; border: 1px solid #1f2937; border-radius: 20px;
-            display: grid; grid-template-columns: 300px 1fr;
-            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 100%; height: 100%;
+            background: #121924; 
+            display: flex; flex-direction: column-reverse; /* MÓVIL: Controles abajo */
+            overflow: hidden;
+            position: relative;
         }
 
-        .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; z-index: 10; }
+        /* En Pantallas Grandes (Desktop) recuperamos el diseño original */
+        @media (min-width: 1024px) {
+            .game-wrapper {
+                max-width: 1100px; height: 650px;
+                border: 1px solid #1f2937; border-radius: 20px;
+                flex-direction: row; /* DESKTOP: Controles izquierda */
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            }
+        }
+
+        /* --- CONTROLES --- */
+        .controls { 
+            background: #0b1016; 
+            padding: 15px; 
+            display: flex; flex-direction: column; gap: 10px; 
+            border-top: 1px solid #1f2937; 
+            z-index: 20;
+            flex-shrink: 0; /* No encoger controles */
+        }
+
+        @media (min-width: 1024px) {
+            .controls {
+                width: 300px; height: 100%;
+                border-top: none; border-right: 1px solid #1f2937;
+                padding: 24px; gap: 20px;
+            }
+        }
+
+        /* --- MESA DE JUEGO --- */
         .stage { 
             position: relative; 
-            background: radial-gradient(circle at 50% 50%, #064e3b 0%, #022c22 100%); /* Mesa Verde Oscuro */
+            background: radial-gradient(circle at 50% 50%, #064e3b 0%, #022c22 100%);
             flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; padding: 40px 20px;
+            align-items: center; justify-content: space-between; 
+            padding: 20px 10px;
+            overflow-y: auto; /* Seguridad por si las cartas se salen */
         }
 
         /* --- UI COMPONENTES --- */
         .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
-        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 10px; font-weight: bold; outline: none; }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 8px; font-weight: bold; outline: none; font-size: 14px; }
         
-        .btn-action { width: 100%; padding: 15px; border-radius: 12px; font-weight: 900; text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; }
+        .btn-action { 
+            width: 100%; padding: 12px; border-radius: 8px; 
+            font-weight: 900; text-transform: uppercase; transition: 0.1s; 
+            letter-spacing: 0.5px; font-size: 14px;
+            touch-action: manipulation; /* Mejor respuesta tactil */
+        }
+        @media (min-width: 1024px) { .btn-action { padding: 15px; border-radius: 12px; letter-spacing: 1px; font-size: 16px; } }
+
         .btn-deal { background: #00ff2a; color: black; box-shadow: 0 0 15px rgba(0,255,42,0.2); }
-        .btn-deal:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0,255,42,0.4); }
+        .btn-deal:active { transform: scale(0.98); }
         
-        .game-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+        .game-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
         .btn-hit { background: #3b82f6; color: white; }
         .btn-stand { background: #eab308; color: black; }
         .btn-double { grid-column: span 2; background: #a855f7; color: white; }
         .btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
-        /* --- CARTAS CSS (Sin Imágenes) --- */
-        .card-slot { width: 100px; height: 140px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        /* --- CARTAS RESPONSIVAS --- */
+        /* MÓVIL (Por defecto) */
+        .card-slot { width: 70px; height: 100px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
         
         .card {
-            width: 100px; height: 140px; background: white; border-radius: 8px;
+            width: 70px; height: 100px; background: white; border-radius: 6px;
             color: black; position: relative; font-family: 'Space Grotesk', sans-serif;
-            box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
-            transition: transform 0.3s; margin-left: -40px; /* Overlap effect */
-            display: flex; flex-direction: column; justify-content: space-between; padding: 8px;
+            box-shadow: -2px 2px 8px rgba(0,0,0,0.4);
+            transition: transform 0.3s; 
+            margin-left: -35px; /* Solapamiento móvil */
+            display: flex; flex-direction: column; justify-content: space-between; padding: 4px;
             animation: deal 0.4s ease-out;
         }
-        .card:first-child { margin-left: 0; }
-        .card:hover { transform: translateY(-10px); z-index: 10; }
         
+        .card-val-top { font-size: 14px; font-weight: bold; line-height: 1; }
+        .card-suit-center { font-size: 24px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .card-val-bot { font-size: 14px; font-weight: bold; line-height: 1; transform: rotate(180deg); }
+
+        /* DESKTOP (Sobreescribir) */
+        @media (min-width: 1024px) {
+            .card-slot { width: 100px; height: 140px; border-radius: 10px; }
+            .card {
+                width: 100px; height: 140px; border-radius: 8px; padding: 8px;
+                margin-left: -50px; /* Solapamiento Desktop */
+                box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
+            }
+            .card:hover { transform: translateY(-15px) !important; z-index: 10; }
+            .card-val-top { font-size: 18px; }
+            .card-suit-center { font-size: 36px; }
+            .card-val-bot { font-size: 18px; }
+        }
+
+        .card:first-child { margin-left: 0; }
         .card.red { color: #dc2626; }
         .card.black { color: #000; }
-        
-        .card-val-top { font-size: 18px; font-weight: bold; line-height: 1; }
-        .card-suit-center { font-size: 36px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .card-val-bot { font-size: 18px; font-weight: bold; line-height: 1; transform: rotate(180deg); }
 
         .card-hidden {
-            background: repeating-linear-gradient(45deg, #1f2937, #1f2937 10px, #374151 10px, #374151 20px);
+            background: repeating-linear-gradient(45deg, #1f2937, #1f2937 5px, #374151 5px, #374151 10px);
             border: 2px solid #4b5563; color: transparent;
         }
 
@@ -76,90 +131,95 @@
         /* --- SCORE BUBBLES --- */
         .score-bubble {
             background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
-            padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
-            margin-bottom: 10px; color: #fbbf24; backdrop-filter: blur(4px);
+            padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 12px;
+            margin-bottom: 5px; color: #fbbf24; backdrop-filter: blur(4px);
             transition: 0.3s; opacity: 0;
         }
+        @media (min-width: 1024px) { .score-bubble { padding: 5px 15px; font-size: 14px; margin-bottom: 10px; } }
         .score-bubble.visible { opacity: 1; }
 
         /* --- RESULT OVERLAY --- */
         .result-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .result-overlay.active { opacity: 1; pointer-events: auto; }
-        .result-text { font-size: 3rem; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); transform: scale(0.8); transition: 0.3s; }
+        .result-text { font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); transform: scale(0.8); transition: 0.3s; }
         .result-overlay.active .result-text { transform: scale(1); }
-
     </style>
 </head>
 <body>
 
     <div class="game-wrapper">
-        <!-- CONTROLES -->
+        <!-- CONTROLES (Abajo en Móvil / Izquierda en Desktop) -->
         <div class="controls">
+            <!-- Sección Apuesta -->
             <div>
                 <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
                     <span>Bet Amount</span>
                     <span id="balanceDisplay">Loading...</span>
                 </div>
                 <div class="input-group">
-                    <i class="fas fa-coins text-gray-500 ml-3"></i>
+                    <i class="fas fa-coins text-gray-500 ml-3 text-xs"></i>
                     <input type="number" id="betInput" value="10" class="input-clean">
                     <div class="flex gap-1 pr-1">
-                        <button onclick="adjBet(0.5)" class="px-2 text-[10px] font-bold text-gray-400 hover:text-white">½</button>
-                        <button onclick="adjBet(2)" class="px-2 text-[10px] font-bold text-gray-400 hover:text-white">2x</button>
+                        <button onclick="adjBet(0.5)" class="px-2 py-1 bg-[#1a242d] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">½</button>
+                        <button onclick="adjBet(2)" class="px-2 py-1 bg-[#1a242d] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">2x</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Botones de Acción -->
-            <div id="betControls">
-                <button onclick="startGame()" class="btn-action btn-deal">DEAL CARDS</button>
+            <!-- Botón DEAL -->
+            <div id="betControls" class="mt-auto">
+                <button onclick="startGame()" class="btn-action btn-deal shadow-lg">DEAL CARDS</button>
             </div>
 
-            <div id="playControls" class="game-actions hidden">
-                <button onclick="hit()" class="btn-action btn-hit">HIT</button>
-                <button onclick="stand()" class="btn-action btn-stand">STAND</button>
-                <button id="btnDouble" onclick="doubleDown()" class="btn-action btn-double">DOUBLE (2x)</button>
+            <!-- Botones JUEGO -->
+            <div id="playControls" class="game-actions hidden mt-auto">
+                <button onclick="hit()" class="btn-action btn-hit shadow-lg">HIT</button>
+                <button onclick="stand()" class="btn-action btn-stand shadow-lg">STAND</button>
+                <button id="btnDouble" onclick="doubleDown()" class="btn-action btn-double shadow-lg">DOUBLE</button>
             </div>
             
-            <div class="mt-auto text-xs text-gray-500 text-center">
+            <!-- Info Footer -->
+            <div class="hidden lg:block mt-auto text-xs text-gray-600 text-center">
                 Blackjack Pays 3:2 • Dealer stands on 17
             </div>
         </div>
 
-        <!-- MESA DE JUEGO -->
+        <!-- MESA DE JUEGO (Arriba en Móvil / Derecha en Desktop) -->
         <div class="stage">
             <!-- Dealer Area -->
-            <div class="flex flex-col items-center">
-                <div class="text-xs font-bold text-gray-400 uppercase mb-2">Dealer</div>
+            <div class="flex flex-col items-center justify-start pt-4 w-full">
+                <div class="text-[10px] font-bold text-gray-400 uppercase mb-1">Dealer</div>
                 <div id="dealer-score" class="score-bubble">0</div>
-                <div id="dealer-hand" class="flex items-center justify-center pl-10 min-h-[140px]">
+                <div id="dealer-hand" class="flex items-center justify-center pl-8 min-h-[110px] lg:min-h-[150px]">
                     <!-- Cartas Dealer -->
                     <div class="card-slot opacity-20"></div>
                 </div>
             </div>
 
-            <!-- Logo Central (Decoración) -->
-            <div class="opacity-10 text-6xl font-black tracking-widest pointer-events-none select-none">PEPEBJ</div>
+            <!-- Logo Central -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5 text-4xl lg:text-6xl font-black tracking-widest pointer-events-none select-none whitespace-nowrap">
+                PEPEBJ
+            </div>
 
             <!-- Player Area -->
-            <div class="flex flex-col items-center">
-                <div id="player-hand" class="flex items-center justify-center pl-10 min-h-[140px]">
+            <div class="flex flex-col items-center justify-end pb-4 w-full">
+                <div id="player-hand" class="flex items-center justify-center pl-8 min-h-[110px] lg:min-h-[150px]">
                     <!-- Cartas Player -->
                     <div class="card-slot opacity-20"></div>
                 </div>
                 <div id="player-score" class="score-bubble mt-2">0</div>
-                <div class="text-xs font-bold text-gray-400 uppercase mt-2">You</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase mt-1">You</div>
             </div>
 
             <!-- Overlay Resultado -->
             <div id="resultOverlay" class="result-overlay">
                 <div id="resultText" class="result-text text-white">WINNER</div>
                 <div id="payoutText" class="text-xl font-bold text-green-400 mb-6">+0.00 PBJ</div>
-                <button onclick="resetGame()" class="px-8 py-3 bg-white text-black font-bold rounded-full hover:scale-105 transition">PLAY AGAIN</button>
+                <button onclick="resetGame()" class="px-8 py-3 bg-white text-black font-bold rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.3)]">PLAY AGAIN</button>
             </div>
         </div>
     </div>
@@ -172,15 +232,24 @@
     <script>
         // --- COMUNICACIÓN IFRAME ---
         let userBalance = 0;
+        
+        // Ajuste dinámico de altura para móviles con barras de navegación
+        function fixHeight() {
+            document.querySelector('.game-wrapper').style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', fixHeight);
+        fixHeight();
+
         window.addEventListener('message', (e) => {
             if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
                 userBalance = e.data.balance;
-                document.getElementById('balanceDisplay').innerText = userBalance.toLocaleString();
+                const balEl = document.getElementById('balanceDisplay');
+                if(balEl) balEl.innerText = userBalance.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:2});
             }
         });
         function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // --- LÓGICA BLACKJACK ---
+        // --- LÓGICA BLACKJACK (Intacta) ---
         const suits = ['♠', '♥', '♦', '♣'];
         const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
         
@@ -197,7 +266,7 @@
                     deck.push({ value, suit, weight: getWeight(value) });
                 }
             }
-            deck.sort(() => Math.random() - 0.5); // Shuffle simple
+            deck.sort(() => Math.random() - 0.5); 
         }
 
         function getWeight(v) {
@@ -212,15 +281,15 @@
             if(v<1) v=1; el.value = v.toFixed(0);
         }
 
-        // RENDER CARTAS (CSS PURO)
+        // RENDER CARTAS
         function renderCardHTML(card, hidden = false) {
             if (hidden) return `<div class="card card-hidden"></div>`;
             const color = (card.suit === '♥' || card.suit === '♦') ? 'red' : 'black';
             return `
                 <div class="card ${color}">
-                    <div class="card-val-top">${card.value}<br><span class="text-xs">${card.suit}</span></div>
+                    <div class="card-val-top">${card.value}<br><span class="text-[10px] lg:text-xs">${card.suit}</span></div>
                     <div class="card-suit-center">${card.suit}</div>
-                    <div class="card-val-bot">${card.value}<br><span class="text-xs">${card.suit}</span></div>
+                    <div class="card-val-bot">${card.value}<br><span class="text-[10px] lg:text-xs">${card.suit}</span></div>
                 </div>
             `;
         }
@@ -229,22 +298,17 @@
             const dContainer = document.getElementById('dealer-hand');
             const pContainer = document.getElementById('player-hand');
             
-            // Dealer
             dContainer.innerHTML = dealerHand.map((c, i) => renderCardHTML(c, i === 0 && !showHidden)).join('');
-            
-            // Player
             pContainer.innerHTML = playerHand.map(c => renderCardHTML(c)).join('');
 
-            // Scores
             const pScore = calculateScore(playerHand);
-            const dScore = calculateScore(dealerHand); // Este muestra el real, pero visualmente ocultamos la carta
+            const dScore = calculateScore(dealerHand); 
             
             document.getElementById('player-score').innerText = pScore;
             document.getElementById('player-score').classList.add('visible');
 
-            // Truco: Si hay carta oculta, mostrar solo el valor de la carta visible
             if(!showHidden && dealerHand.length > 0) {
-                 document.getElementById('dealer-score').innerText = getWeight(dealerHand[1].value); // Solo la segunda carta
+                 document.getElementById('dealer-score').innerText = getWeight(dealerHand[1].value); 
             } else {
                  document.getElementById('dealer-score').innerText = dScore;
             }
@@ -276,7 +340,6 @@
             if(bet > userBalance) return alert("Insufficient funds");
             if(gameActive) return;
 
-            // Setup
             currentBet = bet;
             updateParent(-currentBet);
             createDeck();
@@ -285,18 +348,16 @@
             gameActive = true;
             document.getElementById('btnDouble').classList.remove('btn-disabled');
 
-            // UI Switch
             document.getElementById('betControls').classList.add('hidden');
             document.getElementById('playControls').classList.remove('hidden');
             document.getElementById('resultOverlay').classList.remove('active');
 
-            // Deal inicial (con pequeño delay para efecto)
             dealCard(playerHand);
             setTimeout(() => dealCard(dealerHand), 300);
             setTimeout(() => dealCard(playerHand), 600);
             setTimeout(() => {
                 dealCard(dealerHand);
-                updateUI(false); // Mantener oculta la primera del dealer
+                updateUI(false); 
                 checkNaturalBlackjack();
             }, 900);
         }
@@ -311,32 +372,30 @@
         function checkNaturalBlackjack() {
             const pScore = calculateScore(playerHand);
             if(pScore === 21) {
-                stand(); // Auto stand on natural
+                stand(); 
             }
         }
 
         function hit() {
             if(!gameActive) return;
-            document.getElementById('btnDouble').classList.add('btn-disabled'); // No double after hit
+            document.getElementById('btnDouble').classList.add('btn-disabled'); 
             dealCard(playerHand);
             
             const score = calculateScore(playerHand);
             if(score > 21) {
                 endGame('BUST');
             } else if (score === 21) {
-                setTimeout(stand, 500); // Auto stand on 21
+                setTimeout(stand, 500); 
             }
         }
 
         function doubleDown() {
             if(playerHand.length !== 2) return;
-            if(userBalance < currentBet) return alert("Not enough balance to double");
+            if(userBalance < currentBet) return alert("Not enough balance");
             
-            // Cobrar apuesta extra
             updateParent(-currentBet);
             currentBet *= 2;
             
-            // 1 carta y terminar
             dealCard(playerHand);
             
             const score = calculateScore(playerHand);
@@ -346,12 +405,10 @@
 
         function stand() {
             if(!gameActive) return;
-            gameActive = false; // Bloquear input jugador
+            gameActive = false; 
             
-            // Revelar carta dealer
             updateUI(true); 
 
-            // Dealer Logic
             const dealLoop = setInterval(() => {
                 const dScore = calculateScore(dealerHand);
                 if(dScore < 17) {
@@ -368,7 +425,7 @@
             const pScore = calculateScore(playerHand);
             const dScore = calculateScore(dealerHand);
 
-            if(dScore > 21) endGame('WIN'); // Dealer Bust
+            if(dScore > 21) endGame('WIN'); 
             else if (pScore > dScore) endGame('WIN');
             else if (pScore === dScore) endGame('PUSH');
             else endGame('LOSE');
@@ -376,7 +433,7 @@
 
         function endGame(result) {
             gameActive = false;
-            updateUI(true); // Mostrar todo
+            updateUI(true); 
             
             let payout = 0;
             let text = "";
@@ -384,16 +441,15 @@
             let sound = 'sfx-lose';
 
             if(result === 'BUST') {
-                text = "BUSTED!"; color = "text-red-500";
+                text = "BUSTED"; color = "text-red-500";
             } else if (result === 'LOSE') {
                 text = "DEALER WINS"; color = "text-red-500";
             } else if (result === 'PUSH') {
                 text = "PUSH"; color = "text-yellow-400";
                 payout = currentBet;
-                sound = 'sfx-flip'; // Sonido neutral
+                sound = 'sfx-flip'; 
             } else if (result === 'WIN') {
                 text = "YOU WIN!"; color = "text-green-400";
-                // Blackjack natural paga 3:2, normal 1:1
                 const isBJ = (playerHand.length === 2 && calculateScore(playerHand) === 21);
                 payout = isBJ ? currentBet * 2.5 : currentBet * 2;
                 if(isBJ) text = "BLACKJACK!";
@@ -402,7 +458,6 @@
 
             if(payout > 0) updateParent(payout);
 
-            // Mostrar Overlay
             setTimeout(() => {
                 playSound(sound);
                 const ov = document.getElementById('resultOverlay');
@@ -423,17 +478,14 @@
             document.getElementById('playControls').classList.add('hidden');
             document.getElementById('betControls').classList.remove('hidden');
             
-            // Limpiar mesa
             playerHand = [];
             dealerHand = [];
             document.getElementById('player-score').classList.remove('visible');
             document.getElementById('dealer-score').classList.remove('visible');
             
-            // Reset UI slots
             document.getElementById('dealer-hand').innerHTML = '<div class="card-slot opacity-20"></div>';
             document.getElementById('player-hand').innerHTML = '<div class="card-slot opacity-20"></div>';
         }
-
     </script>
 </body>
 </html>
