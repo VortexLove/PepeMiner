@@ -2,130 +2,218 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash Pro | PepeCasino</title>
+    <!-- Viewport estricto para evitar zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crash Royal | PepeCasino</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pepe-dark': '#020202',
+                        'pepe-panel': '#121212',
+                        'royal-gold': '#FFD700',
+                    },
+                    fontFamily: {
+                        'display': ['Chakra Petch', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         body { 
             background: transparent; color: white; font-family: 'Inter', sans-serif;
             overflow: hidden; user-select: none; height: 100vh; margin: 0;
-            display: flex; justify-content: center; align-items: center;
+            touch-action: none;
         }
 
         .game-wrapper {
-            width: 100%; max-width: 1100px; height: 650px;
-            background: #121924; border: 1px solid #1f2937; border-radius: 20px;
-            display: grid; grid-template-columns: 300px 1fr;
-            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 100%; height: 100%;
+            background: #020202; 
+            display: flex; flex-direction: column-reverse; /* MÓVIL: Controles abajo */
+            position: relative;
         }
 
-        /* PANEL CONTROL */
-        .controls { background: #0b1016; padding: 24px; display: flex; flex-direction: column; gap: 20px; border-right: 1px solid #1f2937; z-index: 20; }
-        
-        .input-group { background: #05080a; border: 1px solid #1f2937; border-radius: 8px; padding: 5px; display: flex; align-items: center; }
-        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 10px; font-weight: bold; outline: none; }
+        /* En PC: Diseño Horizontal */
+        @media (min-width: 1024px) {
+            .game-wrapper {
+                flex-direction: row; /* PC: Controles izquierda */
+                max-width: 1200px; height: 700px;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                margin: auto; /* Centrado */
+                background: #050505;
+                box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            }
+        }
+
+        /* --- CONTROLES --- */
+        .controls { 
+            background: #080808; 
+            padding: 16px; 
+            display: flex; flex-direction: column; gap: 12px; 
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 1024px) {
+            .controls {
+                width: 320px; height: 100%;
+                border-top: none; border-right: 1px solid rgba(255, 215, 0, 0.1);
+                padding: 30px; gap: 20px;
+            }
+        }
+
+        .input-group { 
+            background: #121212; border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; padding: 4px; display: flex; align-items: center; 
+            transition: 0.3s;
+        }
+        .input-group:focus-within { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        .input-clean { background: transparent; width: 100%; border: none; color: white; padding: 12px; font-weight: bold; outline: none; font-family: 'Chakra Petch'; }
 
         .btn-action {
-            width: 100%; padding: 18px; border-radius: 12px; font-weight: 900; font-size: 1.2rem;
-            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; position: relative; overflow: hidden;
+            width: 100%; padding: 16px; border-radius: 8px; font-weight: 900; font-size: 1.1rem;
+            text-transform: uppercase; transition: 0.2s; letter-spacing: 1px; font-family: 'Chakra Petch';
+            position: relative; overflow: hidden;
         }
-        .btn-bet { background: #00ff2a; color: black; box-shadow: 0 0 20px rgba(0,255,42,0.2); }
-        .btn-bet:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0,255,42,0.5); }
-        .btn-cashout { background: #eab308; color: black; box-shadow: 0 0 20px rgba(234, 179, 8, 0.4); animation: pulse 1s infinite; }
         
-        .btn-disabled { background: #374151; color: #9ca3af; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+        .btn-bet { 
+            background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); 
+            color: black; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            border: 1px solid #FFE4B5;
+        }
+        .btn-bet:active { transform: scale(0.98); filter: brightness(0.9); }
+        
+        .btn-cashout { 
+            background: #22c55e; color: black; 
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); 
+            animation: pulse 1s infinite; 
+            border: 1px solid #86efac;
+        }
+        
+        .btn-disabled { background: #1f2937; color: #6b7280; cursor: not-allowed; box-shadow: none; border: 1px solid #374151; }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(234, 179, 8, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
-        /* ESCENARIO */
-        .stage { position: relative; background: #0f172a; flex: 1; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        /* --- STAGE / GRAPH --- */
+        .stage { 
+            position: relative; flex: 1; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 50% 100%, #1a1a00 0%, #020202 70%);
+        }
         canvas { width: 100%; height: 100%; display: block; }
 
-        /* OVERLAYS UI */
+        /* --- UI OVERLAYS --- */
         .overlay-ui { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        .mult-number { font-size: 5rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif; tabular-nums; transition: color 0.2s; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .crashed-text { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); transform: scale(1.1); }
-        
-        .history-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 5px; z-index: 10; }
-        .pill { padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #1e293b; color: #94a3b8; }
-        .pill.win { background: #00ff2a; color: black; }
-        .pill.high { background: #eab308; color: black; }
-        .pill.loss { background: #ef4444; color: white; }
+        .mult-number { 
+            font-size: 4rem; font-weight: 900; font-family: 'Chakra Petch', sans-serif; 
+            tabular-nums; text-shadow: 0 0 20px rgba(255, 215, 0, 0.3); 
+        }
+        @media (min-width: 1024px) { .mult-number { font-size: 6rem; } }
 
-        /* CASHED OUT NOTIFICATION */
+        .crashed-text { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.6); transform: scale(1.1); transition: 0.3s; }
+        
+        .history-bar { 
+            position: absolute; top: 15px; right: 15px; 
+            display: flex; flex-direction: column-reverse; gap: 5px; z-index: 10; 
+            max-height: 200px; overflow: hidden;
+        }
+        @media (min-width: 1024px) { .history-bar { flex-direction: row; } }
+
+        .pill { 
+            padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; 
+            background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1);
+            font-family: 'Chakra Petch';
+        }
+        .pill.win { color: #FFD700; border-color: #FFD700; }
+        .pill.loss { color: #ef4444; border-color: #ef4444; }
+
+        /* NOTIFICACION GANADOR */
         .cashout-notif {
-            position: absolute; bottom: 100px; background: rgba(0, 255, 42, 0.2); 
-            border: 1px solid #00ff2a; color: #00ff2a; padding: 10px 20px; 
-            border-radius: 8px; font-weight: bold; font-size: 1.2rem;
-            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0; transform: translateY(20px); backdrop-filter: blur(4px);
+            position: absolute; bottom: 30%; 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid #FFD700; color: #FFD700; 
+            padding: 15px 30px; border-radius: 12px; 
+            font-weight: 900; font-size: 1.5rem; font-family: 'Chakra Petch';
+            animation: slideUp 0.4s ease-out forwards;
+            opacity: 0; transform: translateY(20px); backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+            text-align: center;
         }
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 900px) {
-            .game-wrapper { grid-template-columns: 1fr; display: flex; flex-direction: column-reverse; height: 100vh; border-radius: 0; border: none; }
-            .stage { height: 60%; }
-            .controls { padding: 15px; }
-            .mult-number { font-size: 3.5rem; }
-        }
     </style>
 </head>
 <body>
 
     <div class="game-wrapper">
-        <!-- CONTROLES -->
+        <!-- CONTROLES (Abajo en móvil / Izquierda en PC) -->
         <div class="controls">
-            <div>
-                <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
-                    <span>Bet Amount</span>
-                    <span id="balanceDisplay">Loading...</span>
+            <!-- Balance Info -->
+            <div class="flex justify-between items-center bg-[#121212] p-2 rounded border border-white/5">
+                <span class="text-[10px] text-gray-500 font-bold uppercase">Balance</span>
+                <span class="text-gold font-mono font-bold" id="balanceDisplay">Loading...</span>
+            </div>
+
+            <!-- Inputs -->
+            <div class="space-y-4 flex-1 lg:flex-none flex flex-col justify-center">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Bet Amount</label>
+                    <div class="input-group">
+                        <input type="number" id="betInput" value="100" class="input-clean">
+                        <div class="flex gap-1 pr-1">
+                            <button onclick="adjBet(0.5)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">½</button>
+                            <button onclick="adjBet(2)" class="px-3 py-1 bg-[#222] rounded text-[10px] font-bold text-gray-400 hover:text-white border border-white/5">2x</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <input type="number" id="betInput" value="10" class="input-clean">
-                    <button onclick="adjBet(0.5)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">½</button>
-                    <button onclick="adjBet(2)" class="px-2 text-xs font-bold text-gray-500 hover:text-white">2x</button>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase mb-1 block">Auto Cashout (x)</label>
+                    <div class="input-group">
+                        <input type="number" id="autoCashout" value="2.00" step="0.1" class="input-clean text-gold">
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase mb-1">
-                    <span>Auto Cashout</span>
+            <!-- Info Profit -->
+            <div class="grid grid-cols-2 gap-2 mt-2">
+                <div class="bg-[#121212] p-2 rounded text-center border border-white/5">
+                    <p class="text-[9px] text-gray-500 uppercase">Potential Win</p>
+                    <p class="text-sm font-bold text-green-400 font-mono" id="potentialProfit">0.00</p>
                 </div>
-                <div class="input-group">
-                    <input type="number" id="autoCashout" value="2.00" step="0.01" class="input-clean">
-                </div>
-            </div>
-
-            <!-- Stats Rápidas -->
-            <div class="mt-auto grid grid-cols-2 gap-2 mb-4">
-                <div class="bg-white/5 p-2 rounded text-center">
-                    <p class="text-[9px] text-gray-500 uppercase">Profit</p>
-                    <p class="text-sm font-bold text-green-400" id="potentialProfit">0.00</p>
-                </div>
-                <div class="bg-white/5 p-2 rounded text-center">
+                <div class="bg-[#121212] p-2 rounded text-center border border-white/5">
                     <p class="text-[9px] text-gray-500 uppercase">Status</p>
-                    <p class="text-sm font-bold text-white" id="gameStatus">IDLE</p>
+                    <p class="text-xs font-bold text-white uppercase tracking-widest" id="gameStatus">Ready</p>
                 </div>
             </div>
 
-            <button id="mainBtn" onclick="handleAction()" class="btn-action btn-bet">BET</button>
+            <!-- Boton Principal -->
+            <button id="mainBtn" onclick="handleAction()" class="btn-action btn-bet shadow-lg mt-auto">PLACE BET</button>
         </div>
 
-        <!-- STAGE -->
+        <!-- ESCENARIO DE JUEGO -->
         <div class="stage" id="stageContainer">
             <div class="history-bar" id="historyBar"></div>
             
             <canvas id="gameCanvas"></canvas>
             
+            <!-- Texto Central -->
             <div class="overlay-ui">
                 <div id="multiplierText" class="mult-number text-white">1.00x</div>
-                <div id="statusLabel" class="text-xs font-bold tracking-[0.2em] text-gray-500 mt-2">READY TO FLY</div>
+                <div id="statusLabel" class="text-xs font-bold tracking-[0.3em] text-gray-600 mt-2">NEXT ROUND</div>
             </div>
             
+            <!-- Notificación Ganadora -->
             <div id="cashoutNotif" class="cashout-notif hidden"></div>
         </div>
     </div>
@@ -136,43 +224,44 @@
     <audio id="sfx-win" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
     <script>
-        // --- INFRAESTRUCTURA IFRAME ---
+        // --- COMUNICACIÓN IFRAME ---
         let userBalance = 0;
+        
+        // Ajuste de altura para móviles
+        function fixHeight() {
+            document.querySelector('.game-wrapper').style.height = window.innerHeight + 'px';
+        }
+        window.addEventListener('resize', fixHeight);
+        fixHeight();
+
         window.addEventListener('message', (e) => {
             if (e.data.type === 'INIT_BALANCE' || e.data.type === 'SYNC_BALANCE') {
                 userBalance = e.data.balance;
-                document.getElementById('balanceDisplay').innerText = userBalance.toLocaleString();
+                document.getElementById('balanceDisplay').innerText = userBalance.toLocaleString(undefined, {minimumFractionDigits:2});
             }
         });
         function updateParent(amount) { window.parent.postMessage({ type: 'UPDATE_BALANCE', amount: amount }, '*'); }
 
-        // --- MOTOR DE JUEGO CRASH PRO ---
+        // --- MOTOR DEL JUEGO CRASH ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const multText = document.getElementById('multiplierText');
         const mainBtn = document.getElementById('mainBtn');
         const profitDisplay = document.getElementById('potentialProfit');
 
-        // Configuración
-        let gameState = 'IDLE'; // IDLE, RUNNING, CRASHED
+        // Variables de Estado
+        let gameState = 'IDLE'; 
         let currentMultiplier = 1.00;
         let crashPoint = 0;
         let startTime = 0;
         let betAmount = 0;
         let cashedOut = false;
         let particles = [];
-        let stars = [];
-
-        // Geometría del Gráfico
-        let camX = 0;
-        let camY = 0;
-        let scaleX = 100; // Pixels por segundo
-        let scaleY = 100; // Pixels por 1x
+        let rocketY = 0;
 
         // INIT
         window.onload = () => {
             resize();
-            initStars();
             animate();
             window.addEventListener('resize', resize);
         };
@@ -182,20 +271,22 @@
             canvas.height = document.getElementById('stageContainer').clientHeight;
         }
 
-        function initStars() {
-            for(let i=0; i<50; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 2,
-                    speed: Math.random() * 0.5 + 0.1
-                });
-            }
+        // --- LÓGICA DE JUEGO (HOUSE EDGE 10%) ---
+        function generateCrashPoint() {
+            // 1. Instant Crash (House takes all): 5% de probabilidad de crashear en 1.00x
+            if (Math.random() < 0.05) return 1.00;
+
+            // 2. Distribución con Edge del 5% adicional (Total ~10% edge)
+            // Formula justa: 0.99 / (1-r)
+            // Formula Casa: 0.95 / (1-r)
+            const r = Math.random();
+            const crash = 0.95 / (1 - r);
+            
+            return Math.max(1.00, crash);
         }
 
-        // --- GAME LOGIC ---
         function handleAction() {
-            if (gameState === 'IDLE') startGame();
+            if (gameState === 'IDLE' || gameState === 'CRASHED') startGame();
             else if (gameState === 'RUNNING') cashOut();
         }
 
@@ -205,28 +296,16 @@
             if(v<1) v=1; el.value = v.toFixed(0);
         }
 
-        function generateCrashPoint() {
-            // MATEMÁTICA PROVABLY FAIR CON HOUSE EDGE (1% + 3% Instant Crash)
-            // Fórmula: E = 0.99 / (1 - U)
-            const r = Math.random();
-            let crash = 0.99 / (1 - r);
-            
-            // House Edge: Instant Crash (1.00x) el 3% de las veces
-            if (Math.random() < 0.03) crash = 1.00;
-            
-            return Math.max(1.00, crash);
-        }
-
         function startGame() {
             const bet = parseFloat(document.getElementById('betInput').value);
+            if(isNaN(bet) || bet <= 0) return alert("Invalid Bet");
             if(bet > userBalance) return alert("Insufficient Balance");
-            if(bet <= 0) return;
 
-            // Descontar
+            // Descontar apuesta
             betAmount = bet;
             updateParent(-betAmount);
 
-            // Setup Round
+            // Reset Variables
             gameState = 'RUNNING';
             cashedOut = false;
             currentMultiplier = 1.00;
@@ -234,18 +313,19 @@
             crashPoint = generateCrashPoint();
             particles = [];
             
-            // UI Reset
+            // UI Update
             mainBtn.innerText = "CASHOUT";
             mainBtn.className = "btn-action btn-cashout";
             document.getElementById('betInput').disabled = true;
             document.getElementById('cashoutNotif').classList.add('hidden');
-            document.getElementById('statusLabel').innerText = "FLYING...";
+            document.getElementById('statusLabel').innerText = "TO THE MOON";
             multText.className = "mult-number text-white";
             document.getElementById('gameStatus').innerText = "LIVE";
-            document.getElementById('gameStatus').className = "text-sm font-bold text-green-500 animate-pulse";
+            document.getElementById('gameStatus').className = "text-xs font-bold text-green-500 animate-pulse uppercase tracking-widest";
 
-            // Audio
-            /* document.getElementById('sfx-engine').play(); */ // Uncomment if desired
+            // Audio loop
+            // document.getElementById('sfx-engine').currentTime = 0;
+            // document.getElementById('sfx-engine').play().catch(()=>{});
         }
 
         function cashOut() {
@@ -254,46 +334,40 @@
 
             const win = betAmount * currentMultiplier;
             const profit = win - betAmount;
-            updateParent(win);
+            updateParent(win); // Devolver apuesta + ganancia
             
-            document.getElementById('sfx-win').play();
+            document.getElementById('sfx-win').play().catch(()=>{});
 
             // UI Feedback
-            mainBtn.innerText = "WAITING...";
+            mainBtn.innerText = "WAIT FOR NEXT ROUND";
             mainBtn.className = "btn-action btn-disabled";
             
             const notif = document.getElementById('cashoutNotif');
-            notif.innerHTML = `Won ${profit.toFixed(0)} PBJ <span class="text-xs text-white">(@ ${currentMultiplier.toFixed(2)}x)</span>`;
+            notif.innerHTML = `
+                <div class="text-xs text-gray-400 uppercase tracking-widest mb-1">Cashed Out</div>
+                <div class="text-white">+${win.toLocaleString(undefined, {maximumFractionDigits:0})} PBJ</div>
+            `;
             notif.classList.remove('hidden');
         }
 
         function crash() {
             gameState = 'CRASHED';
-            /* document.getElementById('sfx-engine').pause(); */
-            document.getElementById('sfx-crash').play();
+            // document.getElementById('sfx-engine').pause();
+            document.getElementById('sfx-crash').play().catch(()=>{});
 
-            // Explosión de partículas
-            for(let i=0; i<30; i++) {
-                particles.push({
-                    x: getGraphX(Date.now() - startTime),
-                    y: getGraphY(currentMultiplier),
-                    vx: (Math.random()-0.5) * 10,
-                    vy: (Math.random()-0.5) * 10,
-                    life: 1,
-                    color: '#ef4444'
-                });
-            }
+            // Explosion
+            createExplosion(canvas.width * 0.7, getRocketY(Date.now() - startTime));
 
-            // UI Crash
+            // UI
             multText.innerText = crashPoint.toFixed(2) + "x";
             multText.classList.add('crashed-text');
             document.getElementById('statusLabel').innerText = "CRASHED";
             
-            mainBtn.innerText = "BET";
+            mainBtn.innerText = "PLACE BET";
             mainBtn.className = "btn-action btn-bet";
             document.getElementById('betInput').disabled = false;
             document.getElementById('gameStatus').innerText = "ENDED";
-            document.getElementById('gameStatus').className = "text-sm font-bold text-red-500";
+            document.getElementById('gameStatus').className = "text-xs font-bold text-red-500 uppercase tracking-widest";
 
             addToHistory(crashPoint);
         }
@@ -302,141 +376,110 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 1. DIBUJAR FONDO (Estrellas/Grid)
-            drawBackground();
+            // Grid de fondo
+            drawGrid();
 
             if (gameState === 'RUNNING') {
                 const now = Date.now();
-                const elapsed = (now - startTime) / 1000; // segundos
+                const elapsed = (now - startTime) / 1000;
                 
-                // Crecimiento Exponencial: M = e^(0.06 * t)
-                // Ajustado para gameplay divertido: 1 + t^2 * 0.1 aprox
-                // Usamos una función simple para demo
-                currentMultiplier = 1.0 + (elapsed * elapsed * 0.08) + (elapsed * 0.1);
+                // Función de crecimiento (Exponential simple)
+                currentMultiplier = 1.0 + (elapsed * elapsed * 0.1) + (elapsed * 0.05);
                 
-                // Actualizar Texto
+                // Update UI
                 multText.innerText = currentMultiplier.toFixed(2) + "x";
-                profitDisplay.innerText = ((currentMultiplier * betAmount) - betAmount).toFixed(2);
+                if(!cashedOut) {
+                    profitDisplay.innerText = ((currentMultiplier * betAmount) - betAmount).toFixed(2);
+                }
                 
-                // Color Shift
-                if(currentMultiplier > 2) multText.style.color = "#4ade80";
-                if(currentMultiplier > 10) multText.style.color = "#eab308";
+                // Color dinámico
+                if(currentMultiplier >= 2) multText.style.color = "#FFD700";
                 
-                // Auto Cashout
+                // Auto Cashout Check
                 const auto = parseFloat(document.getElementById('autoCashout').value);
                 if(!cashedOut && auto && currentMultiplier >= auto) cashOut();
 
-                // Check Crash
+                // Crash Check
                 if(currentMultiplier >= crashPoint) crash();
 
-                // 2. DIBUJAR LÍNEA Y COHETE
+                // Dibujar Gráfico
                 drawGraph(elapsed, currentMultiplier);
                 
-            } else if (gameState === 'CRASHED') {
-                // Mantener dibujo del punto de crash estático un momento
-                // Opcional: Fade out
-                drawParticles();
             } else {
-                // IDLE
-                // Dibujar línea base
-                ctx.beginPath();
-                ctx.strokeStyle = "#334155";
-                ctx.lineWidth = 2;
-                ctx.moveTo(0, canvas.height - 50);
-                ctx.lineTo(canvas.width, canvas.height - 50);
-                ctx.stroke();
+                // Estado IDLE o CRASHED (Dibujar línea base estática)
+                drawParticles(); // Si quedan partículas de explosión
             }
 
             requestAnimationFrame(animate);
         }
 
-        function drawBackground() {
-            // Estrellas en movimiento
-            ctx.fillStyle = "#ffffff";
-            stars.forEach(s => {
-                let displayX = s.x - (gameState==='RUNNING' ? (Date.now()-startTime)/20 : 0);
-                // Wrap around
-                displayX = displayX % canvas.width;
-                if(displayX < 0) displayX += canvas.width;
-                
-                ctx.globalAlpha = Math.random() * 0.5 + 0.2;
-                ctx.beginPath();
-                ctx.arc(displayX, s.y, s.size, 0, Math.PI*2);
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
+        function drawGrid() {
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+            ctx.lineWidth = 1;
+            // Horizontal lines
+            for(let i=0; i<canvas.height; i+=50) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+            // Vertical lines
+            for(let i=0; i<canvas.width; i+=50) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
         }
 
-        function getGraphX(elapsed) {
-            // Mapear tiempo a X. Hacemos "Zoom Out" si elapsed es grande.
-            // Escala X disminuye a medida que elapsed aumenta
-            const maxX = Math.max(10, elapsed * 1.2); 
-            return (elapsed / maxX) * (canvas.width - 50) + 20; 
-        }
-
-        function getGraphY(mult) {
-            // Mapear mult a Y (invertido, 0 es abajo)
-            const maxY = Math.max(2, mult * 1.2);
-            // Logarítmico visualmente funciona mejor para Crash
-            const norm = (mult - 1) / (maxY - 1);
-            return canvas.height - 50 - (norm * (canvas.height - 100));
+        function getRocketY(elapsedMs) {
+            // Simular curva hacia arriba (invertido porque Y=0 es arriba)
+            // Limitamos para que no se salga de pantalla
+            const progress = Math.min(1, elapsedMs / 8000); 
+            return canvas.height - 50 - (progress * (canvas.height - 150));
         }
 
         function drawGraph(elapsed, mult) {
-            const x = getGraphX(elapsed);
-            const y = getGraphY(mult);
+            const x = Math.min(canvas.width * 0.8, 50 + (elapsed * 30));
+            const y = getRocketY(elapsed * 1000);
 
-            // Dibujar Línea (Curva Bezier simple para suavizar)
+            // Línea
             ctx.beginPath();
-            ctx.strokeStyle = "#00ff2a";
-            ctx.lineWidth = 6;
-            ctx.lineCap = "round";
-            
-            // Curva desde inicio (0, height-50) hasta (x, y)
-            ctx.moveTo(20, canvas.height - 50);
-            ctx.quadraticCurveTo(x * 0.5, canvas.height - 50, x, y);
-            
-            // Glow effect
-            ctx.shadowColor = "#00ff2a";
-            ctx.shadowBlur = 15;
+            ctx.strokeStyle = cashedOut ? "rgba(255, 215, 0, 0.3)" : "#FFD700";
+            ctx.lineWidth = 4;
+            ctx.moveTo(0, canvas.height);
+            ctx.quadraticCurveTo(x/2, canvas.height, x, y);
             ctx.stroke();
-            ctx.shadowBlur = 0;
 
-            // Dibujar Cohete (Triángulo simple rotado)
-            ctx.save();
-            ctx.translate(x, y);
-            // Calcular angulo tangente (aprox)
-            const angle = Math.atan2((canvas.height - 50) - y, x - 20); // Simple approx
-            ctx.rotate(-45 * Math.PI / 180); // Rotación fija visual funciona bien en crash 2D
-
-            // Cohete
-            ctx.fillStyle = "white";
-            ctx.beginPath();
-            ctx.moveTo(10, 0);
-            ctx.lineTo(-10, 7);
-            ctx.lineTo(-10, -7);
-            ctx.fill();
-            
-            // Fuego propulsor
-            ctx.fillStyle = `rgba(255, 100, 0, ${Math.random()})`;
-            ctx.beginPath();
-            ctx.moveTo(-10, 0);
-            ctx.lineTo(-20 - Math.random()*10, 5);
-            ctx.lineTo(-20 - Math.random()*10, -5);
+            // Relleno bajo la curva
+            ctx.lineTo(x, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.fillStyle = cashedOut ? "rgba(255, 215, 0, 0.05)" : "rgba(255, 215, 0, 0.1)";
             ctx.fill();
 
-            ctx.restore();
-
-            // Emitir partículas humo
-            if(Math.random() > 0.5) {
-                particles.push({
-                    x: x - 10, y: y + 10,
-                    vx: -2 - Math.random(), vy: 1 + Math.random(),
-                    life: 1, color: '#94a3b8'
-                });
+            // Cohete (Circulo brillante por ahora)
+            if(!cashedOut) {
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI*2);
+                ctx.fillStyle = "white";
+                ctx.fill();
+                // Glow
+                ctx.shadowColor = "#FFD700";
+                ctx.shadowBlur = 20;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                
+                // Humo
+                particles.push({x: x, y: y, vx: -2 - Math.random(), vy: Math.random(), life: 1, color: 'rgba(255,255,255,0.5)'});
             }
 
             drawParticles();
+        }
+
+        function createExplosion(x, y) {
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random()-0.5) * 10,
+                    vy: (Math.random()-0.5) * 10,
+                    life: 1,
+                    color: '#ef4444'
+                });
+            }
         }
 
         function drawParticles() {
@@ -444,14 +487,11 @@
                 let p = particles[i];
                 p.x += p.vx; p.y += p.vy;
                 p.life -= 0.02;
-                
                 if(p.life <= 0) particles.splice(i, 1);
                 else {
                     ctx.fillStyle = p.color;
                     ctx.globalAlpha = p.life;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
                 }
             }
             ctx.globalAlpha = 1;
@@ -460,21 +500,15 @@
         function addToHistory(val) {
             const bar = document.getElementById('historyBar');
             const pill = document.createElement('div');
-            // Clase de color según valor
             let type = 'loss';
             if (val >= 2) type = 'win';
-            if (val >= 10) type = 'high';
-
+            
             pill.className = `pill ${type}`;
             pill.innerText = val.toFixed(2) + "x";
             
-            // Animación entrada
-            pill.style.animation = "slideIn 0.3s ease";
-            
             bar.prepend(pill);
-            if(bar.children.length > 8) bar.removeChild(bar.lastChild);
+            if(bar.children.length > 6) bar.removeChild(bar.lastChild);
         }
-
     </script>
 </body>
 </html>
