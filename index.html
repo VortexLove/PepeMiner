@@ -662,21 +662,145 @@
                 </div>
             </div>
 
-            <!-- AFFILIATES -->
-            <div id="partnersSection" class="hidden w-full max-w-5xl mx-auto p-4 md:p-8 fade-in flex-1">
-                <div class="bg-[#0e0e0e] border border-gold/20 rounded p-10 text-center relative overflow-hidden shadow-2xl">
-                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-900/20 via-black to-black"></div>
-                    <div class="relative z-10">
-                        <i class="fas fa-handshake text-5xl text-gold mb-4"></i>
-                        <h2 class="text-3xl md:text-5xl font-black text-white mb-4 brand-font uppercase">PARTNER <span class="text-gold">PROGRAM</span></h2>
-                        <p class="text-gray-400 text-sm max-w-lg mx-auto mb-10">Invite high rollers. Earn passive income from every bet they place. No limits.</p>
-                        <div class="bg-black/80 border border-white/10 rounded p-2 max-w-xl mx-auto mb-12 flex items-center">
-                            <input type="text" id="referralLinkInput" value="Connect wallet to get link" class="w-full bg-transparent p-3 text-white font-mono text-xs outline-none uppercase" readonly>
-                            <button onclick="copyRefLink()" class="bg-gold text-black font-bold px-6 py-2 rounded transition hover:bg-white text-xs uppercase">COPY</button>
+            <!-- AFFILIATES SECTION REDESIGNED -->
+<div id="partnersSection" class="hidden w-full max-w-6xl mx-auto p-4 md:p-8 fade-in flex-1">
+    
+    <!-- Header Hero -->
+    <div class="text-center mb-10 relative">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-gold/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <h2 class="text-4xl md:text-6xl font-black text-white brand-font uppercase mb-2 drop-shadow-lg">
+            PARTNER <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#B8860B]">PROGRAM</span>
+        </h2>
+        <p class="text-gray-400 text-sm max-w-2xl mx-auto">
+            Become the house. Invite players and earn up to <span class="text-gold font-bold">50% Revenue Share</span> instantly.
+            Your passive income machine starts here.
+        </p>
+    </div>
+
+    <!-- Stats Dashboard (Simulated/Real Data) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <!-- Commission Rate -->
+        <div class="bg-[#121212] border border-gold/30 p-4 rounded-xl relative overflow-hidden group hover:bg-[#1a1a1a] transition">
+            <div class="absolute -right-4 -top-4 text-gold/10 text-6xl group-hover:scale-110 transition"><i class="fas fa-percent"></i></div>
+            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">My Commission</p>
+            <p class="text-2xl font-black text-white mt-1">30%</p>
+        </div>
+        
+        <!-- Total Referred -->
+        <div class="bg-[#121212] border border-white/5 p-4 rounded-xl relative overflow-hidden group hover:bg-[#1a1a1a] transition">
+            <div class="absolute -right-4 -top-4 text-gray-700/20 text-6xl"><i class="fas fa-users"></i></div>
+            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Total Referred</p>
+            <p class="text-2xl font-black text-white mt-1" id="affTotalRefs">0</p>
+        </div>
+
+        <!-- Total Earned -->
+        <div class="bg-[#121212] border border-white/5 p-4 rounded-xl relative overflow-hidden group hover:bg-[#1a1a1a] transition">
+            <div class="absolute -right-4 -top-4 text-gray-700/20 text-6xl"><i class="fas fa-coins"></i></div>
+            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Total Earned</p>
+            <p class="text-2xl font-black text-gold mt-1 font-mono" id="affTotalEarned">0.00</p>
+        </div>
+
+        <!-- Claimable -->
+        <div class="bg-gradient-to-br from-gold/20 to-black border border-gold p-4 rounded-xl relative flex flex-col justify-between">
+            <div>
+                <p class="text-[10px] text-gold uppercase font-bold tracking-wider">Unclaimed Rewards</p>
+                <p class="text-2xl font-black text-white mt-1 font-mono" id="affUnclaimed">0.00 PBJ</p>
+            </div>
+            <button onclick="claimAffiliateRewards()" class="mt-3 w-full bg-gold text-black text-xs font-bold py-2 rounded hover:bg-white transition uppercase">
+                CLAIM NOW
+            </button>
+        </div>
+    </div>
+
+    <!-- Link Generation & Tiers -->
+    <div class="grid lg:grid-cols-3 gap-8">
+        
+        <!-- Columna Izquierda: Link Generator -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-[#0e0e0e] border border-white/10 rounded-xl p-6 relative overflow-hidden">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fas fa-link text-gold"></i> Your Referral Link
+                </h3>
+                
+                <div class="flex flex-col md:flex-row gap-2">
+                    <div class="flex-1 bg-black border border-white/10 rounded-lg flex items-center px-4 py-3">
+                        <input type="text" id="referralLinkInput" value="Connect wallet to generate" class="bg-transparent w-full text-gray-300 text-xs font-mono outline-none" readonly>
+                    </div>
+                    <button onclick="copyRefLink()" class="bg-white text-black font-bold px-6 py-3 rounded-lg hover:bg-gray-200 transition text-xs uppercase shadow-lg flex items-center justify-center gap-2">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+
+                <div class="mt-4 flex gap-2">
+                    <button onclick="shareSocial('twitter')" class="flex-1 bg-[#1DA1F2]/10 text-[#1DA1F2] border border-[#1DA1F2]/30 py-2 rounded text-xs font-bold hover:bg-[#1DA1F2] hover:text-white transition">
+                        <i class="fab fa-twitter mr-2"></i> Share on X
+                    </button>
+                    <button onclick="shareSocial('telegram')" class="flex-1 bg-[#0088cc]/10 text-[#0088cc] border border-[#0088cc]/30 py-2 rounded text-xs font-bold hover:bg-[#0088cc] hover:text-white transition">
+                        <i class="fab fa-telegram mr-2"></i> Telegram
+                    </button>
+                </div>
+            </div>
+
+            <!-- FAQ Mini -->
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-[#121212] p-4 rounded border border-white/5">
+                    <h4 class="text-gold font-bold text-xs uppercase mb-2">How it works?</h4>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">Share your link. When users play, you earn a percentage of the House Edge on every bet, win or lose. Rewards are paid in $PBJ instantly.</p>
+                </div>
+                <div class="bg-[#121212] p-4 rounded border border-white/5">
+                    <h4 class="text-gold font-bold text-xs uppercase mb-2">When do I get paid?</h4>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">There is no lock-up period. You can claim your accumulated rewards at any time directly to your wallet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Tier System -->
+        <div class="bg-[#0e0e0e] border border-white/10 rounded-xl p-6 h-full">
+            <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wide">Comission <span class="text-gold">Tiers</span></h3>
+            
+            <div class="space-y-4 relative">
+                <!-- Linea conectora -->
+                <div class="absolute left-[15px] top-4 bottom-4 w-0.5 bg-gray-800 z-0"></div>
+
+                <!-- Tier 1 -->
+                <div class="relative z-10 flex gap-4 items-center opacity-100">
+                    <div class="w-8 h-8 rounded-full bg-gray-700 border-2 border-gray-500 flex items-center justify-center text-xs font-bold shadow-[0_0_10px_rgba(255,255,255,0.1)]">1</div>
+                    <div class="flex-1 bg-[#1a1a1a] p-3 rounded border-l-2 border-gray-500">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-white uppercase">Standard</span>
+                            <span class="text-sm font-black text-gray-400">30%</span>
                         </div>
+                        <p class="text-[9px] text-gray-600">Start here. No requirement.</p>
+                    </div>
+                </div>
+
+                <!-- Tier 2 -->
+                <div class="relative z-10 flex gap-4 items-center">
+                    <div class="w-8 h-8 rounded-full bg-yellow-900 border-2 border-gold flex items-center justify-center text-xs font-bold text-gold shadow-[0_0_15px_rgba(255,215,0,0.2)]">2</div>
+                    <div class="flex-1 bg-[#1a1a1a] p-3 rounded border-l-2 border-gold">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gold uppercase">Gold Elite</span>
+                            <span class="text-sm font-black text-gold">40%</span>
+                        </div>
+                        <p class="text-[9px] text-gray-500">Wager $100k+ Volume</p>
+                    </div>
+                </div>
+
+                <!-- Tier 3 -->
+                <div class="relative z-10 flex gap-4 items-center">
+                    <div class="w-8 h-8 rounded-full bg-purple-900 border-2 border-purple-500 flex items-center justify-center text-xs font-bold text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.4)] animate-pulse">3</div>
+                    <div class="flex-1 bg-gradient-to-r from-[#1a1a1a] to-purple-900/20 p-3 rounded border-l-2 border-purple-500">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-purple-400 uppercase">Whale Partner</span>
+                            <span class="text-sm font-black text-purple-400">50%</span>
+                        </div>
+                        <p class="text-[9px] text-gray-500">Wager $1M+ or Custom Deal</p>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
             <!-- NFT SECTION -->
             <div id="nftSection" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 fade-in flex-1">
@@ -1357,6 +1481,56 @@ function startRecentBuys() {
     }, Math.random() * 4000 + 3000);
 }
 
+        // --- FUNCIONES DE AFILIADOS MEJORADAS ---
+
+// Simular carga de datos de afiliados al conectar wallet
+async function loadAffiliateStats() {
+    if(!userAddress) return;
+    
+    // Simulación de datos (En producción vendrían de una API o Smart Contract)
+    // Para darle vida a la UI
+    document.getElementById('affTotalRefs').innerText = Math.floor(Math.random() * 5); 
+    document.getElementById('affTotalEarned').innerText = (Math.random() * 500).toFixed(2);
+    document.getElementById('affUnclaimed').innerText = (Math.random() * 50).toFixed(2) + " PBJ";
+}
+
+// Llamar a esta función dentro de updateWalletData() o connectWallet()
+// Ejemplo: al final de updateWalletData() agrega: loadAffiliateStats();
+
+function claimAffiliateRewards() {
+    if(!userAddress) return connectWallet();
+    
+    Swal.fire({
+        title: 'Claiming Rewards',
+        text: 'Processing your payout...',
+        icon: 'info',
+        timer: 2000,
+        showConfirmButton: false,
+        background: '#121212', color: '#fff'
+    }).then(() => {
+        triggerConfetti();
+        document.getElementById('affUnclaimed').innerText = "0.00 PBJ";
+        Swal.fire({title: 'Success', text: 'Rewards sent to your wallet!', icon: 'success', background: '#121212', color: '#fff'});
+    });
+}
+
+function shareSocial(platform) {
+    const link = document.getElementById('referralLinkInput').value;
+    const text = "Join me at PepeRoyal Casino and get a huge bonus! 🐸💰 The best DeFi casino on Base Chain.";
+    let url = "";
+
+    if (platform === 'twitter') {
+        url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`;
+    } else if (platform === 'telegram') {
+        url = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
+    }
+
+    if(link.includes("Connect")) {
+        Swal.fire({title: "Connect Wallet", text: "Please connect your wallet to generate your unique link first.", icon: "warning", background: '#121212', color: '#fff'});
+    } else {
+        window.open(url, '_blank');
+    }
+}
 
 
     </script>
