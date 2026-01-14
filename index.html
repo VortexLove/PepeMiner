@@ -453,9 +453,42 @@
                                     </div>
                                 </div>
 
+                                <!-- BONUS PROGRESS BAR -->
+<div class="mt-4 mb-2">
+    <div class="flex justify-between text-[9px] uppercase font-bold text-gray-500 mb-1">
+        <span>Current Bonus: <span id="currentBonus" class="text-white">0%</span></span>
+        <span>Next Tier: <span class="text-gold">5% (0.5 ETH)</span></span>
+    </div>
+    <div class="w-full bg-[#050505] h-2 rounded-full border border-white/10 overflow-hidden">
+        <div id="bonusBar" class="bg-gradient-to-r from-green-500 to-green-300 h-full w-[0%] transition-all duration-500"></div>
+    </div>
+    <p class="text-[9px] text-gray-600 mt-1 text-center italic" id="bonusMsg">Add 0.5 ETH more to unlock 5% extra tokens!</p>
+</div>
+
                                 <button onclick="handleSwapAction()" id="swapMainBtn" class="btn-gold w-full py-4 rounded mt-6 text-sm font-black shadow-lg">
                                     CONNECT WALLET
                                 </button>
+
+                                <button onclick="Swal.fire({
+    title: 'How to Buy $PBJ',
+    html: '<div class=\'text-left text-sm space-y-3\'>' +
+          '<p>1. Download <b>MetaMask</b> or <b>Coinbase Wallet</b>.</p>' +
+          '<p>2. Buy <b>ETH</b> on any exchange (Binance, Coinbase) and send it to your wallet address on the <b>BASE NETWORK</b>.</p>' +
+          '<p>3. Return here, click Connect Wallet and Swap ETH for $PBJ.</p>' +
+          '</div>',
+    background: '#121212', color: '#fff', confirmButtonColor: '#FFD700', confirmButtonText: 'GOT IT'
+})" class="w-full text-center text-[10px] text-gray-500 mt-3 hover:text-white underline cursor-pointer">
+    <i class="fas fa-question-circle"></i> New? How to buy Guide
+</button>
+
+                                <!-- CONTRACT ADDRESS BAR -->
+<div class="flex justify-center mt-6 mb-2">
+    <div class="bg-[#0a0a0a] border border-white/10 rounded-full px-4 py-1.5 flex items-center gap-3 cursor-pointer group hover:border-gold/50 transition" onclick="navigator.clipboard.writeText('0x...TUS_DIRECCION...'); Swal.fire({toast:true, position:'top', icon:'success', title:'Copied!', showConfirmButton:false, timer:1000, background:'#121212', color:'#fff'})">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        <span class="text-[10px] text-gray-400 font-mono">CA: 0xff4b...44E5</span>
+        <i class="fas fa-copy text-gray-600 group-hover:text-gold text-xs"></i>
+    </div>
+</div>
 
                                                                 <!-- INICIO BLOQUE RECENT BUYS -->
                                 <div class="mt-4 border-t border-white/5 pt-3">
@@ -1595,46 +1628,47 @@
         function toggleSwapMode(mode) { swapMode = mode; updateWalletData(); }
         function handleInputA() { 
     const valA = parseFloat(document.getElementById('inputA').value);
-    
-    // Limpiar si está vacío
+    const bonusBar = document.getElementById('bonusBar');
+    const bonusMsg = document.getElementById('bonusMsg');
+    const currentBonus = document.getElementById('currentBonus');
+
     if(isNaN(valA) || valA === 0) { 
         document.getElementById('inputB').value = ''; 
-        const oldBadge = document.getElementById('bonusBadge');
-        if(oldBadge) oldBadge.remove();
+        bonusBar.style.width = "0%";
         return; 
     }
 
-    // Calcular Bonus (Ejemplo: >0.5 ETH = 5%, >1 ETH = 10%)
-    let bonusPercent = 0;
-    if(valA >= 1.0) bonusPercent = 10;
-    else if(valA >= 0.5) bonusPercent = 5;
+    // Lógica de Bonus Visual
+    let width = 0;
+    let txt = "Add more to unlock bonus!";
+    let bonusTxt = "0%";
 
-    // Calcular cantidad base
-    let baseAmount = swapMode === 'buy' ? valA * RATE : valA / RATE;
-    let totalAmount = baseAmount;
-
-    // Aplicar y mostrar Bonus
-    const container = document.getElementById('inputB').parentElement; // El div padre del input
-    let badge = document.getElementById('bonusBadge');
-
-    if(swapMode === 'buy' && bonusPercent > 0) {
-        const bonusAmount = baseAmount * (bonusPercent / 100);
-        totalAmount += bonusAmount;
-
-        // Crear badge si no existe
-        if(!badge) {
-            badge = document.createElement('div');
-            badge.id = 'bonusBadge';
-            badge.className = "absolute right-0 -top-6 text-[10px] text-[#00ff2a] font-bold animate-bounce bg-black/50 px-2 py-1 rounded border border-[#00ff2a]";
-            container.style.position = 'relative';
-            container.appendChild(badge);
-        }
-        badge.innerHTML = `🔥 +${bonusPercent}% BONUS APPLIED`;
+    if(valA < 0.5) {
+        width = (valA / 0.5) * 50; // 0 a 50% de la barra
+        txt = `Add ${(0.5 - valA).toFixed(2)} ETH for 5% Bonus`;
+    } else if (valA >= 0.5 && valA < 1.0) {
+        width = 50 + ((valA - 0.5) / 0.5) * 50; // 50 a 100%
+        txt = `🔥 5% APPLIED! Add ${(1.0 - valA).toFixed(2)} ETH for 10% WHALE BONUS`;
+        bonusTxt = "5%";
+        bonusBar.classList.add("from-gold", "to-yellow-500"); // Cambiar a dorado
     } else {
-        if(badge) badge.remove();
+        width = 100;
+        txt = "👑 WHALE STATUS: 10% MAX BONUS APPLIED";
+        bonusTxt = "10%";
     }
 
-    document.getElementById('inputB').value = totalAmount.toLocaleString(undefined, {useGrouping: false});
+    bonusBar.style.width = width + "%";
+    bonusMsg.innerText = txt;
+    currentBonus.innerText = bonusTxt;
+
+    // Cálculo normal
+    let total = swapMode === 'buy' ? valA * RATE : valA / RATE;
+    
+    // Aplicar bonus matemático al output
+    if(valA >= 1.0) total = total * 1.10;
+    else if(valA >= 0.5) total = total * 1.05;
+
+    document.getElementById('inputB').value = total.toLocaleString(undefined, {useGrouping: false});
 }
         function handleInputB() {
             const val = parseFloat(document.getElementById('inputB').value);
@@ -1853,6 +1887,35 @@ setInterval(() => {
     jackpotAmount += Math.random() * 0.50; // Sube centavos cada 100ms
     document.getElementById('globalJackpot').innerText = jackpotAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }, 100);
+
+        // FOMO ALERTS
+const fomoNames = ["Whale_0x2a", "NFT_King", "Base_Degen", "ElonPepe", "SmartMoney"];
+const fomoActions = ["bought 2.5 ETH", "staked 1M PBJ", "bought 5.0 ETH", "claimed dividends"];
+
+setInterval(() => {
+    // Solo mostrar si el usuario está scrolleando o activo, cada 8-15 segundos
+    if(Math.random() > 0.4) {
+        const name = fomoNames[Math.floor(Math.random() * fomoNames.length)];
+        const action = fomoActions[Math.floor(Math.random() * fomoActions.length)];
+        
+        const div = document.createElement('div');
+        div.className = "fixed top-24 right-4 z-50 bg-[#121212] border-l-4 border-gold p-3 rounded shadow-2xl flex items-center gap-3 animate-slideDown";
+        div.innerHTML = `
+            <div class="bg-green-500/20 text-green-500 p-2 rounded-full"><i class="fas fa-shopping-cart"></i></div>
+            <div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase">Just Now</p>
+                <p class="text-xs text-white"><span class="text-gold font-bold">${name}</span> ${action}</p>
+            </div>
+        `;
+        document.body.appendChild(div);
+        
+        // Eliminar después de 3 segundos
+        setTimeout(() => {
+            div.style.opacity = '0';
+            setTimeout(() => div.remove(), 500);
+        }, 3500);
+    }
+}, 8000);
 
     </script>
 </body>
