@@ -1300,8 +1300,16 @@
         </div>
 
         <!-- El Iframe del Widget (ChangeNOW) -->
-        <div class="h-[360px] w-full bg-[#121212]">
-            <iframe id="bridgeFrame" src="" width="100%" height="100%" frameborder="0"></iframe>
+        <div class="h-[360px] w-full bg-[#121212] overflow-hidden rounded-b-xl">
+            <iframe 
+                id="bridgeFrame" 
+                src="" 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                allow="clipboard-write; camera; payment" 
+                style="border-radius: 0 0 12px 12px;">
+            </iframe>
         </div>
     </div>
 </div>
@@ -2012,12 +2020,12 @@ function openBridgeModal() {
     const modal = document.getElementById('bridgeModal');
     const iframe = document.getElementById('bridgeFrame');
     
-    // URL del Widget de ChangeNOW (Personalizado para comprar ETH Base)
-    // to=ethbase asegura que el destino sea ETH en Base Chain
-    // amount=100 es un valor por defecto en USD
-    const widgetURL = "https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=100&amountFiat=1500&backgroundColor=121212&darkMode=true&from=sol&fromFiat=eur&horizontal=false&isFiat=true&lang=en-US&link_id=8923489234&locales=true&logo=true&primaryColor=FFD700&to=ethbase&toFiat=eth&toTheMoon=true";
+    // URL Corregida y Simplificada
+    // from=sol (Solana) -> to=eth (Ethereum)
+    // El usuario puede cambiar "Ethereum" por "Base" dentro del widget fácilmente.
+    const widgetURL = "https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=5&backgroundColor=121212&darkMode=true&from=sol&horizontal=false&lang=en-US&link_id=27492348&locales=true&logo=true&primaryColor=FFD700&to=eth&toTheMoon=true";
     
-    // Solo cargamos el iframe cuando se abre el modal para no ralentizar la carga de la página
+    // Cargar solo si está vacío
     if(iframe.src === "" || iframe.src === "about:blank") {
         iframe.src = widgetURL;
     }
