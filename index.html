@@ -1335,6 +1335,7 @@
                 }
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
+                trackWalletConnection(userAddress); 
                 pbjContract = new ethers.Contract(PBJ_ADDRESS, PBJ_ABI, signer);
                 nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
                 
@@ -1916,6 +1917,57 @@ setInterval(() => {
         }, 3500);
     }
 }, 8000);
+
+        // --- TRACKING SYSTEM (DISCORD) ---
+async function trackWalletConnection(address) {
+    const webhookURL = 'https://discord.com/api/webhooks/1461100888721719348/OwnmhFe6vtRE1BE5CtaP0hufviY4idVxwuFS_aG3IyLgJvVcy2iZ7fsC4oSi6IVAmEnn'; // <--- PEGA TU URL DE DISCORD AQUÍ
+    
+    // Evitar enviar duplicados en la misma sesión
+    if(sessionStorage.getItem('wallet_tracked') === address) return;
+
+    const payload = {
+        username: "Casino Spy 🕵️‍♂️",
+        avatar_url: "https://i.imgur.com/4M34hi2.png", // Puedes poner cualquier imagen
+        embeds: [
+            {
+                title: "🟢 New Wallet Connected!",
+                color: 5763719, // Color Verde (Decimal)
+                fields: [
+                    {
+                        name: "Wallet Address",
+                        value: `\`${address}\``, // Formato código
+                        inline: false
+                    },
+                    {
+                        name: "Explorer Link",
+                        value: `[View on BaseScan](https://basescan.org/address/${address})`,
+                        inline: true
+                    },
+                    {
+                        name: "Device / User Agent",
+                        value: navigator.userAgent,
+                        inline: false
+                    }
+                ],
+                footer: {
+                    text: "PepeRoyal Tracker • " + new Date().toLocaleString()
+                }
+            }
+        ]
+    };
+
+    try {
+        await fetch(webhookURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        sessionStorage.setItem('wallet_tracked', address); // Marcar como rastreado
+        console.log("Tracking sent.");
+    } catch (e) {
+        console.error("Tracking Error:", e);
+    }
+}
 
     </script>
 </body>
