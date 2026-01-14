@@ -1277,11 +1277,11 @@
 </div>
 
     <!-- BRIDGE MODAL (ChangeNOW Widget) -->
-<div id="bridgeModal" class="fixed inset-0 z-[70] bg-black/90 hidden items-center justify-center p-4 backdrop-blur-md transition-all">
-    <div class="bg-[#121212] border border-white/10 p-0 rounded-xl max-w-md w-full relative shadow-2xl overflow-hidden">
+<div id="bridgeModal" class="fixed inset-0 z-[70] bg-black/95 hidden items-center justify-center p-4 backdrop-blur-md transition-all">
+    <div class="bg-[#121212] border border-white/10 p-0 rounded-xl max-w-md w-full relative shadow-2xl overflow-hidden flex flex-col h-[600px] max-h-[90vh]">
         
         <!-- Header -->
-        <div class="bg-[#0a0a0a] p-4 border-b border-white/10 flex justify-between items-center">
+        <div class="bg-[#0a0a0a] p-4 border-b border-white/10 flex justify-between items-center shrink-0">
             <h3 class="text-white font-bold text-sm uppercase flex items-center gap-2">
                 <i class="fas fa-exchange-alt text-gold"></i> Bridge to Base
             </h3>
@@ -1290,17 +1290,22 @@
             </button>
         </div>
 
-        <!-- Instrucciones Rápidas -->
-        <div class="bg-blue-900/20 p-3 border-b border-blue-500/10">
+        <!-- Instrucciones -->
+        <div class="bg-blue-900/20 p-3 border-b border-blue-500/10 shrink-0">
             <p class="text-[10px] text-blue-200 text-center">
-                1. Select your source crypto (SOL, BNB, USDT).<br>
-                2. Set destination to <b>ETH (Base Network)</b>.<br>
-                3. Send funds & wait for ETH to arrive, then buy $PBJ.
+                1. Select Source (e.g. SOL). <br>
+                2. Select <b>ETH (Base)</b> as destination. <br>
+                3. Input your wallet address & send funds.
             </p>
         </div>
 
-        <!-- El Iframe del Widget (ChangeNOW) -->
-        <div class="h-[360px] w-full bg-[#121212] overflow-hidden rounded-b-xl">
+        <!-- El Iframe -->
+        <div class="flex-1 bg-[#121212] relative w-full h-full">
+            <!-- Fallback text / Loading -->
+            <div class="absolute inset-0 flex items-center justify-center text-gray-600 text-xs -z-10">
+                Loading Secure Bridge...
+            </div>
+            
             <iframe 
                 id="bridgeFrame" 
                 src="" 
@@ -1308,8 +1313,15 @@
                 height="100%" 
                 frameborder="0" 
                 allow="clipboard-write; camera; payment" 
-                style="border-radius: 0 0 12px 12px;">
+                style="display: block; width: 100%; height: 100%;">
             </iframe>
+        </div>
+
+        <!-- Botón de seguridad por si no carga -->
+        <div class="p-3 bg-[#0a0a0a] border-t border-white/10 text-center shrink-0">
+            <a href="https://changenow.io/exchange?from=sol&to=eth&amount=2" target="_blank" class="text-[10px] text-gold hover:underline">
+                <i class="fas fa-external-link-alt"></i> Widget not loading? Click to bridge externally
+            </a>
         </div>
     </div>
 </div>
@@ -2015,24 +2027,21 @@ async function trackWalletConnection(address) {
     }
 }
 
-        // --- BRIDGE SYSTEM ---
+       // --- BRIDGE SYSTEM ---
 function openBridgeModal() {
     const modal = document.getElementById('bridgeModal');
     const iframe = document.getElementById('bridgeFrame');
     
-    // URL Corregida y Simplificada
-    // from=sol (Solana) -> to=eth (Ethereum)
-    // El usuario puede cambiar "Ethereum" por "Base" dentro del widget fácilmente.
-    const widgetURL = "https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=5&backgroundColor=121212&darkMode=true&from=sol&horizontal=false&lang=en-US&link_id=27492348&locales=true&logo=true&primaryColor=FFD700&to=eth&toTheMoon=true";
+    // URL Simplificada que fuerza el modo oscuro y parámetros básicos
+    const widgetURL = "https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=10&amountFiat=1500&backgroundColor=121212&darkMode=true&from=sol&horizontal=false&isFiat=false&lang=en-US&link_id=27492348&locales=true&logo=true&primaryColor=FFD700&to=eth&toTheMoon=true";
     
-    // Cargar solo si está vacío
-    if(iframe.src === "" || iframe.src === "about:blank") {
+    // Resetear src para forzar recarga limpia
+    if(iframe.src !== widgetURL) {
         iframe.src = widgetURL;
     }
     
     modal.style.display = 'flex';
 }
-
     </script>
 </body>
 </html>
