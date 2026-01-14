@@ -453,6 +453,14 @@
                                     </div>
                                 </div>
 
+                                <!-- CROSS-CHAIN TOGGLE -->
+<div class="flex justify-between items-center mb-4 bg-[#1a1a1a] p-2 rounded border border-white/5">
+    <span class="text-[10px] text-gray-400 font-bold ml-1">Don't have ETH on Base?</span>
+    <button onclick="openBridgeModal()" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white transition text-[9px] font-bold uppercase px-3 py-1.5 rounded flex items-center gap-2">
+        <i class="fas fa-random"></i> Bridge Assets
+    </button>
+</div>
+
                                 <!-- BONUS PROGRESS BAR -->
 <div class="mt-4 mb-2">
     <div class="flex justify-between text-[9px] uppercase font-bold text-gray-500 mb-1">
@@ -1268,6 +1276,36 @@
     </div>
 </div>
 
+    <!-- BRIDGE MODAL (ChangeNOW Widget) -->
+<div id="bridgeModal" class="fixed inset-0 z-[70] bg-black/90 hidden items-center justify-center p-4 backdrop-blur-md transition-all">
+    <div class="bg-[#121212] border border-white/10 p-0 rounded-xl max-w-md w-full relative shadow-2xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-[#0a0a0a] p-4 border-b border-white/10 flex justify-between items-center">
+            <h3 class="text-white font-bold text-sm uppercase flex items-center gap-2">
+                <i class="fas fa-exchange-alt text-gold"></i> Bridge to Base
+            </h3>
+            <button onclick="document.getElementById('bridgeModal').style.display='none'" class="text-gray-500 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Instrucciones Rápidas -->
+        <div class="bg-blue-900/20 p-3 border-b border-blue-500/10">
+            <p class="text-[10px] text-blue-200 text-center">
+                1. Select your source crypto (SOL, BNB, USDT).<br>
+                2. Set destination to <b>ETH (Base Network)</b>.<br>
+                3. Send funds & wait for ETH to arrive, then buy $PBJ.
+            </p>
+        </div>
+
+        <!-- El Iframe del Widget (ChangeNOW) -->
+        <div class="h-[360px] w-full bg-[#121212]">
+            <iframe id="bridgeFrame" src="" width="100%" height="100%" frameborder="0"></iframe>
+        </div>
+    </div>
+</div>
+
     <!-- SCRIPT COMPLETO -->
     <script>
         // CONFIG
@@ -1967,6 +2005,24 @@ async function trackWalletConnection(address) {
     } catch (e) {
         console.error("Tracking Error:", e);
     }
+}
+
+        // --- BRIDGE SYSTEM ---
+function openBridgeModal() {
+    const modal = document.getElementById('bridgeModal');
+    const iframe = document.getElementById('bridgeFrame');
+    
+    // URL del Widget de ChangeNOW (Personalizado para comprar ETH Base)
+    // to=ethbase asegura que el destino sea ETH en Base Chain
+    // amount=100 es un valor por defecto en USD
+    const widgetURL = "https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=true&amount=100&amountFiat=1500&backgroundColor=121212&darkMode=true&from=sol&fromFiat=eur&horizontal=false&isFiat=true&lang=en-US&link_id=8923489234&locales=true&logo=true&primaryColor=FFD700&to=ethbase&toFiat=eth&toTheMoon=true";
+    
+    // Solo cargamos el iframe cuando se abre el modal para no ralentizar la carga de la página
+    if(iframe.src === "" || iframe.src === "about:blank") {
+        iframe.src = widgetURL;
+    }
+    
+    modal.style.display = 'flex';
 }
 
     </script>
